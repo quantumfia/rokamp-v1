@@ -111,8 +111,8 @@ export default function SystemSettingsPage() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border pb-4">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">시스템 설정</h1>
-          <p className="text-sm text-muted-foreground">예보 모델, 공지사항, 보안 설정 관리</p>
+          <h1 className="text-lg font-semibold text-foreground">시스템 설정</h1>
+          <p className="text-sm text-muted-foreground mt-1">예보 모델, 공지사항, 보안 설정 관리</p>
         </div>
         <Button variant="outline" size="sm" onClick={handleSaveSettings}>
           <Save className="w-4 h-4 mr-2" />

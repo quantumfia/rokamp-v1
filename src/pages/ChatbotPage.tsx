@@ -106,9 +106,9 @@ export default function ChatbotPage() {
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-border">
-        <h1 className="text-lg font-semibold text-foreground">지능형 안전 챗봇</h1>
-        <p className="text-sm text-muted-foreground mt-1">육군 규정 및 사례 기반 AI 어시스턴트</p>
+      <div className="shrink-0 p-6 pb-4 border-b border-border">
+        <h1 className="text-lg font-semibold text-foreground">지능형 챗봇</h1>
+        <p className="text-sm text-muted-foreground mt-1">법령/규정 RAG 기반 질의응답 및 관련 자료 추천</p>
       </div>
 
       {/* Messages */}
