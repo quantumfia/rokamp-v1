@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapView } from '@/components/dashboard/MapView';
 import { RiskSummaryPanel } from '@/components/dashboard/RiskSummaryPanel';
@@ -7,13 +7,21 @@ import { TickerBar } from '@/components/dashboard/TickerBar';
 import { StatusHeader } from '@/components/dashboard/StatusHeader';
 import { TrendCharts } from '@/components/dashboard/TrendCharts';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSearchContext } from '@/components/layout/MainLayout';
 import { MapPin } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const searchContext = useSearchContext();
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
+
+  // GNB 검색에서 부대 선택 시 처리
+  useEffect(() => {
+    if (searchContext?.selectedUnitFromSearch) {
+      setSelectedUnitId(searchContext.selectedUnitFromSearch);
+    }
+  }, [searchContext?.selectedUnitFromSearch]);
 
   const showTicker = user?.role === 'ROLE_HQ' || user?.role === 'ROLE_DIV';
 

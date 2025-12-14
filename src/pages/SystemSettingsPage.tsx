@@ -429,28 +429,208 @@ export default function SystemSettingsPage() {
 
       {/* 보안 설정 탭 */}
       {activeTab === 'security' && (
-        <section>
-          <div className="mb-4">
-            <h2 className="text-sm font-semibold text-foreground">보안 설정</h2>
-            <p className="text-xs text-muted-foreground">시스템 보안 정책을 설정합니다</p>
-          </div>
-          <div className="divide-y divide-border">
-            {[
-              { id: 'ip-check', label: 'IP 접근 제어', desc: '허용된 IP에서만 접속 가능', default: true },
-              { id: 'session', label: '세션 타임아웃', desc: '30분 미사용 시 자동 로그아웃', default: true },
-              { id: 'audit', label: '감사 로그 기록', desc: '모든 사용자 활동 기록', default: true },
-              { id: 'encrypt', label: '데이터 암호화', desc: '전송 및 저장 데이터 암호화', default: true },
-            ].map((item) => (
-              <div key={item.id} className="flex items-center justify-between py-4">
+        <div className="space-y-8">
+          {/* 비밀번호 정책 */}
+          <section>
+            <div className="mb-4">
+              <h2 className="text-sm font-semibold text-foreground">비밀번호 정책</h2>
+              <p className="text-xs text-muted-foreground">사용자 비밀번호 보안 정책을 설정합니다</p>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-3 border-b border-border">
                 <div>
-                  <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  <p className="text-sm font-medium">최소 비밀번호 길이</p>
+                  <p className="text-xs text-muted-foreground">비밀번호 최소 문자 수</p>
                 </div>
-                <Switch id={item.id} defaultChecked={item.default} />
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    defaultValue={8}
+                    min={6}
+                    max={16}
+                    className="w-20 h-8 text-center bg-background"
+                  />
+                  <span className="text-xs text-muted-foreground">자</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </section>
+              <div className="flex items-center justify-between py-3 border-b border-border">
+                <div>
+                  <p className="text-sm font-medium">비밀번호 변경 주기</p>
+                  <p className="text-xs text-muted-foreground">정기 변경 요구 기간</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    defaultValue={90}
+                    min={30}
+                    max={180}
+                    className="w-20 h-8 text-center bg-background"
+                  />
+                  <span className="text-xs text-muted-foreground">일</span>
+                </div>
+              </div>
+              <div className="divide-y divide-border">
+                {[
+                  { id: 'pw-upper', label: '대문자 포함 필수', desc: '최소 1개 이상의 대문자 포함', default: true },
+                  { id: 'pw-special', label: '특수문자 포함 필수', desc: '최소 1개 이상의 특수문자 포함', default: true },
+                  { id: 'pw-number', label: '숫자 포함 필수', desc: '최소 1개 이상의 숫자 포함', default: true },
+                  { id: 'pw-history', label: '이전 비밀번호 재사용 금지', desc: '최근 5개 비밀번호와 중복 불가', default: true },
+                ].map((item) => (
+                  <div key={item.id} className="flex items-center justify-between py-3">
+                    <div>
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    </div>
+                    <Switch id={item.id} defaultChecked={item.default} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <div className="border-t border-border" />
+
+          {/* 세션 관리 */}
+          <section>
+            <div className="mb-4">
+              <h2 className="text-sm font-semibold text-foreground">세션 관리</h2>
+              <p className="text-xs text-muted-foreground">사용자 세션 및 로그인 정책을 설정합니다</p>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-3 border-b border-border">
+                <div>
+                  <p className="text-sm font-medium">세션 타임아웃</p>
+                  <p className="text-xs text-muted-foreground">미사용 시 자동 로그아웃 시간</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    defaultValue={30}
+                    min={5}
+                    max={120}
+                    className="w-20 h-8 text-center bg-background"
+                  />
+                  <span className="text-xs text-muted-foreground">분</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between py-3 border-b border-border">
+                <div>
+                  <p className="text-sm font-medium">로그인 실패 허용 횟수</p>
+                  <p className="text-xs text-muted-foreground">초과 시 계정 잠금</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    defaultValue={5}
+                    min={3}
+                    max={10}
+                    className="w-20 h-8 text-center bg-background"
+                  />
+                  <span className="text-xs text-muted-foreground">회</span>
+                </div>
+              </div>
+              <div className="divide-y divide-border">
+                {[
+                  { id: 'single-session', label: '동시 로그인 제한', desc: '하나의 계정으로 동시 접속 불가', default: true },
+                  { id: 'force-logout', label: '관리자 강제 로그아웃', desc: '관리자가 특정 사용자 세션 종료 가능', default: true },
+                ].map((item) => (
+                  <div key={item.id} className="flex items-center justify-between py-3">
+                    <div>
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    </div>
+                    <Switch id={item.id} defaultChecked={item.default} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <div className="border-t border-border" />
+
+          {/* IP 접근 제어 */}
+          <section>
+            <div className="mb-4">
+              <h2 className="text-sm font-semibold text-foreground">IP 접근 제어</h2>
+              <p className="text-xs text-muted-foreground">허용된 IP 대역에서만 시스템 접근 가능</p>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-3 border-b border-border">
+                <div>
+                  <p className="text-sm font-medium">IP 화이트리스트 활성화</p>
+                  <p className="text-xs text-muted-foreground">등록된 IP만 접속 허용</p>
+                </div>
+                <Switch id="ip-whitelist" defaultChecked />
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium mb-2">허용 IP 대역</p>
+                <div className="divide-y divide-border border-t border-border">
+                  {[
+                    { ip: '10.10.0.0/16', desc: '본부 네트워크' },
+                    { ip: '10.20.0.0/16', desc: '사단급 네트워크' },
+                    { ip: '10.30.0.0/16', desc: '대대급 네트워크' },
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center justify-between py-2">
+                      <div className="flex items-center gap-4">
+                        <code className="text-xs font-mono bg-muted px-2 py-1 rounded">{item.ip}</code>
+                        <span className="text-sm text-muted-foreground">{item.desc}</span>
+                      </div>
+                      <button className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                        삭제
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <Button variant="outline" size="sm" className="mt-3">
+                  + IP 대역 추가
+                </Button>
+              </div>
+            </div>
+          </section>
+
+          <div className="border-t border-border" />
+
+          {/* 감사 및 로깅 */}
+          <section>
+            <div className="mb-4">
+              <h2 className="text-sm font-semibold text-foreground">감사 및 로깅</h2>
+              <p className="text-xs text-muted-foreground">시스템 활동 기록 정책을 설정합니다</p>
+            </div>
+            <div className="divide-y divide-border">
+              {[
+                { id: 'audit-login', label: '로그인/로그아웃 기록', desc: '모든 접속 이력 저장', default: true },
+                { id: 'audit-data', label: '데이터 조회 기록', desc: '민감 데이터 조회 이력 저장', default: true },
+                { id: 'audit-change', label: '설정 변경 기록', desc: '시스템 설정 변경 이력 저장', default: true },
+                { id: 'audit-alert', label: '이상 징후 알림', desc: '비인가 접근 시도 시 관리자 알림', default: true },
+              ].map((item) => (
+                <div key={item.id} className="flex items-center justify-between py-3">
+                  <div>
+                    <p className="text-sm font-medium">{item.label}</p>
+                    <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  </div>
+                  <Switch id={item.id} defaultChecked={item.default} />
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between py-3 mt-4 border-t border-border">
+              <div>
+                <p className="text-sm font-medium">로그 보관 기간</p>
+                <p className="text-xs text-muted-foreground">지정 기간 경과 후 자동 삭제</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  defaultValue={365}
+                  min={90}
+                  max={730}
+                  className="w-20 h-8 text-center bg-background"
+                />
+                <span className="text-xs text-muted-foreground">일</span>
+              </div>
+            </div>
+          </section>
+        </div>
       )}
     </div>
   );

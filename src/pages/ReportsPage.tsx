@@ -54,11 +54,12 @@ ${data.keywords ? `  관련 요인: ${data.keywords}` : '  (조사 진행 중)'}
 
 export default function ReportsPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('generator');
+  const [activeTab, setActiveTab] = useState('statistics');
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const isHQ = user?.role === 'ROLE_HQ';
+  // 군사경찰(수사관) 또는 육군본부만 보고서 생성 가능
+  const canGenerateReport = user?.role === 'ROLE_MP' || user?.role === 'ROLE_HQ';
 
   const handleGenerate = async (data: ReportFormData) => {
     setIsGenerating(true);
@@ -72,8 +73,8 @@ export default function ReportsPage() {
   };
 
   const tabs = [
-    ...(isHQ ? [{ id: 'generator', label: '사고 보고서 생성' }] : []),
     { id: 'statistics', label: '통계 보고서 조회' },
+    ...(canGenerateReport ? [{ id: 'generator', label: '사고 보고서 생성 (군사경찰)' }] : []),
   ];
 
   return (
@@ -101,8 +102,8 @@ export default function ReportsPage() {
         ))}
       </div>
 
-      {/* 사고 보고서 생성 탭 */}
-      {isHQ && activeTab === 'generator' && (
+      {/* 사고 보고서 생성 탭 (군사경찰/수사관 전용) */}
+      {canGenerateReport && activeTab === 'generator' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ReportGeneratorForm 
             onGenerate={handleGenerate}

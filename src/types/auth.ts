@@ -1,4 +1,4 @@
-export type UserRole = 'ROLE_HQ' | 'ROLE_DIV' | 'ROLE_BN';
+export type UserRole = 'ROLE_HQ' | 'ROLE_DIV' | 'ROLE_BN' | 'ROLE_MP';
 
 export interface User {
   id: string;
@@ -20,4 +20,5 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   'ROLE_HQ': '육군본부',
   'ROLE_DIV': '사단급',
   'ROLE_BN': '대대급',
+  'ROLE_MP': '군사경찰',
 };

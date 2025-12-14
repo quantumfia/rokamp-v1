@@ -22,7 +22,7 @@ interface MenuItem {
   label: string;
   icon: React.ElementType;
   path: string;
-  roles?: Array<'ROLE_HQ' | 'ROLE_DIV' | 'ROLE_BN'>;
+  roles?: Array<'ROLE_HQ' | 'ROLE_DIV' | 'ROLE_BN' | 'ROLE_MP'>;
 }
 
 const MENU_ITEMS: MenuItem[] = [
