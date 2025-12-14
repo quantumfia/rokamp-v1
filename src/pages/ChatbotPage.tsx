@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Sparkles, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -84,17 +82,17 @@ export default function ChatbotPage() {
     if (question.includes('차량')) {
       return `동절기 차량 사고 예방을 위해 다음 사항을 확인하세요:
 
-1. **출발 전 점검**
+1. 출발 전 점검
    - 배터리 상태 및 부동액 농도 확인
    - 타이어 공기압 및 마모 상태 점검
    - 워셔액 및 와이퍼 작동 상태 확인
 
-2. **운행 중 주의사항**
+2. 운행 중 주의사항
    - 급가속, 급제동, 급회전 금지
    - 안전거리 평소 대비 2배 이상 확보
    - 결빙 구간 서행 운전
 
-3. **비상 장비 구비**
+3. 비상 장비 구비
    - 삼각대, 손전등, 견인로프 필수 탑재
    - 스노우 체인 적재 및 사용법 숙지`;
     }
@@ -108,18 +106,9 @@ export default function ChatbotPage() {
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-border bg-card">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Bot className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="font-semibold text-foreground">지능형 안전 챗봇</h1>
-            <p className="text-xs text-muted-foreground">
-              육군 규정 및 사례 기반 AI 어시스턴트
-            </p>
-          </div>
-        </div>
+      <div className="p-4 border-b border-border">
+        <h1 className="text-lg font-semibold text-foreground">지능형 안전 챗봇</h1>
+        <p className="text-sm text-muted-foreground mt-1">육군 규정 및 사례 기반 AI 어시스턴트</p>
       </div>
 
       {/* Messages */}
@@ -133,29 +122,28 @@ export default function ChatbotPage() {
             )}
           >
             {message.role === 'assistant' && (
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Bot className="w-4 h-4 text-primary" />
+              <div className="w-6 h-6 rounded-sm bg-muted flex items-center justify-center flex-shrink-0 text-xs font-medium text-muted-foreground">
+                AI
               </div>
             )}
             <div
               className={cn(
-                'max-w-[70%] rounded-2xl px-4 py-3',
+                'max-w-[70%] text-sm',
                 message.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted'
+                  ? 'bg-foreground text-background px-4 py-2.5 rounded-lg'
+                  : ''
               )}
             >
-              <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+              <div className="whitespace-pre-wrap">{message.content}</div>
               {message.references && message.references.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground">참고 자료</p>
+                <div className="mt-3 pt-3 border-t border-border space-y-1">
+                  <p className="text-xs text-muted-foreground">참고 자료</p>
                   {message.references.map((ref, index) => (
                     <a
                       key={index}
                       href={ref.url}
-                      className="flex items-center gap-2 text-xs text-primary hover:underline"
+                      className="block text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      <ExternalLink className="w-3 h-3" />
                       [{ref.source}] {ref.title}
                     </a>
                   ))}
@@ -163,8 +151,8 @@ export default function ChatbotPage() {
               )}
             </div>
             {message.role === 'user' && (
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 text-primary-foreground" />
+              <div className="w-6 h-6 rounded-sm bg-foreground flex items-center justify-center flex-shrink-0 text-xs font-medium text-background">
+                U
               </div>
             )}
           </div>
@@ -172,14 +160,11 @@ export default function ChatbotPage() {
 
         {isLoading && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <Bot className="w-4 h-4 text-primary" />
+            <div className="w-6 h-6 rounded-sm bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+              AI
             </div>
-            <div className="bg-muted rounded-2xl px-4 py-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Sparkles className="w-4 h-4 animate-pulse" />
-                응답을 생성하고 있습니다...
-              </div>
+            <div className="text-sm text-muted-foreground">
+              응답을 생성하고 있습니다...
             </div>
           </div>
         )}
@@ -189,26 +174,24 @@ export default function ChatbotPage() {
 
       {/* Suggested Questions */}
       {messages.length <= 1 && (
-        <div className="px-4 pb-2">
+        <div className="px-4 pb-3">
           <p className="text-xs text-muted-foreground mb-2">추천 질문</p>
           <div className="flex flex-wrap gap-2">
             {SUGGESTED_QUESTIONS.map((q, index) => (
-              <Button
+              <button
                 key={index}
-                variant="outline"
-                size="sm"
-                className="text-xs"
                 onClick={() => handleSend(q)}
+                className="text-xs px-3 py-1.5 border border-border rounded hover:bg-muted/50 transition-colors"
               >
                 {q}
-              </Button>
+              </button>
             ))}
           </div>
         </div>
       )}
 
       {/* Input */}
-      <div className="p-4 border-t border-border bg-card">
+      <div className="p-4 border-t border-border">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -216,16 +199,20 @@ export default function ChatbotPage() {
           }}
           className="flex gap-2"
         >
-          <Input
+          <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="안전에 관해 궁금한 점을 물어보세요..."
-            className="flex-1"
+            className="flex-1 bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
             disabled={isLoading}
           />
-          <Button type="submit" disabled={!input.trim() || isLoading}>
+          <button 
+            type="submit" 
+            disabled={!input.trim() || isLoading}
+            className="px-3 py-2 bg-foreground text-background rounded hover:opacity-80 transition-opacity disabled:opacity-40"
+          >
             <Send className="w-4 h-4" />
-          </Button>
+          </button>
         </form>
       </div>
     </div>
