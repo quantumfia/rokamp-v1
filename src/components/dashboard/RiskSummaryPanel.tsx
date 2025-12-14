@@ -1,5 +1,4 @@
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RiskUnit {
@@ -44,12 +43,12 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 gap-2 p-3 border-b border-border">
-        <div className="p-2.5 rounded border border-border">
+      <div className="grid grid-cols-2 border-b border-border">
+        <div className="px-4 py-3 border-r border-border">
           <p className="text-[10px] text-muted-foreground mb-1">경고</p>
           <p className="text-xl font-bold text-foreground tabular-nums">2</p>
         </div>
-        <div className="p-2.5 rounded border border-border">
+        <div className="px-4 py-3">
           <p className="text-[10px] text-muted-foreground mb-1">안전</p>
           <p className="text-xl font-bold text-foreground tabular-nums">8</p>
         </div>
@@ -57,17 +56,15 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
 
       {/* High Risk Units List */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-3 py-2 bg-muted/30 border-b border-border sticky top-0">
-          <h4 className="text-[10px] text-muted-foreground">
-            주의 필요 부대 TOP 5
-          </h4>
+        <div className="px-4 py-2 bg-muted/30 border-b border-border sticky top-0">
+          <p className="text-[10px] text-muted-foreground">주의 필요 부대 TOP 5</p>
         </div>
         <div className="divide-y divide-border/50">
           {MOCK_RISK_DATA.map((unit) => (
             <button
               key={unit.id}
               onClick={() => onUnitClick?.(unit.id)}
-              className="w-full flex items-center justify-between p-3 hover:bg-muted/30 transition-colors text-left"
+              className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-muted/30 transition-colors text-left"
             >
               <span className="text-xs text-foreground">{unit.name}</span>
               <div className="flex items-center gap-1.5">

@@ -18,7 +18,6 @@ interface UnitDetailPanelProps {
   onChatbotClick: () => void;
 }
 
-// Mock data
 const MOCK_TRAININGS: Training[] = [
   { id: '1', name: '사격 훈련', date: '12/15' },
   { id: '2', name: '야간 행군', date: '12/17' },
@@ -49,57 +48,56 @@ export function UnitDetailPanel({ unitId, onClose, onChatbotClick }: UnitDetailP
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-4">
-          {/* Risk Value */}
-          <div className="p-4 rounded border border-border bg-muted/20">
-            <p className="text-[10px] text-muted-foreground mb-1">현재 위험도</p>
-            <p className="text-3xl font-bold text-foreground tabular-nums">{riskValue}%</p>
-          </div>
+        {/* Risk Value */}
+        <div className="px-4 py-4 border-b border-border">
+          <p className="text-[10px] text-muted-foreground mb-1">현재 위험도</p>
+          <p className="text-4xl font-bold text-foreground tabular-nums">{riskValue}%</p>
+        </div>
 
-          {/* Weather Info */}
-          <div className="p-3 rounded border border-border">
-            <h4 className="text-[10px] text-muted-foreground mb-2">기상 정보</h4>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <p className="text-[10px] text-muted-foreground">기온</p>
-                <p className="font-medium text-foreground">-5°C</p>
+        {/* Weather Info */}
+        <div className="px-4 py-3 border-b border-border">
+          <p className="text-[10px] text-muted-foreground mb-2">기상 정보</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-[10px] text-muted-foreground">기온</p>
+              <p className="text-sm font-medium text-foreground">-5°C</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground">날씨</p>
+              <p className="text-sm font-medium text-foreground">눈 예보</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Training Schedule */}
+        <div className="border-b border-border">
+          <div className="px-4 py-2 bg-muted/30">
+            <p className="text-[10px] text-muted-foreground">주간 훈련 일정</p>
+          </div>
+          <div className="divide-y divide-border/50">
+            {MOCK_TRAININGS.map((training) => (
+              <div
+                key={training.id}
+                className="flex items-center justify-between px-4 py-2"
+              >
+                <span className="text-xs text-foreground">{training.name}</span>
+                <span className="text-[10px] text-muted-foreground font-mono">{training.date}</span>
               </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground">날씨</p>
-                <p className="font-medium text-foreground">눈 예보</p>
+            ))}
+          </div>
+        </div>
+
+        {/* Risk Factors */}
+        <div>
+          <div className="px-4 py-2 bg-muted/30">
+            <p className="text-[10px] text-muted-foreground">예측 위험 요인</p>
+          </div>
+          <div className="divide-y divide-border/50">
+            {MOCK_RISK_FACTORS.map((factor) => (
+              <div key={factor.id} className="px-4 py-2">
+                <span className="text-xs text-foreground">{factor.description}</span>
               </div>
-            </div>
-          </div>
-
-          {/* Training Schedule */}
-          <div>
-            <h4 className="text-[10px] text-muted-foreground mb-2">주간 훈련 일정</h4>
-            <div className="space-y-1">
-              {MOCK_TRAININGS.map((training) => (
-                <div
-                  key={training.id}
-                  className="flex items-center justify-between p-2 rounded border border-border"
-                >
-                  <span className="text-xs text-foreground">{training.name}</span>
-                  <span className="text-[10px] text-muted-foreground font-mono">{training.date}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Risk Factors */}
-          <div>
-            <h4 className="text-[10px] text-muted-foreground mb-2">예측 위험 요인</h4>
-            <div className="space-y-1">
-              {MOCK_RISK_FACTORS.map((factor) => (
-                <div
-                  key={factor.id}
-                  className="p-2 rounded border border-border"
-                >
-                  <span className="text-xs text-foreground">{factor.description}</span>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
       </div>
