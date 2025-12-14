@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ReportGeneratorForm, ReportFormData } from '@/components/reports/ReportGeneratorForm';
 import { ReportPreview } from '@/components/reports/ReportPreview';
 import { StatisticsReportList } from '@/components/reports/StatisticsReportList';
@@ -72,40 +71,54 @@ export default function ReportsPage() {
     setIsGenerating(false);
   };
 
+  const tabs = [
+    ...(isHQ ? [{ id: 'generator', label: '사고 보고서 생성' }] : []),
+    { id: 'statistics', label: '통계 보고서 조회' },
+  ];
+
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">보고서</h1>
-        <p className="text-muted-foreground">사고 보고서 작성 및 통계 보고서 조회</p>
+      {/* 헤더 */}
+      <div className="border-b border-border pb-4">
+        <h1 className="text-lg font-semibold text-foreground">보고서</h1>
+        <p className="text-sm text-muted-foreground mt-1">사고 보고서 작성 및 통계 보고서 조회</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          {isHQ && (
-            <TabsTrigger value="generator">사고 보고서 생성</TabsTrigger>
-          )}
-          <TabsTrigger value="statistics">통계 보고서 조회</TabsTrigger>
-        </TabsList>
+      {/* 탭 네비게이션 */}
+      <div className="flex gap-6 border-b border-border">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`pb-3 text-sm font-medium transition-colors ${
+              activeTab === tab.id
+                ? 'text-foreground border-b-2 border-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-        {isHQ && (
-          <TabsContent value="generator" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ReportGeneratorForm 
-                onGenerate={handleGenerate}
-                isGenerating={isGenerating}
-              />
-              <ReportPreview 
-                content={generatedContent}
-                onContentChange={setGeneratedContent}
-              />
-            </div>
-          </TabsContent>
-        )}
+      {/* 사고 보고서 생성 탭 */}
+      {isHQ && activeTab === 'generator' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ReportGeneratorForm 
+            onGenerate={handleGenerate}
+            isGenerating={isGenerating}
+          />
+          <ReportPreview 
+            content={generatedContent}
+            onContentChange={setGeneratedContent}
+          />
+        </div>
+      )}
 
-        <TabsContent value="statistics">
-          <StatisticsReportList />
-        </TabsContent>
-      </Tabs>
+      {/* 통계 보고서 조회 탭 */}
+      {activeTab === 'statistics' && (
+        <StatisticsReportList />
+      )}
     </div>
   );
 }

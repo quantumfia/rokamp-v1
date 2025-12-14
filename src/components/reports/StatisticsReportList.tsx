@@ -1,22 +1,5 @@
 import { useState } from 'react';
-import { Download, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface StatReport {
@@ -69,74 +52,71 @@ export function StatisticsReportList() {
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex gap-4">
-        <div className="flex-1 max-w-sm">
-          <Input 
-            placeholder="보고서 검색..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-40">
-            <Filter className="w-4 h-4 mr-2" />
-            <SelectValue placeholder="유형 선택" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">전체</SelectItem>
-            <SelectItem value="weekly">주간 보고서</SelectItem>
-            <SelectItem value="monthly">월간 보고서</SelectItem>
-          </SelectContent>
-        </Select>
+        <input 
+          placeholder="보고서 검색..." 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-1 max-w-sm bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+        />
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="w-40 bg-transparent border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+        >
+          <option value="all">전체</option>
+          <option value="weekly">주간 보고서</option>
+          <option value="monthly">월간 보고서</option>
+        </select>
       </div>
 
       {/* Reports Table */}
-      <div className="rounded-lg border border-border overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="w-[80px]">유형</TableHead>
-              <TableHead>제목</TableHead>
-              <TableHead className="w-[180px]">기간</TableHead>
-              <TableHead className="w-[100px]">부대</TableHead>
-              <TableHead className="w-[100px]">생성일</TableHead>
-              <TableHead className="w-[60px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredReports.map((report) => (
-              <TableRow key={report.id} className="cursor-pointer hover:bg-muted/30">
-                <TableCell className="text-muted-foreground">
-                  {getTypeLabel(report.type)}
-                </TableCell>
-                <TableCell className="font-medium">{report.title}</TableCell>
-                <TableCell className="text-muted-foreground tabular-nums text-sm">
-                  {report.period}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {report.unit}
-                </TableCell>
-                <TableCell className="text-muted-foreground tabular-nums">
-                  {report.generatedAt}
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8"
-                    onClick={() => handleDownload(report)}
-                  >
-                    <Download className="w-4 h-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="border-t border-border">
+        {/* Header */}
+        <div className="grid grid-cols-[80px_1fr_180px_100px_100px_50px] gap-4 py-3 text-xs text-muted-foreground border-b border-border">
+          <div>유형</div>
+          <div>제목</div>
+          <div>기간</div>
+          <div>부대</div>
+          <div>생성일</div>
+          <div></div>
+        </div>
+
+        {/* Rows */}
+        <div className="divide-y divide-border">
+          {filteredReports.map((report) => (
+            <div 
+              key={report.id} 
+              className="grid grid-cols-[80px_1fr_180px_100px_100px_50px] gap-4 py-3 items-center hover:bg-muted/30 transition-colors cursor-pointer"
+            >
+              <div className="text-sm text-muted-foreground">
+                {getTypeLabel(report.type)}
+              </div>
+              <div className="text-sm font-medium truncate">{report.title}</div>
+              <div className="text-sm text-muted-foreground tabular-nums">
+                {report.period}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {report.unit}
+              </div>
+              <div className="text-sm text-muted-foreground tabular-nums">
+                {report.generatedAt}
+              </div>
+              <div>
+                <button 
+                  onClick={() => handleDownload(report)}
+                  className="p-1.5 hover:bg-muted rounded transition-colors"
+                >
+                  <Download className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {filteredReports.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">조건에 맞는 보고서가 없습니다.</p>
+          <p className="text-sm text-muted-foreground">조건에 맞는 보고서가 없습니다.</p>
         </div>
       )}
     </div>
