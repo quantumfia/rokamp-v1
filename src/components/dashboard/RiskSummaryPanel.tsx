@@ -1,5 +1,4 @@
-import { TrendingUp, TrendingDown, AlertTriangle, Shield } from 'lucide-react';
-import { RiskGauge } from './RiskGauge';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -26,61 +25,40 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
   const { user } = useAuth();
   const overallRisk = 52;
 
-  const getRiskColor = (val: number) => {
-    if (val < 25) return 'text-status-success';
-    if (val < 50) return 'text-status-warning';
-    if (val < 75) return 'text-status-warning';
-    return 'text-status-error';
-  };
-
-  const getRiskBarColor = (val: number) => {
-    if (val < 25) return 'bg-status-success';
-    if (val < 50) return 'bg-status-warning';
-    if (val < 75) return 'bg-status-warning';
-    return 'bg-status-error';
-  };
-
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="px-4 py-3 border-b border-border">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground">위험도 요약</h3>
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <span className="text-[10px] text-muted-foreground">
             {user?.role === 'ROLE_HQ' ? '전군' : user?.unit}
           </span>
         </div>
       </div>
 
-      {/* Overall Risk Gauge */}
-      <div className="px-4 py-4 border-b border-border bg-muted/30">
-        <div className="flex justify-center">
-          <RiskGauge value={overallRisk} label="종합 위험도" size="lg" />
-        </div>
+      {/* Overall Risk */}
+      <div className="px-4 py-4 border-b border-border">
+        <p className="text-[10px] text-muted-foreground mb-1">종합 위험도</p>
+        <p className="text-4xl font-bold text-foreground tabular-nums">{overallRisk}%</p>
       </div>
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 gap-2 p-3 border-b border-border">
-        <div className="p-2.5 rounded bg-status-error/10 border border-status-error/20">
-          <div className="flex items-center gap-1.5 mb-1">
-            <AlertTriangle className="w-3 h-3 text-status-error" />
-            <span className="text-[10px] text-muted-foreground uppercase">경고</span>
-          </div>
-          <p className="text-xl font-bold text-status-error tabular-nums">2</p>
+        <div className="p-2.5 rounded border border-border">
+          <p className="text-[10px] text-muted-foreground mb-1">경고</p>
+          <p className="text-xl font-bold text-foreground tabular-nums">2</p>
         </div>
-        <div className="p-2.5 rounded bg-status-success/10 border border-status-success/20">
-          <div className="flex items-center gap-1.5 mb-1">
-            <Shield className="w-3 h-3 text-status-success" />
-            <span className="text-[10px] text-muted-foreground uppercase">안전</span>
-          </div>
-          <p className="text-xl font-bold text-status-success tabular-nums">8</p>
+        <div className="p-2.5 rounded border border-border">
+          <p className="text-[10px] text-muted-foreground mb-1">안전</p>
+          <p className="text-xl font-bold text-foreground tabular-nums">8</p>
         </div>
       </div>
 
       {/* High Risk Units List */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-3 py-2 bg-muted/50 border-b border-border sticky top-0">
-          <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="px-3 py-2 bg-muted/30 border-b border-border sticky top-0">
+          <h4 className="text-[10px] text-muted-foreground">
             주의 필요 부대 TOP 5
           </h4>
         </div>
@@ -89,18 +67,15 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
             <button
               key={unit.id}
               onClick={() => onUnitClick?.(unit.id)}
-              className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors text-left group"
+              className="w-full flex items-center justify-between p-3 hover:bg-muted/30 transition-colors text-left"
             >
-              <div className="flex items-center gap-2.5">
-                <div className={cn('w-0.5 h-6 rounded-full', getRiskBarColor(unit.risk))} />
-                <span className="text-xs text-foreground group-hover:text-primary transition-colors">{unit.name}</span>
-              </div>
+              <span className="text-xs text-foreground">{unit.name}</span>
               <div className="flex items-center gap-1.5">
-                <span className={cn('text-xs font-semibold tabular-nums', getRiskColor(unit.risk))}>
+                <span className="text-xs font-semibold text-foreground tabular-nums">
                   {unit.risk}%
                 </span>
-                {unit.trend === 'up' && <TrendingUp className="w-3 h-3 text-status-error" />}
-                {unit.trend === 'down' && <TrendingDown className="w-3 h-3 text-status-success" />}
+                {unit.trend === 'up' && <TrendingUp className="w-3 h-3 text-muted-foreground" />}
+                {unit.trend === 'down' && <TrendingDown className="w-3 h-3 text-muted-foreground" />}
               </div>
             </button>
           ))}
