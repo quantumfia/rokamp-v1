@@ -41,7 +41,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           <Shield className="w-7 h-7 text-primary-foreground" />
         </div>
         <h1 className="text-xl font-semibold text-foreground tracking-wide">
-          ROKA-SAPS
+          ROKA-MP
         </h1>
         <p className="text-xs text-muted-foreground mt-1 tracking-wider">
           안전사고 예측 시스템

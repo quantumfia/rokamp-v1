@@ -23,7 +23,7 @@ const SUGGESTED_QUESTIONS = [
 const INITIAL_MESSAGE: Message = {
   id: '0',
   role: 'assistant',
-  content: '안녕하세요! 저는 ROKA-SAPS 안전 AI 어시스턴트입니다. 안전사고 예방에 관한 질문이 있으시면 언제든지 물어보세요.',
+  content: '안녕하세요! 저는 ROKA-MP 안전 AI 어시스턴트입니다. 안전사고 예방에 관한 질문이 있으시면 언제든지 물어보세요.',
 };
 
 export default function ChatbotPage() {
