@@ -1,30 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, MoreHorizontal, Upload, Download, KeyRound } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Plus, Upload, Download, MoreHorizontal } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants } from '@/data/armyUnits';
 import { toast } from '@/hooks/use-toast';
@@ -55,6 +30,7 @@ export default function UserManagementPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
   const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
 
   const getRoleLabel = (role: string) => {
     switch (role) {
@@ -77,7 +53,7 @@ export default function UserManagementPage() {
   const handleBulkUpload = () => {
     toast({
       title: '업로드 완료',
-      description: '사용자 일괄 등록이 완료되었습니다. 소속 부대에 따라 권한이 자동 설정되었습니다.',
+      description: '사용자 일괄 등록이 완료되었습니다.',
     });
     setShowBulkUpload(false);
   };
@@ -87,6 +63,7 @@ export default function UserManagementPage() {
       title: '비밀번호 초기화',
       description: `${userName}님의 비밀번호가 초기화되었습니다.`,
     });
+    setShowActionMenu(null);
   };
 
   const handleDownloadTemplate = () => {
@@ -114,167 +91,186 @@ export default function UserManagementPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">사용자 관리</h1>
-          <p className="text-muted-foreground">시스템 사용자 계정 및 권한 관리</p>
+          <h1 className="text-lg font-semibold text-foreground">사용자 관리</h1>
+          <p className="text-sm text-muted-foreground mt-1">시스템 사용자 계정 및 권한 관리</p>
         </div>
         <div className="flex gap-2">
-          <Dialog open={showBulkUpload} onOpenChange={setShowBulkUpload}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <Upload className="w-4 h-4" />
-                일괄 등록
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>사용자 일괄 등록</DialogTitle>
-                <DialogDescription>
-                  엑셀 파일로 여러 사용자를 한 번에 등록합니다. 
-                  소속 부대 코드에 따라 데이터 접근 권한이 자동 설정됩니다.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div 
-                  className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
-                  onClick={() => document.getElementById('excel-upload')?.click()}
-                >
-                  <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm font-medium">엑셀 파일을 드래그하거나 클릭하여 업로드</p>
-                  <p className="text-xs text-muted-foreground mt-1">XLSX, XLS 형식 지원</p>
-                  <input id="excel-upload" type="file" accept=".xlsx,.xls" className="hidden" />
-                </div>
-                <Button variant="outline" className="w-full gap-2" onClick={handleDownloadTemplate}>
-                  <Download className="w-4 h-4" />
-                  템플릿 다운로드
-                </Button>
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p>• 필수 필드: 군번, 이름, 계급, 소속부대코드</p>
-                  <p>• 소속 부대 코드에 따라 접근 권한 자동 설정</p>
-                  <p>• 초기 비밀번호는 군번+생년월일 형식</p>
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowBulkUpload(false)}>취소</Button>
-                <Button onClick={handleBulkUpload}>업로드</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-          <Button className="gap-2">
+          <button
+            onClick={() => setShowBulkUpload(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-border rounded hover:bg-muted/50 transition-colors"
+          >
+            <Upload className="w-4 h-4" />
+            일괄 등록
+          </button>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background rounded hover:opacity-80 transition-opacity">
             <Plus className="w-4 h-4" />
             사용자 등록
-          </Button>
+          </button>
         </div>
       </div>
 
-      {/* Stats - 아이콘 없이 깔끔하게 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">전체 사용자</p>
-            <p className="text-2xl font-bold mt-1">156</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">활성 계정</p>
-            <p className="text-2xl font-bold mt-1">148</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">소속 부대</p>
-            <p className="text-2xl font-bold mt-1">24</p>
-          </CardContent>
-        </Card>
+      {/* 통계 요약 */}
+      <div className="grid grid-cols-3 gap-6">
+        <div>
+          <p className="text-xs text-muted-foreground">전체 사용자</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">156</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">활성 계정</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">148</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">소속 부대</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">24</p>
+        </div>
       </div>
 
-      {/* Users Table */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <CardTitle>사용자 목록</CardTitle>
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="이름, 군번, 부대 검색..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
+      <div className="border-t border-border pt-6" />
+
+      {/* 검색 및 필터 */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-medium text-foreground">사용자 목록</h2>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">부대:</span>
+            <UnitCascadeSelect
+              value={selectedUnitFilter}
+              onChange={setSelectedUnitFilter}
+              placeholder="전체"
+              showFullPath={false}
+            />
+          </div>
+          <input
+            placeholder="이름, 군번, 부대 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-64 bg-transparent border border-border rounded px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+          />
+        </div>
+      </div>
+
+      {/* 테이블 */}
+      <div className="border-t border-border">
+        {/* 테이블 헤더 */}
+        <div className="grid grid-cols-[100px_100px_60px_1fr_100px_80px_40px] gap-4 py-3 text-xs text-muted-foreground border-b border-border">
+          <div>군번</div>
+          <div>이름</div>
+          <div>계급</div>
+          <div>소속 부대</div>
+          <div>권한</div>
+          <div>상태</div>
+          <div></div>
+        </div>
+
+        {/* 테이블 내용 */}
+        <div className="divide-y divide-border">
+          {filteredUsers.map((user) => (
+            <div key={user.id} className="grid grid-cols-[100px_100px_60px_1fr_100px_80px_40px] gap-4 py-3 items-center text-sm">
+              <div className="font-mono text-muted-foreground">{user.militaryId}</div>
+              <div className="font-medium">{user.name}</div>
+              <div className="text-muted-foreground">{user.rank}</div>
+              <div className="text-muted-foreground truncate">{getUnitName(user.unitId)}</div>
+              <div className="text-muted-foreground">{getRoleLabel(user.role)}</div>
+              <div className="text-muted-foreground">
+                {user.status === 'active' ? '활성' : '비활성'}
+              </div>
+              <div className="relative">
+                <button 
+                  onClick={() => setShowActionMenu(showActionMenu === user.id ? null : user.id)}
+                  className="p-1 hover:bg-muted rounded transition-colors"
+                >
+                  <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                </button>
+                {showActionMenu === user.id && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowActionMenu(null)}
+                    />
+                    <div className="absolute right-0 top-8 z-50 w-40 bg-background border border-border rounded shadow-lg py-1">
+                      <button 
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                        onClick={() => setShowActionMenu(null)}
+                      >
+                        권한 변경
+                      </button>
+                      <button 
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                        onClick={() => handleResetPassword(user.name)}
+                      >
+                        비밀번호 초기화
+                      </button>
+                      <button 
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                        onClick={() => setShowActionMenu(null)}
+                      >
+                        계정 비활성화
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 일괄 등록 모달 */}
+      {showBulkUpload && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setShowBulkUpload(false)} />
+          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md bg-background border border-border rounded-lg p-6">
+            <h3 className="text-lg font-semibold mb-1">사용자 일괄 등록</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              엑셀 파일로 여러 사용자를 한 번에 등록합니다.
+            </p>
+            
+            <div className="space-y-4">
+              <div 
+                className="border border-dashed border-border rounded-lg p-8 text-center hover:border-foreground/50 transition-colors cursor-pointer"
+                onClick={() => document.getElementById('excel-upload')?.click()}
+              >
+                <Upload className="w-6 h-6 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm">엑셀 파일을 드래그하거나 클릭하여 업로드</p>
+                <p className="text-xs text-muted-foreground mt-1">XLSX, XLS 형식 지원</p>
+                <input id="excel-upload" type="file" accept=".xlsx,.xls" className="hidden" />
+              </div>
+              
+              <button 
+                className="w-full flex items-center justify-center gap-2 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors"
+                onClick={handleDownloadTemplate}
+              >
+                <Download className="w-4 h-4" />
+                템플릿 다운로드
+              </button>
+              
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>• 필수 필드: 군번, 이름, 계급, 소속부대코드</p>
+                <p>• 소속 부대 코드에 따라 접근 권한 자동 설정</p>
+                <p>• 초기 비밀번호는 군번+생년월일 형식</p>
               </div>
             </div>
             
-            {/* 계층형 부대 필터 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">부대 필터:</span>
-              <UnitCascadeSelect
-                value={selectedUnitFilter}
-                onChange={setSelectedUnitFilter}
-                placeholder="육군본부"
-                showFullPath={false}
-              />
+            <div className="flex justify-end gap-2 mt-6">
+              <button 
+                className="px-4 py-2 text-sm border border-border rounded hover:bg-muted/50 transition-colors"
+                onClick={() => setShowBulkUpload(false)}
+              >
+                취소
+              </button>
+              <button 
+                className="px-4 py-2 text-sm bg-foreground text-background rounded hover:opacity-80 transition-opacity"
+                onClick={handleBulkUpload}
+              >
+                업로드
+              </button>
             </div>
           </div>
-        </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>군번</TableHead>
-              <TableHead>이름</TableHead>
-              <TableHead>계급</TableHead>
-              <TableHead>소속 부대</TableHead>
-              <TableHead>권한</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead className="w-10"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredUsers.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="font-mono text-sm">{user.militaryId}</TableCell>
-                <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.rank}</TableCell>
-                <TableCell>{getUnitName(user.unitId)}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {getRoleLabel(user.role)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${
-                        user.status === 'active' ? 'bg-risk-safe' : 'bg-muted-foreground'
-                      }`} />
-                      <span className="text-sm">
-                        {user.status === 'active' ? '활성' : '비활성'}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>권한 변경</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleResetPassword(user.name)}>
-                          <KeyRound className="w-4 h-4 mr-2" />
-                          비밀번호 초기화
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">계정 비활성화</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        </>
+      )}
     </div>
   );
 }
