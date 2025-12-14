@@ -99,7 +99,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             : 'opacity-0 translate-y-3'
         }`}>
           <h1 className="mt-6 text-3xl font-semibold text-white tracking-[0.3em] text-center font-mono">
-            ROKA-SAPS
+            ROKA-MP
           </h1>
         </div>
 

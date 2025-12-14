@@ -99,7 +99,7 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
           <Shield className="w-4 h-4 text-primary-foreground" />
         </div>
         <div className="hidden sm:block">
-          <h1 className="text-sm font-semibold text-sidebar-foreground tracking-tight">ROKA-SAPS</h1>
+          <h1 className="text-sm font-semibold text-sidebar-foreground tracking-tight">ROKA-MP</h1>
         </div>
         <div className="hidden lg:flex items-center gap-1 ml-4">
           <span className="text-xs text-sidebar-muted px-2 py-1 rounded bg-sidebar-accent">안전사고 예측 시스템</span>
