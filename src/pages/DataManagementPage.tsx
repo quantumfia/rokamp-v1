@@ -101,7 +101,7 @@ export default function DataManagementPage() {
             </div>
 
             {/* 테이블 헤더 */}
-            <div className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-2 text-xs text-muted-foreground border-b border-border">
+            <div className="grid grid-cols-[1fr_60px_60px_140px_80px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
               <div>문서명</div>
               <div>형식</div>
               <div>크기</div>
@@ -152,7 +152,7 @@ export default function DataManagementPage() {
             </div>
 
             {/* 테이블 헤더 */}
-            <div className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-2 text-xs text-muted-foreground border-b border-border">
+            <div className="grid grid-cols-[1fr_100px_100px_80px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
               <div>제목</div>
               <div>출처</div>
               <div>날짜</div>
@@ -201,7 +201,7 @@ export default function DataManagementPage() {
             </div>
 
             {/* 테이블 헤더 */}
-            <div className="grid grid-cols-[1fr_160px_80px_120px_100px_60px_40px] gap-4 py-2 text-xs text-muted-foreground border-b border-border">
+            <div className="grid grid-cols-[1fr_160px_80px_120px_100px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
               <div>부대</div>
               <div>기간</div>
               <div>유형</div>

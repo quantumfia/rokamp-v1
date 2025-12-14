@@ -153,9 +153,9 @@ export default function UserManagementPage() {
       </div>
 
       {/* 테이블 */}
-      <div className="border-t border-border">
+      <div>
         {/* 테이블 헤더 */}
-        <div className="grid grid-cols-[100px_100px_60px_1fr_100px_80px_40px] gap-4 py-3 text-xs text-muted-foreground border-b border-border">
+        <div className="grid grid-cols-[100px_100px_60px_1fr_100px_80px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
           <div>군번</div>
           <div>이름</div>
           <div>계급</div>

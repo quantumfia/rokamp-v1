@@ -70,9 +70,9 @@ export function StatisticsReportList() {
       </div>
 
       {/* Reports Table */}
-      <div className="border-t border-border">
+      <div>
         {/* Header */}
-        <div className="grid grid-cols-[80px_1fr_180px_100px_100px_50px] gap-4 py-3 text-xs text-muted-foreground border-b border-border">
+        <div className="grid grid-cols-[80px_1fr_180px_100px_100px_50px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
           <div>유형</div>
           <div>제목</div>
           <div>기간</div>
