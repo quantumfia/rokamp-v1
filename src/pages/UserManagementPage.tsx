@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Upload, Download, MoreHorizontal } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
 import { ROLE_LABELS, UserRole } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
+import { UserManagementSkeleton } from '@/components/skeletons';
+
 interface User {
   id: string;
   militaryId: string;
@@ -31,6 +33,12 @@ export default function UserManagementPage() {
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const getRoleLabel = (role: string) => {
     return ROLE_LABELS[role as UserRole] ?? role;
@@ -79,6 +87,10 @@ export default function UserManagementPage() {
     
     return matchesSearch && matchesUnit;
   });
+
+  if (isLoading) {
+    return <UserManagementSkeleton />;
+  }
 
   return (
     <div className="p-6 space-y-6">

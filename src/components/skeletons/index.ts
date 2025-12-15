@@ -3,3 +3,5 @@ export * from './TableSkeleton';
 export * from './CardSkeleton';
 export * from './ReportSkeleton';
 export * from './ChatbotSkeleton';
+export * from './UserManagementSkeleton';
+export * from './DataManagementSkeleton';

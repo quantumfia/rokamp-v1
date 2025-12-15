@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { DataManagementSkeleton } from '@/components/skeletons';
 
 // 상태 라벨
 function StatusLabel({ status }: { status: 'completed' | 'processing' | 'failed' }) {
@@ -57,6 +58,12 @@ export default function DataManagementPage() {
   const [activeTab, setActiveTab] = useState('documents');
   const [showJsonInput, setShowJsonInput] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleJsonUpload = () => {
     try {
@@ -78,6 +85,10 @@ export default function DataManagementPage() {
       });
     }
   };
+
+  if (isLoading) {
+    return <DataManagementSkeleton />;
+  }
 
   return (
     <div className="p-6 space-y-6">
