@@ -128,12 +128,12 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             }}
           />
           <div 
-            className={`relative w-24 h-24 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-2xl transition-all duration-700 ${showLoginForm ? 'scale-75' : 'scale-100'}`}
+            className={`relative transition-all duration-700 ${showLoginForm ? 'scale-75' : 'scale-100'}`}
             style={{
-              boxShadow: '0 0 60px hsl(187, 85%, 43%, 0.4), 0 0 100px hsl(187, 85%, 43%, 0.2)',
+              filter: 'drop-shadow(0 0 40px hsl(187, 85%, 43%, 0.5))',
             }}
           >
-            <img src={armyLogo} alt="육군본부" className="w-16 h-16" />
+            <img src={armyLogo} alt="육군본부" className="w-24 h-24" />
           </div>
         </div>
 
