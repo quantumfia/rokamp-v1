@@ -82,48 +82,71 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
 
     const printContent = printRef.current.innerHTML;
     
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>사고보고서</title>
-          <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { 
-              font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; 
-              background: white;
-            }
-            .a4-page {
-              width: 210mm;
-              min-height: 297mm;
-              padding: 20mm;
-              background: white;
-              page-break-after: always;
-            }
-            .a4-page:last-child {
-              page-break-after: auto;
-            }
-            @media print {
-              .a4-page {
-                padding: 15mm;
-                margin: 0;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          ${printContent}
-        </body>
-      </html>
-    `);
+    printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <title>사고보고서</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; 
+      background: white;
+      padding: 0;
+    }
+    .a4-page {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 15mm 18mm 20mm 18mm;
+      background: white;
+      page-break-after: always;
+      position: relative;
+      margin: 0 auto;
+    }
+    .a4-page:last-child {
+      page-break-after: auto;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    p, h1, th, td, span {
+      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+        margin: 0;
+      }
+      .a4-page {
+        width: 100%;
+        min-height: auto;
+        padding: 10mm 15mm 15mm 15mm;
+        margin: 0;
+        box-shadow: none;
+      }
+    }
+    @page {
+      size: A4;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  ${printContent}
+</body>
+</html>`);
     
     printWindow.document.close();
     
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
-    }, 500);
+    }, 800);
     
     toast({
       title: '인쇄',
