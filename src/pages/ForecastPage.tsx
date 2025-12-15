@@ -3,6 +3,12 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import { ForecastSkeleton } from '@/components/skeletons';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, hasChildren } from '@/data/armyUnits';
+import { format, parse } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 // 월별 사고 추세 데이터
 const TREND_DATA = [
   { month: '7월', current: 12, previous: 15 },
@@ -73,19 +79,19 @@ const INITIAL_CHECKLIST: ChecklistItem[] = [
 ];
 
 const INITIAL_INSPECTIONS: InspectionItem[] = [
-  { id: 1, item: '차량 일일 점검 (배터리, 부동액, 타이어)', cycle: '일일', lastDate: '12/15', nextDate: '12/16', status: 'complete' },
-  { id: 2, item: '훈련장 안전시설 점검', cycle: '주간', lastDate: '12/14', nextDate: '12/21', status: 'complete' },
-  { id: 3, item: '응급장비 점검 (AED, 구급함)', cycle: '주간', lastDate: '12/10', nextDate: '12/17', status: 'warning' },
-  { id: 4, item: '소방시설 점검', cycle: '월간', lastDate: '12/01', nextDate: '01/01', status: 'complete' },
-  { id: 5, item: '탄약고 안전점검', cycle: '주간', lastDate: '12/08', nextDate: '12/15', status: 'overdue' },
+  { id: 1, item: '차량 일일 점검 (배터리, 부동액, 타이어)', cycle: '일일', lastDate: '2024-12-15', nextDate: '2024-12-16', status: 'complete' },
+  { id: 2, item: '훈련장 안전시설 점검', cycle: '주간', lastDate: '2024-12-14', nextDate: '2024-12-21', status: 'complete' },
+  { id: 3, item: '응급장비 점검 (AED, 구급함)', cycle: '주간', lastDate: '2024-12-10', nextDate: '2024-12-17', status: 'warning' },
+  { id: 4, item: '소방시설 점검', cycle: '월간', lastDate: '2024-12-01', nextDate: '2025-01-01', status: 'complete' },
+  { id: 5, item: '탄약고 안전점검', cycle: '주간', lastDate: '2024-12-08', nextDate: '2024-12-15', status: 'overdue' },
 ];
 
 const INITIAL_TRAININGS: TrainingItem[] = [
-  { id: 1, name: '동절기 안전교육', target: '전 장병', rate: 95, deadline: '12/20', status: 'complete' },
-  { id: 2, name: '차량 안전운행 교육', target: '운전병', rate: 88, deadline: '12/18', status: 'inprogress' },
-  { id: 3, name: '응급처치 교육 (심폐소생술)', target: '간부', rate: 72, deadline: '12/25', status: 'inprogress' },
-  { id: 4, name: '화생방 대응 교육', target: '전 장병', rate: 45, deadline: '12/31', status: 'inprogress' },
-  { id: 5, name: '사이버보안 교육', target: '전 장병', rate: 100, deadline: '12/10', status: 'complete' },
+  { id: 1, name: '동절기 안전교육', target: '전 장병', rate: 95, deadline: '2024-12-20', status: 'complete' },
+  { id: 2, name: '차량 안전운행 교육', target: '운전병', rate: 88, deadline: '2024-12-18', status: 'inprogress' },
+  { id: 3, name: '응급처치 교육 (심폐소생술)', target: '간부', rate: 72, deadline: '2024-12-25', status: 'inprogress' },
+  { id: 4, name: '화생방 대응 교육', target: '전 장병', rate: 45, deadline: '2024-12-31', status: 'inprogress' },
+  { id: 5, name: '사이버보안 교육', target: '전 장병', rate: 100, deadline: '2024-12-10', status: 'complete' },
 ];
 
 const PRIORITY_OPTIONS = ['높음', '중간', '낮음'] as const;
@@ -193,12 +199,14 @@ export default function ForecastPage() {
 
   const handleAddInspection = () => {
     const newId = Math.max(...inspections.map(c => c.id), 0) + 1;
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const nextWeek = format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
     const newItem: InspectionItem = {
       id: newId,
       item: '새 점검 항목',
       cycle: '주간',
-      lastDate: '12/15',
-      nextDate: '12/22',
+      lastDate: today,
+      nextDate: nextWeek,
       status: 'complete'
     };
     setInspections(prev => [...prev, newItem]);
@@ -233,12 +241,13 @@ export default function ForecastPage() {
 
   const handleAddTraining = () => {
     const newId = Math.max(...trainings.map(c => c.id), 0) + 1;
+    const nextMonth = format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
     const newItem: TrainingItem = {
       id: newId,
       name: '새 교육',
       target: '전 장병',
       rate: 0,
-      deadline: '12/31',
+      deadline: nextMonth,
       status: 'inprogress'
     };
     setTrainings(prev => [...prev, newItem]);
@@ -806,28 +815,48 @@ export default function ForecastPage() {
                       </td>
                       <td className="py-2.5 text-center border-r border-border">
                         {editingInspectionId === row.id ? (
-                          <input
-                            type="text"
-                            value={editingInspection.lastDate || ''}
-                            onChange={(e) => setEditingInspection(prev => ({ ...prev, lastDate: e.target.value }))}
-                            className="w-16 bg-transparent border border-border rounded px-1 py-0.5 text-xs text-center focus:outline-none focus:border-foreground"
-                            placeholder="MM/DD"
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:bg-muted/50">
+                                <CalendarIcon className="h-3 w-3" />
+                                {editingInspection.lastDate ? format(new Date(editingInspection.lastDate), 'yyyy.MM.dd') : '선택'}
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 z-50" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={editingInspection.lastDate ? new Date(editingInspection.lastDate) : undefined}
+                                onSelect={(date) => setEditingInspection(prev => ({ ...prev, lastDate: date ? format(date, 'yyyy-MM-dd') : '' }))}
+                                locale={ko}
+                                className="pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
                         ) : (
-                          <span className="text-xs text-muted-foreground">{row.lastDate}</span>
+                          <span className="text-xs text-muted-foreground">{row.lastDate ? format(new Date(row.lastDate), 'yyyy.MM.dd') : '-'}</span>
                         )}
                       </td>
                       <td className="py-2.5 text-center border-r border-border">
                         {editingInspectionId === row.id ? (
-                          <input
-                            type="text"
-                            value={editingInspection.nextDate || ''}
-                            onChange={(e) => setEditingInspection(prev => ({ ...prev, nextDate: e.target.value }))}
-                            className="w-16 bg-transparent border border-border rounded px-1 py-0.5 text-xs text-center focus:outline-none focus:border-foreground"
-                            placeholder="MM/DD"
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:bg-muted/50">
+                                <CalendarIcon className="h-3 w-3" />
+                                {editingInspection.nextDate ? format(new Date(editingInspection.nextDate), 'yyyy.MM.dd') : '선택'}
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 z-50" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={editingInspection.nextDate ? new Date(editingInspection.nextDate) : undefined}
+                                onSelect={(date) => setEditingInspection(prev => ({ ...prev, nextDate: date ? format(date, 'yyyy-MM-dd') : '' }))}
+                                locale={ko}
+                                className="pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
                         ) : (
-                          <span className="text-xs text-muted-foreground">{row.nextDate}</span>
+                          <span className="text-xs text-muted-foreground">{row.nextDate ? format(new Date(row.nextDate), 'yyyy.MM.dd') : '-'}</span>
                         )}
                       </td>
                       <td className="py-2.5 text-center border-r border-border">
@@ -947,15 +976,25 @@ export default function ForecastPage() {
                       </td>
                       <td className="py-2.5 text-center border-r border-border">
                         {editingTrainingId === row.id ? (
-                          <input
-                            type="text"
-                            value={editingTraining.deadline || ''}
-                            onChange={(e) => setEditingTraining(prev => ({ ...prev, deadline: e.target.value }))}
-                            className="w-16 bg-transparent border border-border rounded px-1 py-0.5 text-xs text-center focus:outline-none focus:border-foreground"
-                            placeholder="MM/DD"
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-border rounded hover:bg-muted/50">
+                                <CalendarIcon className="h-3 w-3" />
+                                {editingTraining.deadline ? format(new Date(editingTraining.deadline), 'yyyy.MM.dd') : '선택'}
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 z-50" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={editingTraining.deadline ? new Date(editingTraining.deadline) : undefined}
+                                onSelect={(date) => setEditingTraining(prev => ({ ...prev, deadline: date ? format(date, 'yyyy-MM-dd') : '' }))}
+                                locale={ko}
+                                className="pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
                         ) : (
-                          <span className="text-xs text-muted-foreground">{row.deadline}</span>
+                          <span className="text-xs text-muted-foreground">{row.deadline ? format(new Date(row.deadline), 'yyyy.MM.dd') : '-'}</span>
                         )}
                       </td>
                       <td className="py-2.5 text-center border-r border-border">
