@@ -120,7 +120,6 @@ export function NotificationPanel({ onClose, onShowNotice }: NotificationPanelPr
                 <div className={cn(
                   'p-1.5 rounded',
                   notification.type === 'alert' ? 'bg-status-error/20 text-status-error' :
-                  notification.type === 'notice' ? 'bg-primary/20 text-primary' :
                   'bg-sidebar-accent text-sidebar-muted'
                 )}>
                   {getIcon(notification.type)}
