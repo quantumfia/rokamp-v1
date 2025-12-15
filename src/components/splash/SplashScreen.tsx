@@ -61,19 +61,6 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         }}
       />
 
-      {/* Boot terminal lines - top left */}
-      <div className="absolute top-8 left-8 font-mono text-xs text-terminal-text/60 space-y-1">
-        {bootLines.map((line, i) => (
-          <div 
-            key={i} 
-            className="animate-boot-line"
-            style={{ animationDelay: `${i * 0.1}s` }}
-          >
-            <span className="text-terminal-accent mr-2">&gt;</span>
-            {line}
-          </div>
-        ))}
-      </div>
 
       <div className="flex flex-col items-center justify-center relative">
         {/* Logo with smooth entrance */}
