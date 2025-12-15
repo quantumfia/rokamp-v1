@@ -9,11 +9,11 @@ interface RiskUnit {
 }
 
 const MOCK_RISK_DATA: RiskUnit[] = [
-  { id: '1', name: '제7사단 3연대', risk: 78, trend: 'up' },
-  { id: '2', name: '제3사단 9연대', risk: 68, trend: 'up' },
-  { id: '3', name: '제6사단 2연대', risk: 55, trend: 'stable' },
-  { id: '4', name: '제1사단 11연대', risk: 45, trend: 'down' },
-  { id: '5', name: '제2사단 17연대', risk: 32, trend: 'down' },
+  { id: 'corps-1-div-9', name: '제9보병사단', risk: 78, trend: 'up' },
+  { id: 'corps-5-div-6', name: '제6보병사단', risk: 68, trend: 'up' },
+  { id: 'corps-3-div-21', name: '제21보병사단', risk: 55, trend: 'stable' },
+  { id: 'corps-1-div-1', name: '제1보병사단', risk: 48, trend: 'down' },
+  { id: 'corps-2-div-7', name: '제7보병사단', risk: 42, trend: 'down' },
 ];
 
 interface RiskSummaryPanelProps {
