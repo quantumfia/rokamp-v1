@@ -42,28 +42,10 @@ export default function ForecastPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedUnitId, setSelectedUnitId] = useState<string>('');
 
-  // 부대별 주간 예보 목데이터
-  const UNIT_WEEKLY_FORECAST: Record<string, { days: number[]; events: string[] }> = {
-    'corps-1-div-1': { 
-      days: [25, 38, 52, 45, 32, 18, 15],
-      events: ['동계훈련 예정', '차량 이동 증가', '야간훈련', '정비일', '일반훈련', '휴일', '휴일']
-    },
-    'corps-1-div-9': { 
-      days: [45, 68, 78, 62, 55, 28, 22],
-      events: ['실탄사격', '전술훈련', '대규모 기동훈련', '정비점검', '교육훈련', '휴일', '휴일']
-    },
-    'corps-5-div-6': { 
-      days: [32, 45, 55, 48, 42, 25, 18],
-      events: ['체력단련', '사격훈련', '야외훈련', '보급작업', '안전교육', '휴일', '휴일']
-    },
-    'corps-3-div-21': { 
-      days: [28, 35, 42, 38, 30, 15, 12],
-      events: ['정비작업', '일반훈련', '도보행군', '보급정비', '교육', '휴일', '휴일']
-    },
-    'goc': { 
-      days: [35, 42, 58, 52, 45, 22, 18],
-      events: ['지휘소훈련', '연합훈련', '대규모훈련', '점검', '보고회', '휴일', '휴일']
-    },
+  // 부대별 주간 예보 기본 목데이터 (모든 부대에 동일하게 적용)
+  const DEFAULT_UNIT_FORECAST = {
+    days: [28, 42, 55, 48, 38, 22, 18],
+    events: ['체력단련', '사격훈련', '야외훈련', '정비점검', '안전교육', '휴일', '휴일']
   };
 
   useEffect(() => {
@@ -321,8 +303,8 @@ export default function ForecastPage() {
                   {/* 위험도 수치 */}
                   <tr className="border-b border-border">
                     <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">위험도</td>
-                    {(selectedUnitId && UNIT_WEEKLY_FORECAST[selectedUnitId] 
-                      ? UNIT_WEEKLY_FORECAST[selectedUnitId].days 
+                    {(selectedUnitId 
+                      ? DEFAULT_UNIT_FORECAST.days 
                       : [null, null, null, null, null, null, null]
                     ).map((risk, index) => (
                       <td key={index} className="py-3 text-center border-r border-border last:border-r-0">
@@ -335,8 +317,8 @@ export default function ForecastPage() {
                   {/* 위험 등급 */}
                   <tr className="border-b border-border bg-muted/20">
                     <td className="py-2 text-xs text-muted-foreground text-center border-r border-border">등급</td>
-                    {(selectedUnitId && UNIT_WEEKLY_FORECAST[selectedUnitId] 
-                      ? UNIT_WEEKLY_FORECAST[selectedUnitId].days 
+                    {(selectedUnitId 
+                      ? DEFAULT_UNIT_FORECAST.days 
                       : [null, null, null, null, null, null, null]
                     ).map((risk, index) => {
                       if (risk === null) {
@@ -358,8 +340,8 @@ export default function ForecastPage() {
                   {/* 사건사고 예측 */}
                   <tr>
                     <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">예측 내용</td>
-                    {(selectedUnitId && UNIT_WEEKLY_FORECAST[selectedUnitId] 
-                      ? UNIT_WEEKLY_FORECAST[selectedUnitId].events 
+                    {(selectedUnitId 
+                      ? DEFAULT_UNIT_FORECAST.events 
                       : [null, null, null, null, null, null, null]
                     ).map((event, index) => (
                       <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
@@ -376,12 +358,6 @@ export default function ForecastPage() {
             {!selectedUnitId && (
               <p className="text-xs text-muted-foreground text-center mt-4">
                 상단에서 부대를 선택하면 해당 부대의 주간 위험도 예보가 표시됩니다
-              </p>
-            )}
-
-            {selectedUnitId && !UNIT_WEEKLY_FORECAST[selectedUnitId] && (
-              <p className="text-xs text-muted-foreground text-center mt-4">
-                선택한 부대({getUnitById(selectedUnitId)?.name})의 예보 데이터가 없습니다
               </p>
             )}
           </div>
