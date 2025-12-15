@@ -101,7 +101,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                 <span className="text-[10px] text-primary font-medium">{selectedNotice.number}</span>
                 <span className="text-[10px] text-muted-foreground">{selectedNotice.date}</span>
               </div>
-              <h3 className="text-sm font-medium text-foreground leading-relaxed">
+              <h3 className="text-sm font-medium text-white leading-relaxed">
                 {selectedNotice.title}
               </h3>
               <div className="mt-2 text-[10px] text-muted-foreground">
