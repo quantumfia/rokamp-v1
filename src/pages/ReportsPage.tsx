@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { ReportGeneratorForm, ReportFormData } from '@/components/reports/ReportGeneratorForm';
 import { ReportPreview } from '@/components/reports/ReportPreview';
 import { StatisticsReportList } from '@/components/reports/StatisticsReportList';
+import { AccidentReportList } from '@/components/reports/AccidentReportList';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   ReportFormSkeleton, 
   ReportPreviewSkeleton, 
   StatisticsReportListSkeleton 
 } from '@/components/skeletons';
+import { Plus } from 'lucide-react';
 
 // 사고 분류 라벨
 const CATEGORY_LABELS: Record<string, string> = {
@@ -97,7 +99,8 @@ ${data.actionsTaken || '  (조치 사항 기록 필요)'}
 
 export default function ReportsPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('generator');
+  const [activeTab, setActiveTab] = useState('accident');
+  const [showGenerator, setShowGenerator] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -130,61 +133,90 @@ export default function ReportsPage() {
   };
 
   const tabs = [
-    ...(isHQ ? [{ id: 'generator', label: '사고 보고서 생성' }] : []),
-    { id: 'statistics', label: '통계 보고서 조회' },
+    { id: 'accident', label: '사고 보고서' },
+    { id: 'statistics', label: '통계 보고서' },
   ];
 
   return (
     <div className="p-6 space-y-6">
       {/* 헤더 */}
-      <div className="border-b border-border pb-4">
-        <h1 className="text-lg font-semibold text-foreground">보고서</h1>
-        <p className="text-sm text-muted-foreground mt-1">사고 보고서 작성 및 통계 보고서 조회</p>
+      <div className="flex items-center justify-between border-b border-border pb-4">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">보고서</h1>
+          <p className="text-sm text-muted-foreground mt-1">사고 보고서 및 통계 보고서 조회·작성</p>
+        </div>
+        {activeTab === 'accident' && !showGenerator && (
+          <button
+            onClick={() => setShowGenerator(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity"
+          >
+            <Plus className="w-4 h-4" />
+            새 보고서 작성
+          </button>
+        )}
       </div>
 
       {/* 탭 네비게이션 */}
-      <div className="flex gap-6 border-b border-border">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`pb-3 text-sm font-medium transition-colors ${
-              activeTab === tab.id
-                ? 'text-foreground border-b-2 border-foreground'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* 사고 보고서 생성 탭 */}
-      {isHQ && activeTab === 'generator' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {isLoading ? (
-            <>
-              <ReportFormSkeleton />
-              <ReportPreviewSkeleton />
-            </>
-          ) : (
-            <>
-              <ReportGeneratorForm 
-                onGenerate={handleGenerate}
-                isGenerating={isGenerating}
-              />
-              <ReportPreview 
-                content={generatedContent}
-                onContentChange={setGeneratedContent}
-                reporterInfo={reporterInfo}
-              />
-            </>
-          )}
+      {!showGenerator && (
+        <div className="flex gap-6 border-b border-border">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`pb-3 text-sm font-medium transition-colors ${
+                activeTab === tab.id
+                  ? 'text-foreground border-b-2 border-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       )}
 
+      {/* 사고 보고서 작성 폼 */}
+      {showGenerator && (
+        <div className="space-y-4">
+          <button
+            onClick={() => {
+              setShowGenerator(false);
+              setGeneratedContent('');
+            }}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← 목록으로 돌아가기
+          </button>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {isLoading ? (
+              <>
+                <ReportFormSkeleton />
+                <ReportPreviewSkeleton />
+              </>
+            ) : (
+              <>
+                <ReportGeneratorForm 
+                  onGenerate={handleGenerate}
+                  isGenerating={isGenerating}
+                />
+                <ReportPreview 
+                  content={generatedContent}
+                  onContentChange={setGeneratedContent}
+                  reporterInfo={reporterInfo}
+                />
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 사고 보고서 목록 탭 */}
+      {!showGenerator && activeTab === 'accident' && (
+        isLoading ? <StatisticsReportListSkeleton /> : <AccidentReportList />
+      )}
+
       {/* 통계 보고서 조회 탭 */}
-      {activeTab === 'statistics' && (
+      {!showGenerator && activeTab === 'statistics' && (
         isLoading ? <StatisticsReportListSkeleton /> : <StatisticsReportList />
       )}
     </div>
