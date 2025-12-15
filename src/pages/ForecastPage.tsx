@@ -112,16 +112,16 @@ export default function ForecastPage() {
             <div className="flex items-start justify-between mb-3">
               <h2 className="text-sm font-medium text-foreground">주간 종합 위험도</h2>
               <div className="flex items-center gap-3 text-[10px]">
-                <span className="text-status-error">■ 위험 75%↑</span>
-                <span className="text-orange-500">■ 주의 50~74%</span>
-                <span className="text-status-warning">■ 관심 25~49%</span>
-                <span className="text-status-success">■ 안전 ~24%</span>
+                <span className="text-status-error">■ 경고 75%↑</span>
+                <span className="text-status-warning">■ 주의 50~74%</span>
+                <span className="text-status-success">■ 안전 ~49%</span>
               </div>
             </div>
             <div className="border border-border rounded overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="bg-muted/30 border-b-2 border-foreground/30">
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-20">구분</th>
                     {[
                       { date: '12/21', day: '일' },
                       { date: '12/22', day: '월' },
@@ -139,7 +139,8 @@ export default function ForecastPage() {
                 </thead>
                 <tbody>
                   {/* 위험도 수치 */}
-                  <tr>
+                  <tr className="border-b border-border">
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">위험도</td>
                     {[18, 45, 52, 78, 55, 42, 25].map((risk, index) => (
                       <td key={index} className="py-3 text-center border-r border-border last:border-r-0">
                         <span className="text-lg font-semibold tabular-nums text-foreground">{risk}%</span>
@@ -147,10 +148,11 @@ export default function ForecastPage() {
                     ))}
                   </tr>
                   {/* 위험 등급 */}
-                  <tr className="border-t border-border bg-muted/20">
+                  <tr className="bg-muted/20">
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border">등급</td>
                     {[18, 45, 52, 78, 55, 42, 25].map((risk, index) => {
-                      const level = risk >= 75 ? '위험' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
-                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-orange-500' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
+                      const level = risk >= 75 ? '경고' : risk >= 50 ? '주의' : '안전';
+                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-status-warning' : 'text-status-success';
                       return (
                         <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
                           <span className={`text-xs font-medium ${levelColor}`}>{level}</span>
@@ -170,10 +172,9 @@ export default function ForecastPage() {
             <div className="flex items-start justify-between mb-1">
               <h2 className="text-sm font-medium text-foreground">사고 유형별 주간 위험 지수</h2>
               <div className="flex items-center gap-3 text-[10px]">
-                <span className="text-status-error">■ 위험 75%↑</span>
-                <span className="text-orange-500">■ 주의 50~74%</span>
-                <span className="text-status-warning">■ 관심 25~49%</span>
-                <span className="text-status-success">■ 안전 ~24%</span>
+                <span className="text-status-error">■ 경고 75%↑</span>
+                <span className="text-status-warning">■ 주의 50~74%</span>
+                <span className="text-status-success">■ 안전 ~49%</span>
               </div>
             </div>
             <p className="text-xs text-muted-foreground mb-4">각 유형별 예측 위험 확률 (%)</p>
@@ -181,6 +182,7 @@ export default function ForecastPage() {
               <table className="w-full">
                 <thead>
                   <tr className="bg-muted/30 border-b-2 border-foreground/30">
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-20">구분</th>
                     {['차량 사고', '훈련 부상', '시설 안전', '장비 사고'].map((type) => (
                       <th key={type} className="py-2 text-xs font-medium text-foreground text-center border-r border-border last:border-r-0">
                         {type}
@@ -190,7 +192,8 @@ export default function ForecastPage() {
                 </thead>
                 <tbody>
                   {/* 위험도 수치 */}
-                  <tr>
+                  <tr className="border-b border-border">
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">위험도</td>
                     {[72, 45, 28, 35].map((risk, index) => (
                       <td key={index} className="py-3 text-center border-r border-border last:border-r-0">
                         <span className="text-lg font-semibold tabular-nums text-foreground">{risk}%</span>
@@ -198,10 +201,11 @@ export default function ForecastPage() {
                     ))}
                   </tr>
                   {/* 위험 등급 */}
-                  <tr className="border-t border-border bg-muted/20">
+                  <tr className="bg-muted/20">
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border">등급</td>
                     {[72, 45, 28, 35].map((risk, index) => {
-                      const level = risk >= 75 ? '위험' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
-                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-orange-500' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
+                      const level = risk >= 75 ? '경고' : risk >= 50 ? '주의' : '안전';
+                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-status-warning' : 'text-status-success';
                       return (
                         <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
                           <span className={`text-xs font-medium ${levelColor}`}>{level}</span>
@@ -221,16 +225,16 @@ export default function ForecastPage() {
             <div className="flex items-start justify-between mb-3">
               <h2 className="text-sm font-medium text-foreground">계급별 주간 위험 지수</h2>
               <div className="flex items-center gap-3 text-[10px]">
-                <span className="text-status-error">■ 위험 75%↑</span>
-                <span className="text-orange-500">■ 주의 50~74%</span>
-                <span className="text-status-warning">■ 관심 25~49%</span>
-                <span className="text-status-success">■ 안전 ~24%</span>
+                <span className="text-status-error">■ 경고 75%↑</span>
+                <span className="text-status-warning">■ 주의 50~74%</span>
+                <span className="text-status-success">■ 안전 ~49%</span>
               </div>
             </div>
             <div className="border border-border rounded overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="bg-muted/30 border-b-2 border-foreground/30">
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-20">구분</th>
                     {['병사', '부사관', '위관', '영관', '장관'].map((rank) => (
                       <th key={rank} className="py-2 text-xs font-medium text-foreground text-center border-r border-border last:border-r-0">
                         {rank}
@@ -240,7 +244,8 @@ export default function ForecastPage() {
                 </thead>
                 <tbody>
                   {/* 위험도 수치 */}
-                  <tr>
+                  <tr className="border-b border-border">
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">위험도</td>
                     {[58, 35, 22, 12, 5].map((risk, index) => (
                       <td key={index} className="py-3 text-center border-r border-border last:border-r-0">
                         <span className="text-lg font-semibold tabular-nums text-foreground">{risk}%</span>
@@ -248,10 +253,11 @@ export default function ForecastPage() {
                     ))}
                   </tr>
                   {/* 위험 등급 */}
-                  <tr className="border-t border-border bg-muted/20">
+                  <tr className="bg-muted/20">
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border">등급</td>
                     {[58, 35, 22, 12, 5].map((risk, index) => {
-                      const level = risk >= 75 ? '위험' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
-                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-orange-500' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
+                      const level = risk >= 75 ? '경고' : risk >= 50 ? '주의' : '안전';
+                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-status-warning' : 'text-status-success';
                       return (
                         <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
                           <span className={`text-xs font-medium ${levelColor}`}>{level}</span>
@@ -274,10 +280,9 @@ export default function ForecastPage() {
                 <p className="text-xs text-muted-foreground">부대를 선택하면 해당 부대의 주간 예보가 표시됩니다</p>
               </div>
               <div className="flex items-center gap-3 text-[10px]">
-                <span className="text-status-error">■ 위험 75%↑</span>
-                <span className="text-orange-500">■ 주의 50~74%</span>
-                <span className="text-status-warning">■ 관심 25~49%</span>
-                <span className="text-status-success">■ 안전 ~24%</span>
+                <span className="text-status-error">■ 경고 75%↑</span>
+                <span className="text-status-warning">■ 주의 50~74%</span>
+                <span className="text-status-success">■ 안전 ~49%</span>
               </div>
             </div>
 
@@ -341,8 +346,8 @@ export default function ForecastPage() {
                           </td>
                         );
                       }
-                      const level = risk >= 75 ? '위험' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
-                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-orange-500' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
+                      const level = risk >= 75 ? '경고' : risk >= 50 ? '주의' : '안전';
+                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-status-warning' : 'text-status-success';
                       return (
                         <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
                           <span className={`text-xs font-medium ${levelColor}`}>{level}</span>
