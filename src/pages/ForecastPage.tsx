@@ -37,15 +37,78 @@ const chartTooltipStyle = {
   fontSize: '12px'
 };
 
+interface ChecklistItem {
+  id: number;
+  task: string;
+  completed: boolean;
+  priority: '높음' | '중간' | '낮음';
+  assignee: string;
+}
+
+const INITIAL_CHECKLIST: ChecklistItem[] = [
+  { id: 1, task: '차량 일일 점검 실시 (동절기 배터리/부동액)', completed: true, priority: '높음', assignee: '수송반' },
+  { id: 2, task: '동절기 안전교육 시행 (저체온증 예방)', completed: true, priority: '높음', assignee: '교육계' },
+  { id: 3, task: '훈련장 안전시설 점검 (결빙 구간 표시)', completed: false, priority: '높음', assignee: '작전과' },
+  { id: 4, task: '비상연락망 확인 및 업데이트', completed: false, priority: '중간', assignee: '행정반' },
+  { id: 5, task: '응급처치 장비 점검 (AED, 구급함)', completed: true, priority: '중간', assignee: '의무반' },
+  { id: 6, task: '야간 훈련 조명 장비 점검', completed: false, priority: '낮음', assignee: '정비반' },
+];
+
 export default function ForecastPage() {
   const [activeTab, setActiveTab] = useState('weekly');
   const [isLoading, setIsLoading] = useState(true);
   const [selectedUnitId, setSelectedUnitId] = useState<string>('');
+  const [checklist, setChecklist] = useState<ChecklistItem[]>(INITIAL_CHECKLIST);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingTask, setEditingTask] = useState('');
 
   // 부대별 주간 예보 기본 목데이터 (모든 부대에 동일하게 적용)
   const DEFAULT_UNIT_FORECAST = {
     days: [28, 42, 55, 48, 38, 22, 18],
     events: ['체력단련', '사격훈련', '야외훈련', '정비점검', '안전교육', '휴일', '휴일']
+  };
+
+  const handleToggleComplete = (id: number) => {
+    setChecklist(prev => prev.map(item => 
+      item.id === id ? { ...item, completed: !item.completed } : item
+    ));
+  };
+
+  const handleStartEdit = (item: ChecklistItem) => {
+    setEditingId(item.id);
+    setEditingTask(item.task);
+  };
+
+  const handleSaveEdit = (id: number) => {
+    if (editingTask.trim()) {
+      setChecklist(prev => prev.map(item => 
+        item.id === id ? { ...item, task: editingTask.trim() } : item
+      ));
+    }
+    setEditingId(null);
+    setEditingTask('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingTask('');
+  };
+
+  const handleDeleteItem = (id: number) => {
+    setChecklist(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleAddItem = () => {
+    const newId = Math.max(...checklist.map(c => c.id), 0) + 1;
+    setChecklist(prev => [...prev, {
+      id: newId,
+      task: '새 점검 항목',
+      completed: false,
+      priority: '중간',
+      assignee: '-'
+    }]);
+    setEditingId(newId);
+    setEditingTask('새 점검 항목');
   };
 
   useEffect(() => {
@@ -648,7 +711,15 @@ export default function ForecastPage() {
 
           {/* 예방 체크리스트 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-3">예방 체크리스트</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-medium text-foreground">예방 체크리스트</h2>
+              <button
+                onClick={handleAddItem}
+                className="text-xs text-primary hover:underline"
+              >
+                + 항목 추가
+              </button>
+            </div>
             <div className="border border-border rounded overflow-hidden">
               <table className="w-full">
                 <thead>
@@ -656,32 +727,45 @@ export default function ForecastPage() {
                     <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-16">완료</th>
                     <th className="py-2 text-xs font-medium text-foreground text-left px-4 border-r border-border">점검 항목</th>
                     <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-20">우선순위</th>
-                    <th className="py-2 text-xs font-medium text-foreground text-center w-24">담당</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">담당</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center w-20">관리</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { task: '차량 일일 점검 실시 (동절기 배터리/부동액)', completed: true, priority: '높음', assignee: '수송반' },
-                    { task: '동절기 안전교육 시행 (저체온증 예방)', completed: true, priority: '높음', assignee: '교육계' },
-                    { task: '훈련장 안전시설 점검 (결빙 구간 표시)', completed: false, priority: '높음', assignee: '작전과' },
-                    { task: '비상연락망 확인 및 업데이트', completed: false, priority: '중간', assignee: '행정반' },
-                    { task: '응급처치 장비 점검 (AED, 구급함)', completed: true, priority: '중간', assignee: '의무반' },
-                    { task: '야간 훈련 조명 장비 점검', completed: false, priority: '낮음', assignee: '정비반' },
-                  ].map((item, index) => (
-                    <tr key={index} className="border-b border-border last:border-b-0">
+                  {checklist.map((item) => (
+                    <tr key={item.id} className="border-b border-border last:border-b-0 group">
                       <td className="py-2.5 text-center border-r border-border">
-                        <div className={`w-4 h-4 mx-auto border rounded-sm flex items-center justify-center ${
-                          item.completed ? 'bg-status-success border-status-success' : 'border-border'
-                        }`}>
+                        <button
+                          onClick={() => handleToggleComplete(item.id)}
+                          className={`w-4 h-4 mx-auto border rounded-sm flex items-center justify-center cursor-pointer transition-colors ${
+                            item.completed ? 'bg-status-success border-status-success' : 'border-border hover:border-foreground/50'
+                          }`}
+                        >
                           {item.completed && (
                             <svg className="w-3 h-3 text-background" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                           )}
-                        </div>
+                        </button>
                       </td>
-                      <td className={`py-2.5 text-sm px-4 border-r border-border ${item.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                        {item.task}
+                      <td className="py-2.5 text-sm px-4 border-r border-border">
+                        {editingId === item.id ? (
+                          <input
+                            type="text"
+                            value={editingTask}
+                            onChange={(e) => setEditingTask(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSaveEdit(item.id);
+                              if (e.key === 'Escape') handleCancelEdit();
+                            }}
+                            className="w-full bg-transparent border border-border rounded px-2 py-1 text-sm focus:outline-none focus:border-foreground"
+                            autoFocus
+                          />
+                        ) : (
+                          <span className={item.completed ? 'text-muted-foreground line-through' : 'text-foreground'}>
+                            {item.task}
+                          </span>
+                        )}
                       </td>
                       <td className="py-2.5 text-center border-r border-border">
                         <span className={`text-xs font-medium ${
@@ -691,7 +775,40 @@ export default function ForecastPage() {
                           {item.priority}
                         </span>
                       </td>
-                      <td className="py-2.5 text-xs text-muted-foreground text-center">{item.assignee}</td>
+                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{item.assignee}</td>
+                      <td className="py-2.5 text-center">
+                        {editingId === item.id ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleSaveEdit(item.id)}
+                              className="text-xs text-status-success hover:underline"
+                            >
+                              저장
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              className="text-xs text-muted-foreground hover:underline"
+                            >
+                              취소
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => handleStartEdit(item)}
+                              className="text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              수정
+                            </button>
+                            <button
+                              onClick={() => handleDeleteItem(item.id)}
+                              className="text-xs text-muted-foreground hover:text-status-error"
+                            >
+                              삭제
+                            </button>
+                          </div>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
