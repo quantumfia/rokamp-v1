@@ -533,64 +533,179 @@ export default function ForecastPage() {
       {/* 예방 활동 탭 */}
       {activeTab === 'prevention' && (
         <div className="space-y-6">
-          {/* AI 생성 체크리스트 */}
-          <div>
-            <h2 className="text-sm font-medium text-foreground mb-3">AI 맞춤형 예방 체크리스트</h2>
-            <div className="divide-y divide-border">
-              {[
-                { task: '차량 일일 점검 실시 (동절기 배터리/부동액)', completed: true, priority: 'high' },
-                { task: '동절기 안전교육 시행 (저체온증 예방)', completed: true, priority: 'high' },
-                { task: '훈련장 안전시설 점검 (결빙 구간 표시)', completed: false, priority: 'high' },
-                { task: '비상연락망 확인 및 업데이트', completed: false, priority: 'medium' },
-                { task: '응급처치 장비 점검 (AED, 구급함)', completed: true, priority: 'medium' },
-                { task: '야간 훈련 조명 장비 점검', completed: false, priority: 'low' },
-              ].map((item, index) => (
-                <div key={index} className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 border rounded-sm flex items-center justify-center ${
-                      item.completed ? 'bg-foreground border-foreground' : 'border-border'
-                    }`}>
-                      {item.completed && (
-                        <svg className="w-3 h-3 text-background" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </div>
-                    <span className={item.completed ? 'text-muted-foreground line-through' : 'text-foreground'}>
-                      {item.task}
-                    </span>
-                  </div>
-                  {!item.completed && item.priority === 'high' && (
-                    <span className="text-xs text-muted-foreground">긴급</span>
-                  )}
-                </div>
-              ))}
+          {/* 점검 현황 요약 */}
+          <div className="grid grid-cols-4 gap-6">
+            <div>
+              <p className="text-xs text-muted-foreground">일일 점검</p>
+              <p className="text-2xl font-semibold text-foreground mt-1">92%</p>
+              <p className="text-xs text-status-success">완료율</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">주간 점검</p>
+              <p className="text-2xl font-semibold text-foreground mt-1">85%</p>
+              <p className="text-xs text-status-success">완료율</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">미조치 항목</p>
+              <p className="text-2xl font-semibold text-status-warning mt-1">3건</p>
+              <p className="text-xs text-muted-foreground">조치 필요</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">교육 이수율</p>
+              <p className="text-2xl font-semibold text-foreground mt-1">78%</p>
+              <p className="text-xs text-muted-foreground">이번 달</p>
             </div>
           </div>
 
           <div className="border-t border-border pt-6" />
 
-          {/* 교육 자료 링크 */}
+          {/* 점검 현황 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-3">관련 교육 자료</h2>
-            <div className="divide-y divide-border">
-              {[
-                { title: '동절기 차량 안전운행 매뉴얼', pages: 24 },
-                { title: '저체온증 예방 및 응급처치', pages: 12 },
-                { title: '동계 훈련장 안전관리 지침', pages: 18 },
-                { title: '결빙 도로 사고 예방 가이드', pages: 8 },
-              ].map((doc, index) => (
-                <button
-                  key={index}
-                  className="flex items-center justify-between w-full py-3 hover:bg-muted/30 transition-colors text-left"
-                >
-                  <span className="text-sm">{doc.title}</span>
-                  <span className="text-xs text-muted-foreground">{doc.pages}페이지</span>
-                </button>
-              ))}
+            <h2 className="text-sm font-medium text-foreground mb-3">점검 현황</h2>
+            <div className="border border-border rounded overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-muted/30 border-b-2 border-foreground/30">
+                    <th className="py-2 text-xs font-medium text-foreground text-left px-4 border-r border-border">점검 항목</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">주기</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-28">최근 점검일</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-28">다음 점검일</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center w-20">상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { item: '차량 일일 점검 (배터리, 부동액, 타이어)', cycle: '일일', lastDate: '12/15', nextDate: '12/16', status: 'complete' },
+                    { item: '훈련장 안전시설 점검', cycle: '주간', lastDate: '12/14', nextDate: '12/21', status: 'complete' },
+                    { item: '응급장비 점검 (AED, 구급함)', cycle: '주간', lastDate: '12/10', nextDate: '12/17', status: 'warning' },
+                    { item: '소방시설 점검', cycle: '월간', lastDate: '12/01', nextDate: '01/01', status: 'complete' },
+                    { item: '탄약고 안전점검', cycle: '주간', lastDate: '12/08', nextDate: '12/15', status: 'overdue' },
+                  ].map((row, index) => (
+                    <tr key={index} className="border-b border-border last:border-b-0">
+                      <td className="py-2.5 text-sm text-foreground px-4 border-r border-border">{row.item}</td>
+                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.cycle}</td>
+                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.lastDate}</td>
+                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.nextDate}</td>
+                      <td className="py-2.5 text-center">
+                        <span className={`text-xs font-medium ${
+                          row.status === 'complete' ? 'text-status-success' : 
+                          row.status === 'warning' ? 'text-status-warning' : 'text-status-error'
+                        }`}>
+                          {row.status === 'complete' ? '완료' : row.status === 'warning' ? '임박' : '지연'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <p className="text-xs text-muted-foreground mt-4">
-              ※ 보안 위배 소지가 있는 실제 사고 사례는 노출되지 않습니다
+          </div>
+
+          <div className="border-t border-border pt-6" />
+
+          {/* 교육 현황 */}
+          <div>
+            <h2 className="text-sm font-medium text-foreground mb-3">교육 현황</h2>
+            <div className="border border-border rounded overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-muted/30 border-b-2 border-foreground/30">
+                    <th className="py-2 text-xs font-medium text-foreground text-left px-4 border-r border-border">교육명</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">대상</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">이수율</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-28">마감일</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center w-20">상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: '동절기 안전교육', target: '전 장병', rate: 95, deadline: '12/20', status: 'complete' },
+                    { name: '차량 안전운행 교육', target: '운전병', rate: 88, deadline: '12/18', status: 'inprogress' },
+                    { name: '응급처치 교육 (심폐소생술)', target: '간부', rate: 72, deadline: '12/25', status: 'inprogress' },
+                    { name: '화생방 대응 교육', target: '전 장병', rate: 45, deadline: '12/31', status: 'inprogress' },
+                    { name: '사이버보안 교육', target: '전 장병', rate: 100, deadline: '12/10', status: 'complete' },
+                  ].map((row, index) => (
+                    <tr key={index} className="border-b border-border last:border-b-0">
+                      <td className="py-2.5 text-sm text-foreground px-4 border-r border-border">{row.name}</td>
+                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.target}</td>
+                      <td className="py-2.5 text-center border-r border-border">
+                        <span className={`text-xs font-medium tabular-nums ${
+                          row.rate >= 90 ? 'text-status-success' : 
+                          row.rate >= 70 ? 'text-status-warning' : 'text-foreground'
+                        }`}>
+                          {row.rate}%
+                        </span>
+                      </td>
+                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.deadline}</td>
+                      <td className="py-2.5 text-center">
+                        <span className={`text-xs font-medium ${
+                          row.status === 'complete' ? 'text-status-success' : 'text-primary'
+                        }`}>
+                          {row.status === 'complete' ? '완료' : '진행중'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-6" />
+
+          {/* 예방 체크리스트 */}
+          <div>
+            <h2 className="text-sm font-medium text-foreground mb-3">예방 체크리스트</h2>
+            <div className="border border-border rounded overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-muted/30 border-b-2 border-foreground/30">
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-16">완료</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-left px-4 border-r border-border">점검 항목</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-20">우선순위</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center w-24">담당</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { task: '차량 일일 점검 실시 (동절기 배터리/부동액)', completed: true, priority: '높음', assignee: '수송반' },
+                    { task: '동절기 안전교육 시행 (저체온증 예방)', completed: true, priority: '높음', assignee: '교육계' },
+                    { task: '훈련장 안전시설 점검 (결빙 구간 표시)', completed: false, priority: '높음', assignee: '작전과' },
+                    { task: '비상연락망 확인 및 업데이트', completed: false, priority: '중간', assignee: '행정반' },
+                    { task: '응급처치 장비 점검 (AED, 구급함)', completed: true, priority: '중간', assignee: '의무반' },
+                    { task: '야간 훈련 조명 장비 점검', completed: false, priority: '낮음', assignee: '정비반' },
+                  ].map((item, index) => (
+                    <tr key={index} className="border-b border-border last:border-b-0">
+                      <td className="py-2.5 text-center border-r border-border">
+                        <div className={`w-4 h-4 mx-auto border rounded-sm flex items-center justify-center ${
+                          item.completed ? 'bg-status-success border-status-success' : 'border-border'
+                        }`}>
+                          {item.completed && (
+                            <svg className="w-3 h-3 text-background" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                      </td>
+                      <td className={`py-2.5 text-sm px-4 border-r border-border ${item.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+                        {item.task}
+                      </td>
+                      <td className="py-2.5 text-center border-r border-border">
+                        <span className={`text-xs font-medium ${
+                          item.priority === '높음' ? 'text-status-error' : 
+                          item.priority === '중간' ? 'text-status-warning' : 'text-muted-foreground'
+                        }`}>
+                          {item.priority}
+                        </span>
+                      </td>
+                      <td className="py-2.5 text-xs text-muted-foreground text-center">{item.assignee}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              ※ AI가 현재 위험 징후를 분석하여 자동 생성한 체크리스트입니다
             </p>
           </div>
         </div>
