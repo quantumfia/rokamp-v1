@@ -166,11 +166,9 @@ export function StatisticsReportList() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1">
-            <p className="text-xs text-muted-foreground">
-              {getTypeLabel(selectedReport.type)} · {selectedReport.unit}
-            </p>
+            <p className="text-sm text-muted-foreground">{selectedReport.unit} · {getTypeLabel(selectedReport.type)}</p>
             <h2 className="text-lg font-semibold mt-1">{selectedReport.title}</h2>
-            <p className="text-sm text-muted-foreground">{selectedReport.period}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{selectedReport.period}</p>
           </div>
           <button 
             onClick={() => handleDownload(selectedReport)}
