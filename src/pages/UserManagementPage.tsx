@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, Upload, Download, MoreHorizontal } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
-import { getUnitById, getAllDescendants } from '@/data/armyUnits';
+import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
 import { toast } from '@/hooks/use-toast';
 
 interface User {
@@ -172,7 +172,7 @@ export default function UserManagementPage() {
               <div className="font-mono text-muted-foreground">{user.militaryId}</div>
               <div className="font-medium">{user.name}</div>
               <div className="text-muted-foreground">{user.rank}</div>
-              <div className="text-muted-foreground truncate">{getUnitName(user.unitId)}</div>
+              <div className="text-muted-foreground text-xs" title={getUnitFullName(user.unitId)}>{getUnitFullName(user.unitId)}</div>
               <div className="text-muted-foreground">{getRoleLabel(user.role)}</div>
               <div className="text-muted-foreground">
                 {user.status === 'active' ? '활성' : '비활성'}
