@@ -1,8 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.heat';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+
+// Extend L namespace for heat layer
+declare module 'leaflet' {
+  function heatLayer(latlngs: Array<[number, number, number]>, options?: {
+    radius?: number;
+    blur?: number;
+    maxZoom?: number;
+    max?: number;
+    minOpacity?: number;
+    gradient?: { [key: number]: string };
+  }): L.Layer;
+}
 
 interface MapViewProps {
   className?: string;
@@ -31,6 +44,26 @@ const BN_UNITS = [
   { id: 'bn-1', name: '1대대', lat: 37.93, lng: 127.03, risk: 48, parent: 'reg-1' },
   { id: 'bn-2', name: '2대대', lat: 37.91, lng: 127.07, risk: 55, parent: 'reg-1' },
   { id: 'facility-1', name: '훈련장', lat: 37.90, lng: 127.10, risk: 35, parent: 'reg-1' },
+];
+
+// 히트맵용 사고 발생 데이터 (위도, 경도, 강도)
+const ACCIDENT_HEATMAP_DATA: Array<[number, number, number]> = [
+  // 고위험 지역
+  [37.8, 127.5, 0.9],
+  [37.82, 127.48, 0.85],
+  [37.78, 127.52, 0.8],
+  [37.5, 126.9, 0.75],
+  [37.52, 126.88, 0.7],
+  [37.48, 126.92, 0.65],
+  // 중위험 지역
+  [38.0, 127.3, 0.6],
+  [37.98, 127.32, 0.55],
+  [37.9, 127.0, 0.5],
+  [37.92, 126.98, 0.45],
+  [37.7, 127.1, 0.4],
+  // 저위험 지역
+  [37.6, 127.2, 0.25],
+  [37.58, 127.18, 0.2],
 ];
 
 // Custom marker icon creation
@@ -68,6 +101,8 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.Marker[]>([]);
+  const heatLayerRef = useRef<L.Layer | null>(null);
+  const [showHeatmap, setShowHeatmap] = useState(true);
   const { user } = useAuth();
 
   // 권한별 표시할 부대 및 줌 레벨 결정 (MAIN-MAP)
@@ -130,6 +165,22 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
       maxZoom: 19,
     }).addTo(mapRef.current);
 
+    // Add heatmap layer
+    heatLayerRef.current = L.heatLayer(ACCIDENT_HEATMAP_DATA, {
+      radius: 35,
+      blur: 25,
+      maxZoom: 10,
+      max: 1.0,
+      minOpacity: 0.4,
+      gradient: {
+        0.0: '#22c55e',
+        0.25: '#84cc16',
+        0.5: '#f59e0b',
+        0.75: '#f97316',
+        1.0: '#ef4444'
+      }
+    }).addTo(mapRef.current);
+
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
@@ -137,6 +188,21 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
       }
     };
   }, []);
+
+  // Toggle heatmap visibility
+  useEffect(() => {
+    if (!mapRef.current || !heatLayerRef.current) return;
+    
+    if (showHeatmap) {
+      if (!mapRef.current.hasLayer(heatLayerRef.current)) {
+        heatLayerRef.current.addTo(mapRef.current);
+      }
+    } else {
+      if (mapRef.current.hasLayer(heatLayerRef.current)) {
+        mapRef.current.removeLayer(heatLayerRef.current);
+      }
+    }
+  }, [showHeatmap]);
 
   // Update view when user role changes
   useEffect(() => {
@@ -200,6 +266,21 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
     <div className={cn('relative overflow-hidden', className)}>
       <div ref={mapContainerRef} className="w-full h-full" style={{ background: 'hsl(220, 13%, 8%)' }} />
       
+      {/* Heatmap toggle button */}
+      <div className="absolute top-3 right-3 z-[1000]">
+        <button
+          onClick={() => setShowHeatmap(!showHeatmap)}
+          className={cn(
+            'floating-panel px-3 py-1.5 text-[11px] font-medium transition-colors',
+            showHeatmap 
+              ? 'text-status-error bg-status-error/10 border-status-error/30' 
+              : 'text-panel-dark-foreground/70 hover:text-panel-dark-foreground'
+          )}
+        >
+          {showHeatmap ? '히트맵 ON' : '히트맵 OFF'}
+        </button>
+      </div>
+      
       {/* Map Legend */}
       <div className="absolute bottom-3 left-3 floating-panel p-2.5 z-[1000]">
         <p className="text-[10px] font-medium text-panel-dark-foreground mb-1.5 uppercase tracking-wider">위험도</p>
@@ -217,6 +298,18 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
             <span className="text-panel-dark-foreground/70">경고</span>
           </div>
         </div>
+        {showHeatmap && (
+          <div className="mt-2 pt-2 border-t border-sidebar-border">
+            <p className="text-[10px] font-medium text-panel-dark-foreground mb-1 uppercase tracking-wider">사고 밀집도</p>
+            <div className="w-full h-2 rounded-full" style={{
+              background: 'linear-gradient(to right, #22c55e, #84cc16, #f59e0b, #f97316, #ef4444)'
+            }} />
+            <div className="flex justify-between text-[9px] text-panel-dark-foreground/50 mt-0.5">
+              <span>낮음</span>
+              <span>높음</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* View title */}
