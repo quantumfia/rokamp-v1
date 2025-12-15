@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Upload, Trash2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 // 상태 라벨
 function StatusLabel({ status }: { status: 'completed' | 'processing' | 'failed' }) {
@@ -54,6 +55,29 @@ function CompactUploader({ label, hint }: { label: string; hint: string }) {
 
 export default function DataManagementPage() {
   const [activeTab, setActiveTab] = useState('documents');
+  const [showJsonInput, setShowJsonInput] = useState(false);
+  const [jsonInput, setJsonInput] = useState('');
+
+  const handleJsonUpload = () => {
+    try {
+      const parsed = JSON.parse(jsonInput);
+      if (!Array.isArray(parsed)) {
+        throw new Error('배열 형식이어야 합니다');
+      }
+      toast({
+        title: '데이터 적재 완료',
+        description: `${parsed.length}개 기사가 Vector DB로 변환됩니다.`,
+      });
+      setJsonInput('');
+      setShowJsonInput(false);
+    } catch (e) {
+      toast({
+        title: 'JSON 파싱 오류',
+        description: '올바른 JSON 형식인지 확인해주세요.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -135,13 +159,56 @@ export default function DataManagementPage() {
         </div>
       )}
 
-      {/* 뉴스 데이터 탭 */}
+      {/* 뉴스 데이터 탭 (DATA-002) */}
       {activeTab === 'news' && (
         <div className="space-y-6">
-          <CompactUploader
-            label="뉴스 데이터 업로드"
-            hint="JSON 또는 PDF 형식"
-          />
+          {/* 업로드 방식 선택 */}
+          <div className="grid grid-cols-2 gap-4">
+            <CompactUploader
+              label="뉴스 파일 업로드"
+              hint="PDF 형식"
+            />
+            <div className="py-4 px-4 bg-muted/30 border border-dashed border-border rounded-lg">
+              <p className="text-sm font-medium text-foreground">JSON 직접 입력</p>
+              <p className="text-xs text-muted-foreground mt-0.5">구조화된 뉴스 데이터 입력</p>
+              <button 
+                onClick={() => setShowJsonInput(!showJsonInput)}
+                className="mt-2 flex items-center gap-2 px-4 py-2 text-sm border border-border bg-background rounded hover:bg-muted/50 transition-colors"
+              >
+                {showJsonInput ? '입력창 닫기' : 'JSON 입력'}
+              </button>
+            </div>
+          </div>
+
+          {/* JSON 입력창 (DATA-002) */}
+          {showJsonInput && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-foreground">JSON 데이터 입력</p>
+                <p className="text-xs text-muted-foreground">형식: {'{'}Title, Content, Date, Source{'}'}</p>
+              </div>
+              <textarea
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+                placeholder={'[\n  {\n    "Title": "기사 제목",\n    "Content": "기사 본문 내용...",\n    "Date": "2024-12-14",\n    "Source": "국방일보"\n  }\n]'}
+                className="w-full h-48 bg-background border border-border rounded p-3 text-sm font-mono placeholder:text-muted-foreground focus:outline-none focus:border-foreground resize-none"
+              />
+              <div className="flex justify-end gap-2">
+                <button 
+                  onClick={() => setJsonInput('')}
+                  className="px-3 py-1.5 text-sm border border-border rounded hover:bg-muted/50 transition-colors"
+                >
+                  초기화
+                </button>
+                <button 
+                  onClick={handleJsonUpload}
+                  className="px-3 py-1.5 text-sm bg-foreground text-background rounded hover:opacity-80 transition-opacity"
+                >
+                  데이터 적재
+                </button>
+              </div>
+            </div>
+          )}
 
           <div>
             <div className="flex items-center justify-between mb-3">

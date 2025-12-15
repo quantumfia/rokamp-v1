@@ -1,23 +1,59 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MapViewProps {
   className?: string;
   onMarkerClick?: (unitId: string) => void;
 }
 
-// Simulated unit data
-const UNITS = [
-  { id: '1', name: '제1사단', lat: 37.9, lng: 127.0, risk: 45 },
-  { id: '2', name: '제2사단', lat: 37.7, lng: 127.1, risk: 32 },
-  { id: '3', name: '제3사단', lat: 37.5, lng: 126.9, risk: 68 },
-  { id: '4', name: '제5사단', lat: 37.6, lng: 127.2, risk: 22 },
-  { id: '5', name: '제6사단', lat: 38.0, lng: 127.3, risk: 55 },
-  { id: '6', name: '제7사단', lat: 37.8, lng: 127.5, risk: 78 },
+// 전체 부대 데이터
+const ALL_UNITS = [
+  { id: '1', name: '제1사단', lat: 37.9, lng: 127.0, risk: 45, parent: 'hq' },
+  { id: '2', name: '제2사단', lat: 37.7, lng: 127.1, risk: 32, parent: 'hq' },
+  { id: '3', name: '제3사단', lat: 37.5, lng: 126.9, risk: 68, parent: 'hq' },
+  { id: '4', name: '제5사단', lat: 37.6, lng: 127.2, risk: 22, parent: 'hq' },
+  { id: '5', name: '제6사단', lat: 38.0, lng: 127.3, risk: 55, parent: 'hq' },
+  { id: '6', name: '제7사단', lat: 37.8, lng: 127.5, risk: 78, parent: 'hq' },
+];
+
+// 사단급 예하 부대 (사단장이 볼 때)
+const DIV_UNITS = [
+  { id: 'reg-1', name: '11연대', lat: 37.92, lng: 127.05, risk: 52, parent: '1' },
+  { id: 'reg-2', name: '12연대', lat: 37.88, lng: 126.95, risk: 38, parent: '1' },
+  { id: 'reg-3', name: '15연대', lat: 37.85, lng: 127.08, risk: 61, parent: '1' },
+];
+
+// 대대급 (대대장이 볼 때)
+const BN_UNITS = [
+  { id: 'bn-1', name: '1대대', lat: 37.93, lng: 127.03, risk: 48, parent: 'reg-1' },
+  { id: 'bn-2', name: '2대대', lat: 37.91, lng: 127.07, risk: 55, parent: 'reg-1' },
+  { id: 'facility-1', name: '훈련장', lat: 37.90, lng: 127.10, risk: 35, parent: 'reg-1' },
 ];
 
 export function MapView({ className, onMarkerClick }: MapViewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { user } = useAuth();
+
+  // 권한별 표시할 부대 및 줌 레벨 결정 (MAIN-MAP)
+  const getViewConfig = () => {
+    switch (user?.role) {
+      case 'ROLE_HQ':
+        // 육군본부: 전국 전도 + 전군 사단 마커
+        return { units: ALL_UNITS, zoomLevel: 'national', title: '대한민국 전도' };
+      case 'ROLE_DIV':
+        // 사단급: 해당 사단 작전구역 + 예하 연대/대대 마커
+        return { units: DIV_UNITS, zoomLevel: 'regional', title: '제1사단 작전구역' };
+      case 'ROLE_BN':
+        // 대대급: 주둔지/훈련장 정밀 지도
+        return { units: BN_UNITS, zoomLevel: 'local', title: '11연대 1대대 주둔지' };
+      default:
+        return { units: ALL_UNITS, zoomLevel: 'national', title: '대한민국 전도' };
+    }
+  };
+
+  const viewConfig = getViewConfig();
+  const UNITS = viewConfig.units;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -169,7 +205,7 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
       window.removeEventListener('resize', resize);
       canvas.removeEventListener('click', handleClick);
     };
-  }, [onMarkerClick]);
+  }, [onMarkerClick, UNITS]);
 
   return (
     <div className={cn('relative overflow-hidden', className)}>

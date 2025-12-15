@@ -61,10 +61,15 @@ export default function DashboardPage() {
             onMarkerClick={handleMarkerClick}
           />
           
-          {/* Map overlay header */}
+          {/* Map overlay header - 권한별 타이틀 표시 */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
             <div className="bg-panel-dark/90 backdrop-blur-sm rounded px-3 py-1.5 border border-sidebar-border pointer-events-auto">
-              <span className="text-xs font-medium text-white">GIS 시각화</span>
+              <span className="text-xs font-medium text-white">
+                {user?.role === 'ROLE_HQ' && '대한민국 전도 · 전군 위험도'}
+                {user?.role === 'ROLE_DIV' && `${user?.unit || '사단'} 작전구역`}
+                {user?.role === 'ROLE_BN' && `${user?.unit || '대대'} 주둔지`}
+                {!user?.role && 'GIS 시각화'}
+              </span>
             </div>
           </div>
         </div>
