@@ -293,12 +293,6 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
         </div>
       </div>
 
-      {/* View title */}
-      <div className="absolute top-3 left-3 floating-panel px-3 py-1.5 z-[1000]">
-        <p className="text-[11px] font-medium text-panel-dark-foreground">
-          {viewConfig.title}
-        </p>
-      </div>
 
       <style>{`
         .leaflet-container {
