@@ -90,6 +90,20 @@ export function LNB() {
         isExpanded ? 'w-48' : 'w-12'
       )}
     >
+      {/* Toggle Button - Top */}
+      <div className="p-2 border-b border-sidebar-border">
+        <button
+          onClick={toggleSidebar}
+          className="w-full flex items-center justify-center h-8 rounded text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+        >
+          {isExpanded ? (
+            <ChevronLeft className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
+        </button>
+      </div>
+
       {/* Menu Items */}
       <nav className="flex-1 py-2 space-y-0.5 px-1.5">
         {filteredMenuItems.map((item) => {
@@ -138,20 +152,6 @@ export function LNB() {
           return linkContent;
         })}
       </nav>
-
-      {/* Toggle Button */}
-      <div className="p-2 border-t border-sidebar-border">
-        <button
-          onClick={toggleSidebar}
-          className="w-full flex items-center justify-center h-8 rounded text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
-        >
-          {isExpanded ? (
-            <ChevronLeft className="w-4 h-4" />
-          ) : (
-            <ChevronRight className="w-4 h-4" />
-          )}
-        </button>
-      </div>
     </aside>
   );
 }
