@@ -58,7 +58,8 @@ export default function ReportsPage() {
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const isHQ = user?.role === 'ROLE_HQ';
+  // Super Admin 권한: 모든 기능 표시
+  const isHQ = true;
 
   const handleGenerate = async (data: ReportFormData) => {
     setIsGenerating(true);
