@@ -141,36 +141,50 @@ export default function ForecastPage() {
 
           {/* 사고 유형별 주간 예측 위험도 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-1">사고 유형별 주간 위험 지수</h2>
+            <div className="flex items-start justify-between mb-1">
+              <h2 className="text-sm font-medium text-foreground">사고 유형별 주간 위험 지수</h2>
+              <div className="flex items-center gap-3 text-[10px]">
+                <span className="text-status-error">■ 위험 75%↑</span>
+                <span className="text-orange-500">■ 주의 50~74%</span>
+                <span className="text-status-warning">■ 관심 25~49%</span>
+                <span className="text-status-success">■ 안전 ~24%</span>
+              </div>
+            </div>
             <p className="text-xs text-muted-foreground mb-4">각 유형별 예측 위험 확률 (%)</p>
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart 
-                  data={[
-                    { type: '차량 사고', risk: 72 },
-                    { type: '훈련 부상', risk: 45 },
-                    { type: '시설 안전', risk: 28 },
-                    { type: '장비 사고', risk: 35 },
-                  ]}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis 
-                    dataKey="type" 
-                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                    axisLine={{ stroke: 'hsl(var(--border))' }}
-                  />
-                  <YAxis 
-                    domain={[0, 100]}
-                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                    axisLine={{ stroke: 'hsl(var(--border))' }}
-                  />
-                  <Tooltip 
-                    contentStyle={chartTooltipStyle}
-                    formatter={(value: number) => [`${value}%`, '위험도']}
-                  />
-                  <Bar dataKey="risk" fill="hsl(var(--muted-foreground))" radius={[2, 2, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="border border-border rounded overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-muted/30 border-b-2 border-foreground/30">
+                    {['차량 사고', '훈련 부상', '시설 안전', '장비 사고'].map((type) => (
+                      <th key={type} className="py-2 text-xs font-medium text-foreground text-center border-r border-border last:border-r-0">
+                        {type}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* 위험도 수치 */}
+                  <tr>
+                    {[72, 45, 28, 35].map((risk, index) => (
+                      <td key={index} className="py-3 text-center border-r border-border last:border-r-0">
+                        <span className="text-lg font-semibold tabular-nums text-foreground">{risk}%</span>
+                      </td>
+                    ))}
+                  </tr>
+                  {/* 위험 등급 */}
+                  <tr className="border-t border-border bg-muted/20">
+                    {[72, 45, 28, 35].map((risk, index) => {
+                      const level = risk >= 75 ? '위험' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
+                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-orange-500' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
+                      return (
+                        <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
+                          <span className={`text-xs font-medium ${levelColor}`}>{level}</span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
