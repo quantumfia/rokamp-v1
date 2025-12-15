@@ -101,20 +101,27 @@ const createMarkerIcon = (risk: number) => {
 export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const markersRef = useRef<L.Marker[]>([]);
+  const markersRef = useRef<Map<string, L.Marker>>(new Map());
   const heatLayerRef = useRef<L.Layer | null>(null);
   const [showHeatmap, setShowHeatmap] = useState(true);
   const { user } = useAuth();
 
-  // 선택된 부대로 맵 이동 (빠르게)
+  // 선택된 부대로 맵 이동 + 팝업 표시
   useEffect(() => {
     if (!mapRef.current || !selectedUnitId) return;
 
     const unit = ARMY_UNITS.find(u => u.id === selectedUnitId);
     if (unit && unit.lat && unit.lng) {
-      mapRef.current.flyTo([unit.lat, unit.lng], 10, {
+      // 더 가까이 줌 (레벨 13)
+      mapRef.current.flyTo([unit.lat, unit.lng], 13, {
         duration: 0.5,
       });
+      
+      // 해당 마커의 팝업 열기
+      const marker = markersRef.current.get(selectedUnitId);
+      if (marker) {
+        setTimeout(() => marker.openPopup(), 500);
+      }
     }
   }, [selectedUnitId]);
 
@@ -232,7 +239,7 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
 
     // Clear existing markers
     markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
+    markersRef.current.clear();
 
     // ARMY_UNITS에서 좌표가 있는 모든 부대 마커 추가
     const unitsWithCoords = ARMY_UNITS.filter(u => u.lat && u.lng && u.risk !== undefined);
@@ -273,7 +280,7 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
         onMarkerClick?.(unit.id);
       });
 
-      markersRef.current.push(marker);
+      markersRef.current.set(unit.id, marker);
     });
   }, [onMarkerClick]);
 
