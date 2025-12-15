@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ChatbotSkeleton } from '@/components/skeletons';
 
 interface Message {
   id: string;
@@ -30,7 +31,13 @@ export default function ChatbotPage() {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsPageLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -219,6 +226,10 @@ export default function ChatbotPage() {
       ]
     };
   };
+
+  if (isPageLoading) {
+    return <ChatbotSkeleton />;
+  }
 
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col">
