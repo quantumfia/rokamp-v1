@@ -422,13 +422,10 @@ export function StatisticsReportList() {
         const pageEl = pageElements[i] as HTMLElement;
         
         const canvas = await html2canvas(pageEl, {
-          scale: 3,
+          scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
           logging: false,
-          allowTaint: true,
-          windowWidth: pageEl.scrollWidth,
-          windowHeight: pageEl.scrollHeight,
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -478,13 +475,10 @@ export function StatisticsReportList() {
       const pageImages: string[] = [];
       for (const pageEl of pageElements) {
         const canvas = await html2canvas(pageEl, {
-          scale: 3,
+          scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
           logging: false,
-          allowTaint: true,
-          windowWidth: pageEl.scrollWidth,
-          windowHeight: pageEl.scrollHeight,
         });
         pageImages.push(canvas.toDataURL('image/png'));
       }
@@ -654,7 +648,8 @@ export function StatisticsReportList() {
             className="a4-page bg-white shadow-lg relative"
             style={{ 
               width: `${A4_WIDTH_PX}px`, 
-              minHeight: `${A4_HEIGHT_PX}px`,
+              height: `${A4_HEIGHT_PX}px`,
+              overflow: 'hidden',
               paddingLeft: `${PAGE_PADDING_X}px`,
               paddingRight: `${PAGE_PADDING_X}px`,
               paddingTop: `${PAGE_PADDING_TOP}px`,
@@ -775,7 +770,8 @@ export function StatisticsReportList() {
             className="a4-page bg-white shadow-lg relative"
             style={{ 
               width: `${A4_WIDTH_PX}px`, 
-              minHeight: `${A4_HEIGHT_PX}px`,
+              height: `${A4_HEIGHT_PX}px`,
+              overflow: 'hidden',
               paddingLeft: `${PAGE_PADDING_X}px`,
               paddingRight: `${PAGE_PADDING_X}px`,
               paddingTop: `${PAGE_PADDING_TOP}px`,
