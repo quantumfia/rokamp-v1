@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Download, Copy, FileText, ChevronDown } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { jsPDF } from 'jspdf';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,24 +25,128 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
     });
   };
 
-  const handleDownloadPDF = () => {
-    // PDF 다운로드 (브라우저에서는 텍스트 파일로 대체, 실제 구현 시 pdf-lib 등 사용)
-    const blob = new Blob([content], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `사고보고서_${new Date().toISOString().split('T')[0]}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast({
-      title: 'PDF 다운로드',
-      description: '보고서가 PDF 형식으로 다운로드되었습니다.',
-    });
+  const handleDownloadPDF = async () => {
+    try {
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      // 페이지 설정
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      const contentWidth = pageWidth - margin * 2;
+      let yPosition = margin;
+
+      // 헤더 영역
+      doc.setFontSize(10);
+      doc.setTextColor(128, 128, 128);
+      doc.text('Army Accident Report', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 8;
+
+      doc.setFontSize(16);
+      doc.setTextColor(0, 0, 0);
+      doc.text('ACCIDENT REPORT', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 5;
+
+      // 헤더 구분선
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.5);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 10;
+
+      // 본문 내용
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+
+      const lines = content.split('\n');
+      
+      for (const line of lines) {
+        // 페이지 넘김 체크
+        if (yPosition > pageHeight - margin - 20) {
+          doc.addPage();
+          yPosition = margin;
+        }
+
+        if (line.match(/^\d+\.\s/)) {
+          // 섹션 제목
+          yPosition += 3;
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.text(line, margin, yPosition);
+          yPosition += 7;
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(11);
+        } else if (line.match(/^\s+[가-힣]\.\s/) || line.match(/^\s+[a-z]\.\s/i)) {
+          // 부제목
+          doc.text(line.trim(), margin + 5, yPosition);
+          yPosition += 6;
+        } else if (line.match(/^\s+-\s/)) {
+          // 리스트 항목
+          doc.text(line.trim(), margin + 10, yPosition);
+          yPosition += 6;
+        } else if (line.startsWith('※')) {
+          // 주석
+          yPosition += 5;
+          doc.setFontSize(9);
+          doc.setTextColor(128, 128, 128);
+          doc.text(line, margin, yPosition);
+          yPosition += 6;
+          doc.setFontSize(11);
+          doc.setTextColor(0, 0, 0);
+        } else if (line.trim()) {
+          // 일반 텍스트
+          const splitText = doc.splitTextToSize(line, contentWidth);
+          for (const textLine of splitText) {
+            if (yPosition > pageHeight - margin - 20) {
+              doc.addPage();
+              yPosition = margin;
+            }
+            doc.text(textLine, margin, yPosition);
+            yPosition += 6;
+          }
+        } else {
+          // 빈 줄
+          yPosition += 3;
+        }
+      }
+
+      // 푸터
+      const totalPages = doc.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.setTextColor(128, 128, 128);
+        doc.text(
+          `- ${i} / ${totalPages} -`,
+          pageWidth / 2,
+          pageHeight - 10,
+          { align: 'center' }
+        );
+      }
+
+      // 다운로드
+      doc.save(`사고보고서_${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      toast({
+        title: 'PDF 다운로드 완료',
+        description: '보고서가 PDF 형식으로 다운로드되었습니다.',
+      });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({
+        title: 'PDF 생성 실패',
+        description: 'PDF 파일 생성 중 오류가 발생했습니다.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleDownloadHWP = () => {
     // HWP 다운로드 (실제 구현 시 서버 사이드 변환 필요)
-    const blob = new Blob([content], { type: 'application/x-hwp' });
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -50,7 +155,7 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
     URL.revokeObjectURL(url);
     toast({
       title: 'HWP 다운로드',
-      description: '보고서가 HWP 형식으로 다운로드되었습니다.',
+      description: '보고서가 HWP 형식으로 다운로드되었습니다. (텍스트 기반)',
     });
   };
 
