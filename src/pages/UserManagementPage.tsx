@@ -17,15 +17,15 @@ interface User {
 }
 
 const MOCK_USERS: User[] = [
-  { id: '1', militaryId: 'HQ001', name: '김철수', rank: '대령', unitId: 'hq', role: 'ROLE_HQ', status: 'active' },
-  { id: '2', militaryId: 'DIV001', name: '이영희', rank: '준장', unitId: 'div-1', role: 'ROLE_DIV', status: 'active' },
-  { id: '3', militaryId: 'DIV002', name: '박민호', rank: '대령', unitId: 'div-3', role: 'ROLE_DIV', status: 'active' },
-  { id: '4', militaryId: 'BN001', name: '최지훈', rank: '중령', unitId: 'bn-1-1', role: 'ROLE_BN', status: 'active' },
-  { id: '5', militaryId: 'BN002', name: '정수민', rank: '중령', unitId: 'bn-1-2', role: 'ROLE_BN', status: 'inactive' },
-  { id: '6', militaryId: 'CORPS001', name: '홍길동', rank: '중장', unitId: 'corps-1', role: 'ROLE_DIV', status: 'active' },
-  { id: '7', militaryId: 'REG001', name: '김대위', rank: '대령', unitId: 'reg-11', role: 'ROLE_BN', status: 'active' },
-  { id: '8', militaryId: 'SF001', name: '강특전', rank: '중령', unitId: 'bde-sf-1', role: 'ROLE_BN', status: 'active' },
-  { id: '9', militaryId: 'GOC001', name: '이작전', rank: '대장', unitId: 'goc', role: 'ROLE_HQ', status: 'active' },
+  { id: '1', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', role: 'ROLE_HQ', status: 'active' },
+  { id: '2', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'div-1', role: 'ROLE_DIV', status: 'active' },
+  { id: '3', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'div-3', role: 'ROLE_DIV', status: 'active' },
+  { id: '4', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'bn-1-1', role: 'ROLE_BN', status: 'active' },
+  { id: '5', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'bn-1-2', role: 'ROLE_BN', status: 'inactive' },
+  { id: '6', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', role: 'ROLE_DIV', status: 'active' },
+  { id: '7', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'reg-11', role: 'ROLE_BN', status: 'active' },
+  { id: '8', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'bde-sf-1', role: 'ROLE_BN', status: 'active' },
+  { id: '9', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', role: 'ROLE_HQ', status: 'active' },
 ];
 
 export default function UserManagementPage() {
