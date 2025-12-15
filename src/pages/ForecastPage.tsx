@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { ForecastSkeleton } from '@/components/skeletons';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
-import { getUnitById } from '@/data/armyUnits';
+import { getUnitById, hasChildren } from '@/data/armyUnits';
 // 월별 사고 추세 데이터
 const TREND_DATA = [
   { month: '7월', current: 12, previous: 15 },
@@ -303,7 +303,7 @@ export default function ForecastPage() {
                   {/* 위험도 수치 */}
                   <tr className="border-b border-border">
                     <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">위험도</td>
-                    {(selectedUnitId 
+                    {(selectedUnitId && !hasChildren(selectedUnitId)
                       ? DEFAULT_UNIT_FORECAST.days 
                       : [null, null, null, null, null, null, null]
                     ).map((risk, index) => (
@@ -317,7 +317,7 @@ export default function ForecastPage() {
                   {/* 위험 등급 */}
                   <tr className="border-b border-border bg-muted/20">
                     <td className="py-2 text-xs text-muted-foreground text-center border-r border-border">등급</td>
-                    {(selectedUnitId 
+                    {(selectedUnitId && !hasChildren(selectedUnitId)
                       ? DEFAULT_UNIT_FORECAST.days 
                       : [null, null, null, null, null, null, null]
                     ).map((risk, index) => {
@@ -340,7 +340,7 @@ export default function ForecastPage() {
                   {/* 사건사고 예측 */}
                   <tr>
                     <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">예측 내용</td>
-                    {(selectedUnitId 
+                    {(selectedUnitId && !hasChildren(selectedUnitId)
                       ? DEFAULT_UNIT_FORECAST.events 
                       : [null, null, null, null, null, null, null]
                     ).map((event, index) => (
@@ -358,6 +358,12 @@ export default function ForecastPage() {
             {!selectedUnitId && (
               <p className="text-xs text-muted-foreground text-center mt-4">
                 상단에서 부대를 선택하면 해당 부대의 주간 위험도 예보가 표시됩니다
+              </p>
+            )}
+            
+            {selectedUnitId && hasChildren(selectedUnitId) && (
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                최하위 부대를 선택하면 해당 부대의 주간 위험도 예보가 표시됩니다
               </p>
             )}
           </div>
