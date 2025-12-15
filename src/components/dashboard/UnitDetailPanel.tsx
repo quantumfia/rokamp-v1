@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getUnitById, getUnitFullName, LEVEL_LABELS, getChildUnits } from '@/data/armyUnits';
 
 interface Training {
   id: string;
@@ -31,8 +32,14 @@ const MOCK_RISK_FACTORS: RiskFactor[] = [
 ];
 
 export function UnitDetailPanel({ unitId, onClose, onChatbotClick }: UnitDetailPanelProps) {
-  const unitName = '제7사단 3연대';
-  const riskValue = 78;
+  const unit = getUnitById(unitId);
+  const unitName = unit?.name || '알 수 없는 부대';
+  const riskValue = unit?.risk || 0;
+  const commander = unit?.commander || '정보 없음';
+  const personnel = unit?.personnel || 0;
+  const levelLabel = unit ? LEVEL_LABELS[unit.level] : '';
+  const fullPath = getUnitFullName(unitId);
+  const childUnits = getChildUnits(unitId).filter(u => u.lat !== undefined);
 
   return (
     <div className="h-full flex flex-col">
@@ -40,7 +47,7 @@ export function UnitDetailPanel({ unitId, onClose, onChatbotClick }: UnitDetailP
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div>
           <h3 className="text-sm font-semibold text-foreground">{unitName}</h3>
-          <p className="text-[10px] text-muted-foreground">상세 정보</p>
+          <p className="text-[10px] text-muted-foreground">{levelLabel}</p>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
           <X className="w-4 h-4" />
@@ -48,10 +55,31 @@ export function UnitDetailPanel({ unitId, onClose, onChatbotClick }: UnitDetailP
       </div>
 
       <div className="flex-1 overflow-y-auto">
+        {/* Unit Path */}
+        <div className="px-4 py-3 border-b border-border bg-muted/20">
+          <p className="text-[10px] text-muted-foreground mb-1">소속</p>
+          <p className="text-xs text-foreground">{fullPath}</p>
+        </div>
+
         {/* Risk Value */}
         <div className="px-4 py-4 border-b border-border">
           <p className="text-[10px] text-muted-foreground mb-1">현재 위험도</p>
           <p className="text-4xl font-bold text-foreground tabular-nums">{riskValue}%</p>
+        </div>
+
+        {/* Unit Info */}
+        <div className="px-4 py-3 border-b border-border">
+          <p className="text-[10px] text-muted-foreground mb-2">부대 정보</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-[10px] text-muted-foreground">지휘관</p>
+              <p className="text-sm font-medium text-foreground">{commander}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground">병력</p>
+              <p className="text-sm font-medium text-foreground">{personnel.toLocaleString()}명</p>
+            </div>
+          </div>
         </div>
 
         {/* Weather Info */}
@@ -68,6 +96,33 @@ export function UnitDetailPanel({ unitId, onClose, onChatbotClick }: UnitDetailP
             </div>
           </div>
         </div>
+
+        {/* Subordinate Units */}
+        {childUnits.length > 0 && (
+          <div className="border-b border-border">
+            <div className="px-4 py-2 bg-muted/30">
+              <p className="text-[10px] text-muted-foreground">예하 부대 ({childUnits.length})</p>
+            </div>
+            <div className="divide-y divide-border/50 max-h-32 overflow-y-auto">
+              {childUnits.slice(0, 5).map((child) => (
+                <div
+                  key={child.id}
+                  className="flex items-center justify-between px-4 py-2"
+                >
+                  <span className="text-xs text-foreground">{child.name}</span>
+                  {child.risk !== undefined && (
+                    <span className={`text-[10px] font-medium tabular-nums ${
+                      child.risk >= 75 ? 'text-status-error' : 
+                      child.risk >= 50 ? 'text-status-warning' : 'text-status-success'
+                    }`}>
+                      {child.risk}%
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Training Schedule */}
         <div className="border-b border-border">

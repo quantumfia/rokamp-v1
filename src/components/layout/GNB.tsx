@@ -14,25 +14,15 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { ROLE_LABELS } from '@/types/auth';
 import { cn } from '@/lib/utils';
+import { getSearchableUnits, LEVEL_LABELS, type ArmyUnit } from '@/data/armyUnits';
 
 interface GNBProps {
   onNotificationClick: () => void;
   onSearchSelect?: (unitId: string) => void;
 }
 
-// 검색 가능한 부대 목록 (Mock 데이터)
-const SEARCHABLE_UNITS = [
-  { id: 'div-1', name: '제1보병사단', code: '1DIV', risk: 45 },
-  { id: 'div-3', name: '제3보병사단', code: '3DIV', risk: 68 },
-  { id: 'div-5', name: '제5보병사단', code: '5DIV', risk: 32 },
-  { id: 'div-6', name: '제6보병사단', code: '6DIV', risk: 55 },
-  { id: 'div-7', name: '제7보병사단', code: '7DIV', risk: 72 },
-  { id: 'reg-1-11', name: '제1사단 11연대', code: '1-11REG', risk: 48 },
-  { id: 'reg-3-9', name: '제3사단 9연대', code: '3-9REG', risk: 65 },
-  { id: 'reg-7-3', name: '제7사단 3연대', code: '7-3REG', risk: 78 },
-  { id: 'bn-1-11-1', name: '제1사단 11연대 1대대', code: '1-11-1BN', risk: 42 },
-  { id: 'bn-7-3-2', name: '제7사단 3연대 2대대', code: '7-3-2BN', risk: 81 },
-];
+// 검색 가능한 부대 목록
+const SEARCHABLE_UNITS = getSearchableUnits();
 
 export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
   const { user, logout } = useAuth();
@@ -48,9 +38,8 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
     ? SEARCHABLE_UNITS.filter(
         (unit) =>
           unit.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          unit.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          searchQuery.includes('위험도') && unit.risk >= 50
-      ).slice(0, 6)
+          unit.id.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 8)
     : [];
 
   // 외부 클릭 시 검색 결과 닫기
@@ -71,7 +60,7 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
     }
   };
 
-  const handleSelectUnit = (unit: typeof SEARCHABLE_UNITS[0]) => {
+  const handleSelectUnit = (unit: ArmyUnit) => {
     setSearchQuery('');
     setShowResults(false);
     
@@ -84,7 +73,8 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
     onSearchSelect?.(unit.id);
   };
 
-  const getRiskColor = (risk: number) => {
+  const getRiskColor = (risk: number | undefined) => {
+    if (!risk) return 'text-muted-foreground';
     if (risk < 25) return 'text-status-success';
     if (risk < 50) return 'text-status-warning';
     if (risk < 75) return 'text-status-warning';
@@ -138,15 +128,17 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
                   <MapPin className="w-3 h-3 text-sidebar-muted" />
                   <div>
                     <p className="text-xs font-medium text-sidebar-foreground">{unit.name}</p>
-                    <p className="text-[10px] text-sidebar-muted">{unit.code}</p>
+                    <p className="text-[10px] text-sidebar-muted">{LEVEL_LABELS[unit.level]}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-sidebar-muted">위험도</span>
-                  <span className={cn('text-xs font-semibold tabular-nums', getRiskColor(unit.risk))}>
-                    {unit.risk}%
-                  </span>
-                </div>
+                {unit.risk !== undefined && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-sidebar-muted">위험도</span>
+                    <span className={cn('text-xs font-semibold tabular-nums', getRiskColor(unit.risk))}>
+                      {unit.risk}%
+                    </span>
+                  </div>
+                )}
               </button>
             ))}
           </div>
