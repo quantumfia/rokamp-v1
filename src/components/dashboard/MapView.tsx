@@ -323,6 +323,29 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
         .leaflet-container {
           background: hsl(220, 13%, 8%) !important;
           font-family: inherit;
+          z-index: 1 !important;
+        }
+        .leaflet-pane {
+          z-index: 1 !important;
+        }
+        .leaflet-tile-pane {
+          z-index: 1 !important;
+        }
+        .leaflet-overlay-pane {
+          z-index: 2 !important;
+        }
+        .leaflet-marker-pane {
+          z-index: 3 !important;
+        }
+        .leaflet-tooltip-pane {
+          z-index: 4 !important;
+        }
+        .leaflet-popup-pane {
+          z-index: 5 !important;
+        }
+        .leaflet-top,
+        .leaflet-bottom {
+          z-index: 10 !important;
         }
         .leaflet-popup-content-wrapper {
           background: transparent !important;
