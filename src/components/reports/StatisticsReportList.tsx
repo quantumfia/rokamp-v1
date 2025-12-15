@@ -588,8 +588,8 @@ export function StatisticsReportList() {
   const A4_WIDTH_PX = 595;
   const A4_HEIGHT_PX = 842;
   const PAGE_PADDING_X = 50;
-  const PAGE_PADDING_TOP = 40;
-  const PAGE_PADDING_BOTTOM = 70;
+  const PAGE_PADDING_TOP = 28;
+  const PAGE_PADDING_BOTTOM = 80;
 
   // PDF 미리보기 뷰
   if (selectedReport && showPreview) {
@@ -660,7 +660,7 @@ export function StatisticsReportList() {
               paddingTop: `${PAGE_PADDING_TOP}px`,
               paddingBottom: `${PAGE_PADDING_BOTTOM}px`,
               fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
-              lineHeight: '1.5',
+              lineHeight: '1.55',
             }}
           >
             {/* 워터마크 로고 */}
@@ -781,7 +781,7 @@ export function StatisticsReportList() {
               paddingTop: `${PAGE_PADDING_TOP}px`,
               paddingBottom: `${PAGE_PADDING_BOTTOM}px`,
               fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
-              lineHeight: '1.5',
+              lineHeight: '1.55',
             }}
           >
             {/* 워터마크 로고 */}
