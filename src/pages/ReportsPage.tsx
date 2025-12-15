@@ -9,47 +9,87 @@ import {
   StatisticsReportListSkeleton 
 } from '@/components/skeletons';
 
+// 사고 분류 라벨
+const CATEGORY_LABELS: Record<string, string> = {
+  military_discipline: '군기사고',
+  safety: '안전사고',
+  crime: '범죄사고',
+  other: '기타',
+  assault: '폭행사고',
+  other_discipline: '기타군기사고',
+  training: '훈련사고',
+  vehicle: '차량사고',
+  equipment: '장비사고',
+  theft: '절도',
+  fraud: '사기',
+  sexual: '성범죄',
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  suspect: '피의자',
+  victim: '피해자',
+  injured: '사고자',
+};
+
 // Mock AI 생성 함수 (추후 실제 AI 연동)
 const generateMockReport = (data: ReportFormData): string => {
-  const typeLabels: Record<string, string> = {
-    vehicle: '차량 사고',
-    training: '훈련 사고',
-    equipment: '장비 사고',
-    safety: '안전 사고',
-    other: '기타 사고',
-  };
+  const categoryLabel = `${CATEGORY_LABELS[data.categoryMajor] || data.categoryMajor}${data.categoryMiddle ? ` > ${CATEGORY_LABELS[data.categoryMiddle] || data.categoryMiddle}` : ''}${data.categoryMinor ? ` > ${data.categoryMinor}` : ''}`;
+  
+  // 관련자 정보 포맷팅
+  const personsSection = data.personsInvolved.length > 0 
+    ? data.personsInvolved.map((p, i) => {
+        const roleLabel = ROLE_LABELS[p.role] || p.role;
+        if (p.isMilitary) {
+          return `    ${i + 1}) ${roleLabel}: ${p.rank} ${p.name} (${p.unit})`;
+        } else {
+          return `    ${i + 1}) ${roleLabel}: ${p.name} (민간인)`;
+        }
+      }).join('\n')
+    : '    (관련자 정보 없음)';
+
+  // 피해 현황 포맷팅
+  const casualties = [];
+  if (data.militaryDeaths > 0) casualties.push(`군인 사망 ${data.militaryDeaths}명`);
+  if (data.civilianDeaths > 0) casualties.push(`민간인 사망 ${data.civilianDeaths}명`);
+  if (data.militaryInjuries > 0) casualties.push(`군인 부상 ${data.militaryInjuries}명`);
+  if (data.civilianInjuries > 0) casualties.push(`민간인 부상 ${data.civilianInjuries}명`);
+  const casualtiesText = casualties.length > 0 ? casualties.join(', ') : '없음';
 
   return `1. 사고 개요
   가. 발생 일시: ${data.date} ${data.time || '시간 미상'}
-  나. 발생 장소: ${data.location}
-  다. 사고 유형: ${typeLabels[data.accidentType] || data.accidentType}
+  나. 발생 장소: ${data.location} (${data.locationDetail === 'inside' ? '영내' : '영외'} / ${data.specificPlace || '장소 미상'})
+  다. 사고 유형: ${categoryLabel}
+  라. 사고 원인: ${data.cause || '(조사 중)'}
 
-2. 사고 경위
+2. 관련자 현황
+${personsSection}
+
+3. 사고 경위
 ${data.overview}
 
-3. 피해 현황
-  가. 인명 피해: (확인 필요)
-  나. 재산 피해: (확인 필요)
+4. 피해 현황
+  가. 인명 피해: ${casualtiesText}
+  나. 군 피해: ${data.militaryDamage || '없음'}
+  다. 민간 피해: ${data.civilianDamage || '없음'}
 
-4. 조치 사항
-  가. 초동 조치: 
-    - 현장 통제 및 안전 확보
-    - 부상자 응급 처치 및 후송
-    - 지휘관 보고
-  나. 후속 조치:
-    - 사고 원인 조사 진행
-    - 유사 사고 예방 대책 수립
+5. 상황 정보
+  가. 음주 여부: ${data.alcoholInvolved ? '음주' : '미음주'}
+  나. 범행 도구: ${data.crimeTool || '없음'}
+  다. 근무 형태: ${data.workType || '미확인'}
 
-5. 사고 원인 분석 (추정)
-${data.keywords ? `  관련 요인: ${data.keywords}` : '  (조사 진행 중)'}
+6. 조치 사항
+${data.actionsTaken || '  (조치 사항 기록 필요)'}
 
-6. 재발 방지 대책
+7. 재발 방지 대책
   가. 단기 대책:
     - 해당 유형 활동 시 안전 점검 강화
     - 관련 인원 안전 교육 실시
   나. 중장기 대책:
     - 안전 매뉴얼 보완
     - 정기 점검 체계 강화
+
+8. 보고자
+  ${data.reporterRank} ${data.reporter} (${data.reporterContact || '연락처 미기재'})
 
 ※ 본 보고서는 AI가 생성한 초안이며, 실제 내용은 담당자가 확인 후 수정하시기 바랍니다.
 `;
