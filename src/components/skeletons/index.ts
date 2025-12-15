@@ -5,3 +5,5 @@ export * from './ReportSkeleton';
 export * from './ChatbotSkeleton';
 export * from './UserManagementSkeleton';
 export * from './DataManagementSkeleton';
+export * from './SystemSettingsSkeleton';
+export * from './ForecastSkeleton';

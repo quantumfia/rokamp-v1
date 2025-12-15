@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, Shield, Sliders, Save, Search, Download, Users, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
+import { SystemSettingsSkeleton } from '@/components/skeletons';
 
 // 감사 로그 Mock 데이터
 const AUDIT_LOGS = [
@@ -47,6 +48,7 @@ export default function SystemSettingsPage() {
   const [activeTab, setActiveTab] = useState('model');
   const [riskThreshold, setRiskThreshold] = useState([50]);
   const [frequencyWeight, setFrequencyWeight] = useState([60]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // 공지사항 상태
   const [noticeTitle, setNoticeTitle] = useState('');
@@ -58,6 +60,11 @@ export default function SystemSettingsPage() {
   const [logSearchQuery, setLogSearchQuery] = useState('');
   const [logDateFrom, setLogDateFrom] = useState('');
   const [logDateTo, setLogDateTo] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSaveSettings = () => {
     toast({
@@ -105,6 +112,10 @@ export default function SystemSettingsPage() {
     log.userId.includes(logSearchQuery) ||
     log.action.includes(logSearchQuery)
   );
+
+  if (isLoading) {
+    return <SystemSettingsSkeleton />;
+  }
 
   return (
     <div className="p-6 space-y-6">

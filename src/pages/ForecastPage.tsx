@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { ForecastSkeleton } from '@/components/skeletons';
 
 // 월별 사고 추세 데이터
 const TREND_DATA = [
@@ -37,6 +38,16 @@ const chartTooltipStyle = {
 
 export default function ForecastPage() {
   const [activeTab, setActiveTab] = useState('weekly');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <ForecastSkeleton />;
+  }
 
   return (
     <div className="p-6 space-y-6">
