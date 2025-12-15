@@ -88,12 +88,13 @@ export default function ForecastPage() {
               {['월', '화', '수', '목', '금', '토', '일'].map((day, index) => {
                 const risk = [45, 52, 68, 55, 42, 25, 18][index];
                 const level = risk >= 75 ? '경고' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
+                const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-status-error' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
                 const dayColor = index === 5 ? 'text-blue-500' : index === 6 ? 'text-red-500' : 'text-muted-foreground';
                 return (
                   <div key={day} className="text-center py-3">
                     <p className={`text-xs mb-2 ${dayColor}`}>{day}요일</p>
                     <p className="text-xl font-semibold tabular-nums text-foreground">{risk}%</p>
-                    <p className="text-xs text-muted-foreground mt-1">{level}</p>
+                    <p className={`text-xs mt-1 font-medium ${levelColor}`}>{level}</p>
                   </div>
                 );
               })}
