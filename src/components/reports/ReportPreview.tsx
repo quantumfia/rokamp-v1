@@ -14,10 +14,9 @@ import armyLogo from '@/assets/army-logo.png';
 // A4 비율: 210mm x 297mm (약 1:1.414)
 const A4_WIDTH_PX = 595; // 약 210mm at 72dpi
 const A4_HEIGHT_PX = 842; // 약 297mm at 72dpi
-const CONTENT_PADDING = 40; // 상하좌우 여백
-const HEADER_HEIGHT = 120; // 헤더 영역 높이
-const FOOTER_HEIGHT = 50; // 푸터 영역 높이
-const CONTENT_HEIGHT = A4_HEIGHT_PX - HEADER_HEIGHT - FOOTER_HEIGHT - (CONTENT_PADDING * 2);
+const PAGE_PADDING_X = 50; // 좌우 여백
+const PAGE_PADDING_TOP = 50; // 상단 여백
+const PAGE_PADDING_BOTTOM = 60; // 하단 여백
 
 interface ReportPreviewProps {
   content: string;
@@ -38,16 +37,23 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
   const formattedTime = `${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}`;
   const documentNumber = useMemo(() => `ACC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(5, '0')}`, []);
 
-  // 콘텐츠를 페이지별로 분할
+  // 콘텐츠를 페이지별로 분할 (첫 페이지는 헤더가 있어서 줄 수가 적음)
   const pages = useMemo(() => {
     if (!content) return [];
     
     const lines = content.split('\n');
-    const linesPerPage = 28; // 페이지당 라인 수 (대략적인 값)
+    const firstPageLines = 22; // 첫 페이지 (헤더 있음)
+    const otherPageLines = 30; // 나머지 페이지
     const result: string[][] = [];
     
-    for (let i = 0; i < lines.length; i += linesPerPage) {
-      result.push(lines.slice(i, i + linesPerPage));
+    // 첫 페이지
+    if (lines.length > 0) {
+      result.push(lines.slice(0, firstPageLines));
+    }
+    
+    // 나머지 페이지
+    for (let i = firstPageLines; i < lines.length; i += otherPageLines) {
+      result.push(lines.slice(i, i + otherPageLines));
     }
     
     return result.length > 0 ? result : [lines];
@@ -289,7 +295,10 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
                     style={{ 
                       width: `${A4_WIDTH_PX}px`, 
                       minHeight: `${A4_HEIGHT_PX}px`,
-                      padding: `${CONTENT_PADDING}px`,
+                      paddingLeft: `${PAGE_PADDING_X}px`,
+                      paddingRight: `${PAGE_PADDING_X}px`,
+                      paddingTop: `${PAGE_PADDING_TOP}px`,
+                      paddingBottom: `${PAGE_PADDING_BOTTOM}px`,
                       fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
                     }}
                   >
@@ -312,7 +321,7 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
                       {pageIdx === 0 && (
                         <>
                           {/* 문서 헤더 - 기관 정보 */}
-                          <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-2">
                               <img src={armyLogo} alt="육군본부" className="w-10 h-10" />
                               <div>
@@ -330,15 +339,23 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
                           </div>
 
                           {/* 문서 제목 */}
-                          <div className="text-center border-y-2 border-black py-3 mb-4">
+                          <div className="text-center border-y-2 border-black py-3 mb-6">
                             <h1 className="text-base font-bold text-black tracking-widest">사 고 보 고 서</h1>
                             <p className="text-[9px] text-gray-500 mt-0.5">ACCIDENT REPORT</p>
                           </div>
                         </>
                       )}
+
+                      {/* 2페이지 이후 페이지 헤더 */}
+                      {pageIdx > 0 && (
+                        <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
+                          <p className="text-[9px] text-gray-400">사고보고서 (계속)</p>
+                          <p className="text-[9px] text-gray-400">문서번호: {documentNumber}</p>
+                        </div>
+                      )}
                       
                       {/* 문서 본문 */}
-                      <div className="flex-1 text-black whitespace-pre-wrap">
+                      <div className="flex-1 text-black whitespace-pre-wrap pb-8">
                         {pageLines.map((line, idx) => renderLine(line, idx))}
                       </div>
 
