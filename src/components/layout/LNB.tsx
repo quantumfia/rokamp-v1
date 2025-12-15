@@ -78,10 +78,8 @@ export function LNB() {
   const { user } = useAuth();
   const location = useLocation();
 
-  const filteredMenuItems = MENU_ITEMS.filter((item) => {
-    if (!item.roles) return true;
-    return user?.role && item.roles.includes(user.role);
-  });
+  // Super Admin 권한: 모든 메뉴 항상 표시
+  const filteredMenuItems = MENU_ITEMS;
 
   return (
     <aside
