@@ -372,19 +372,16 @@ export default function ForecastPage() {
           {/* 통계 요약 */}
           <div className="grid grid-cols-3 gap-6">
             <div>
-              <p className="text-xs text-muted-foreground">작년 동기 대비</p>
+              <p className="text-xs text-muted-foreground">전체 사고 (전년 대비)</p>
               <p className="text-2xl font-semibold text-status-success mt-1">-12%</p>
-              <p className="text-xs text-muted-foreground">전체 사고 감소</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">차량 사고</p>
+              <p className="text-xs text-muted-foreground">차량 사고 (전년 대비)</p>
               <p className="text-2xl font-semibold text-status-error mt-1">+20%</p>
-              <p className="text-xs text-muted-foreground">동절기 증가 추세</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">훈련 부상</p>
+              <p className="text-xs text-muted-foreground">훈련 부상 (전년 대비)</p>
               <p className="text-2xl font-semibold text-status-success mt-1">-8%</p>
-              <p className="text-xs text-muted-foreground">안전교육 효과</p>
             </div>
           </div>
 
@@ -536,24 +533,20 @@ export default function ForecastPage() {
           {/* 점검 현황 요약 */}
           <div className="grid grid-cols-4 gap-6">
             <div>
-              <p className="text-xs text-muted-foreground">일일 점검</p>
+              <p className="text-xs text-muted-foreground">일일 점검 완료율</p>
               <p className="text-2xl font-semibold text-foreground mt-1">92%</p>
-              <p className="text-xs text-status-success">완료율</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">주간 점검</p>
+              <p className="text-xs text-muted-foreground">주간 점검 완료율</p>
               <p className="text-2xl font-semibold text-foreground mt-1">85%</p>
-              <p className="text-xs text-status-success">완료율</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">미조치 항목</p>
               <p className="text-2xl font-semibold text-status-warning mt-1">3건</p>
-              <p className="text-xs text-muted-foreground">조치 필요</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">교육 이수율</p>
+              <p className="text-xs text-muted-foreground">월간 교육 이수율</p>
               <p className="text-2xl font-semibold text-foreground mt-1">78%</p>
-              <p className="text-xs text-muted-foreground">이번 달</p>
             </div>
           </div>
 
