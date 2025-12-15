@@ -448,9 +448,19 @@ export function StatisticsReportList() {
         return '주간';
       case 'monthly':
         return '월간';
+      case 'quarterly':
+        return '분기';
+      case 'custom':
+        return '기간';
       default:
         return type;
     }
+  };
+
+  // 처리율 계산
+  const getProcessingRate = (stats: StatReport['stats']) => {
+    if (!stats || stats.totalAccidents === 0) return 0;
+    return Math.round((stats.resolved / stats.totalAccidents) * 100);
   };
 
   // PDF 미리보기 뷰
@@ -509,7 +519,7 @@ export function StatisticsReportList() {
             <table className="w-full border-collapse mb-8 text-sm">
               <tbody>
                 <tr className="border border-black">
-                  <td className="border border-black bg-gray-100 p-2 w-28 font-semibold">부대</td>
+                  <td className="border border-black bg-gray-100 p-2 w-28 font-semibold">분석 대상</td>
                   <td className="border border-black p-2">{selectedReport.unit}</td>
                   <td className="border border-black bg-gray-100 p-2 w-28 font-semibold">보고서 유형</td>
                   <td className="border border-black p-2">{getTypeLabel(selectedReport.type)} 보고서</td>
@@ -528,82 +538,121 @@ export function StatisticsReportList() {
               <h2 className="text-lg font-bold">{selectedReport.title}</h2>
             </div>
 
-            {/* 1. 요약 */}
+            {/* 1. 개요 */}
             <div className="mb-6">
-              <h3 className="font-bold mb-2 border-b border-black pb-1">1. 요약</h3>
+              <h3 className="font-bold mb-3 border-b-2 border-black pb-1">1. 개요</h3>
+              <div className="pl-4 space-y-2 text-sm">
+                <p><strong>가. 목적</strong></p>
+                <p className="pl-4 text-justify">본 보고서는 분석 기간 내 발생한 사고 및 안전 현황을 종합적으로 분석하여, 향후 사고 예방 및 안전관리 개선을 위한 기초자료로 활용하고자 함.</p>
+                <p className="mt-2"><strong>나. 분석 범위</strong></p>
+                <p className="pl-4">- 분석 대상: {selectedReport.unit}</p>
+                <p className="pl-4">- 분석 기간: {selectedReport.period}</p>
+              </div>
+            </div>
+
+            {/* 2. 요약 */}
+            <div className="mb-6">
+              <h3 className="font-bold mb-3 border-b-2 border-black pb-1">2. 주요 현황 요약</h3>
               <p className="text-sm leading-relaxed pl-4 text-justify">{selectedReport.summary}</p>
             </div>
 
-            {/* 2. 주요 통계 */}
+            {/* 3. 주요 통계 */}
             {selectedReport.stats && (
               <div className="mb-6">
-                <h3 className="font-bold mb-3 border-b border-black pb-1">2. 주요 통계</h3>
-                <table className="w-full border-collapse text-sm">
+                <h3 className="font-bold mb-3 border-b-2 border-black pb-1">3. 사고 통계 현황</h3>
+                <table className="w-full border-collapse text-sm mb-4">
                   <thead>
                     <tr>
-                      <th className="border border-black bg-gray-100 p-2">총 사고 건수</th>
+                      <th className="border border-black bg-gray-100 p-2">구분</th>
+                      <th className="border border-black bg-gray-100 p-2">총 발생</th>
                       <th className="border border-black bg-gray-100 p-2">처리 완료</th>
                       <th className="border border-black bg-gray-100 p-2">처리 중</th>
-                      <th className="border border-black bg-gray-100 p-2">전기 대비 증감</th>
+                      <th className="border border-black bg-gray-100 p-2">처리율</th>
+                      <th className="border border-black bg-gray-100 p-2">전기 대비</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
+                      <td className="border border-black p-2 text-center bg-gray-50">사고 건수</td>
                       <td className="border border-black p-2 text-center font-semibold">{selectedReport.stats.totalAccidents}건</td>
                       <td className="border border-black p-2 text-center">{selectedReport.stats.resolved}건</td>
                       <td className="border border-black p-2 text-center">{selectedReport.stats.pending}건</td>
+                      <td className="border border-black p-2 text-center">{getProcessingRate(selectedReport.stats)}%</td>
                       <td className="border border-black p-2 text-center font-semibold">
-                        {selectedReport.stats.changeRate > 0 ? '+' : ''}{selectedReport.stats.changeRate}%
+                        {selectedReport.stats.changeRate > 0 ? '▲' : selectedReport.stats.changeRate < 0 ? '▼' : '-'} {Math.abs(selectedReport.stats.changeRate)}%
                       </td>
                     </tr>
                   </tbody>
                 </table>
+                <p className="text-xs text-gray-600 pl-4">
+                  ※ 전기 대비: {selectedReport.stats.changeRate > 0 ? '증가' : selectedReport.stats.changeRate < 0 ? '감소' : '동일'} 
+                  ({selectedReport.stats.changeRate > 0 ? '+' : ''}{selectedReport.stats.changeRate}%)
+                </p>
               </div>
             )}
 
-            {/* 3. 유형별 현황 */}
+            {/* 4. 유형별 현황 */}
             {selectedReport.details && (
               <div className="mb-6">
-                <h3 className="font-bold mb-3 border-b border-black pb-1">3. 유형별 사고 현황</h3>
+                <h3 className="font-bold mb-3 border-b-2 border-black pb-1">4. 사고 유형별 분석</h3>
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr>
+                      <th className="border border-black bg-gray-100 p-2 text-left w-12">순번</th>
                       <th className="border border-black bg-gray-100 p-2 text-left">사고 유형</th>
                       <th className="border border-black bg-gray-100 p-2 w-24 text-center">발생 건수</th>
-                      <th className="border border-black bg-gray-100 p-2 w-24 text-center">추세</th>
+                      <th className="border border-black bg-gray-100 p-2 w-20 text-center">비율</th>
+                      <th className="border border-black bg-gray-100 p-2 w-24 text-center">전기 대비</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedReport.details.map((detail, idx) => (
-                      <tr key={idx}>
-                        <td className="border border-black p-2">{detail.category}</td>
-                        <td className="border border-black p-2 text-center">{detail.count}건</td>
-                        <td className="border border-black p-2 text-center">
-                          {detail.trend === 'up' ? '▲ 증가' : detail.trend === 'down' ? '▼ 감소' : '- 유지'}
-                        </td>
-                      </tr>
-                    ))}
+                    {selectedReport.details.map((detail, idx) => {
+                      const totalCount = selectedReport.details?.reduce((sum, d) => sum + d.count, 0) || 1;
+                      const percentage = Math.round((detail.count / totalCount) * 100);
+                      return (
+                        <tr key={idx}>
+                          <td className="border border-black p-2 text-center">{idx + 1}</td>
+                          <td className="border border-black p-2">{detail.category}</td>
+                          <td className="border border-black p-2 text-center">{detail.count}건</td>
+                          <td className="border border-black p-2 text-center">{percentage}%</td>
+                          <td className="border border-black p-2 text-center">
+                            {detail.trend === 'up' ? '▲ 증가' : detail.trend === 'down' ? '▼ 감소' : '- 유지'}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             )}
 
-            {/* 4. 권고사항 */}
+            {/* 5. 권고사항 */}
             {selectedReport.recommendations && (
               <div className="mb-6">
-                <h3 className="font-bold mb-2 border-b border-black pb-1">4. 권고사항</h3>
-                <ol className="pl-8 text-sm space-y-1" style={{ listStyleType: 'lower-alpha' }}>
+                <h3 className="font-bold mb-3 border-b-2 border-black pb-1">5. 권고사항 및 개선방안</h3>
+                <div className="pl-4 text-sm space-y-2">
                   {selectedReport.recommendations.map((rec, idx) => (
-                    <li key={idx}>{rec}</li>
+                    <p key={idx}><strong>{String.fromCharCode(97 + idx)}.</strong> {rec}</p>
                   ))}
-                </ol>
+                </div>
               </div>
             )}
 
+            {/* 6. 결론 */}
+            <div className="mb-6">
+              <h3 className="font-bold mb-3 border-b-2 border-black pb-1">6. 결론</h3>
+              <p className="text-sm leading-relaxed pl-4 text-justify">
+                상기 분석 결과를 바탕으로 지속적인 안전관리 활동 및 예방 조치를 시행하여 사고 발생률 저감에 기여하고자 함. 
+                각 부대는 본 보고서의 권고사항을 참고하여 자체 안전관리 계획을 수립·시행할 것을 권고함.
+              </p>
+            </div>
+
             {/* 문서 푸터 */}
             <div className="absolute bottom-8 left-0 right-0 text-center text-xs text-gray-500" style={{ padding: '0 20mm' }}>
-              <div className="border-t border-gray-300 pt-4">
-                - 1 / 1 -
+              <div className="border-t border-gray-300 pt-4 flex justify-between items-center">
+                <span>육군 안전관리단</span>
+                <span>- 1 / 1 -</span>
+                <span>{selectedReport.generatedAt}</span>
               </div>
             </div>
           </div>
@@ -656,17 +705,18 @@ export function StatisticsReportList() {
         </div>
 
         {/* 보고서 본문 */}
-        <div className="border border-border rounded-lg">
+        <div className="border border-border rounded-lg overflow-hidden">
           {/* 보고서 헤더 */}
-          <div className="p-6 border-b border-border text-center">
-            <h1 className="text-xl font-semibold">{selectedReport.title}</h1>
+          <div className="p-6 border-b border-border bg-muted/20">
+            <p className="text-xs text-muted-foreground text-center mb-2">육군 안전관리단</p>
+            <h1 className="text-xl font-semibold text-center">{selectedReport.title}</h1>
           </div>
 
           {/* 기본 정보 테이블 */}
           <div className="border-b border-border">
             <div className="grid grid-cols-2 divide-x divide-border">
               <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
-                <div className="p-3 bg-muted/30 text-sm font-medium">부대</div>
+                <div className="p-3 bg-muted/30 text-sm font-medium">분석 대상</div>
                 <div className="p-3 text-sm">{selectedReport.unit}</div>
               </div>
               <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
@@ -686,80 +736,116 @@ export function StatisticsReportList() {
             </div>
           </div>
 
-          {/* 1. 요약 */}
+          {/* 1. 개요 */}
           <div className="p-6 border-b border-border">
-            <h2 className="text-sm font-semibold mb-3">1. 요약</h2>
+            <h2 className="text-sm font-semibold mb-4">1. 개요</h2>
+            <div className="pl-4 space-y-3 text-sm">
+              <div>
+                <p className="font-medium text-foreground mb-1">가. 목적</p>
+                <p className="text-muted-foreground pl-4">본 보고서는 분석 기간 내 발생한 사고 및 안전 현황을 종합적으로 분석하여, 향후 사고 예방 및 안전관리 개선을 위한 기초자료로 활용하고자 함.</p>
+              </div>
+              <div>
+                <p className="font-medium text-foreground mb-1">나. 분석 범위</p>
+                <p className="text-muted-foreground pl-4">• 분석 대상: {selectedReport.unit}</p>
+                <p className="text-muted-foreground pl-4">• 분석 기간: {selectedReport.period}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. 요약 */}
+          <div className="p-6 border-b border-border">
+            <h2 className="text-sm font-semibold mb-3">2. 주요 현황 요약</h2>
             <p className="text-sm text-muted-foreground leading-relaxed pl-4">{selectedReport.summary}</p>
           </div>
 
-          {/* 2. 주요 통계 */}
+          {/* 3. 주요 통계 */}
           {selectedReport.stats && (
             <div className="p-6 border-b border-border">
-              <h2 className="text-sm font-semibold mb-4">2. 주요 통계</h2>
-              <div className="grid grid-cols-4 gap-px bg-border ml-4">
+              <h2 className="text-sm font-semibold mb-4">3. 사고 통계 현황</h2>
+              <div className="grid grid-cols-5 gap-px bg-border ml-4 rounded overflow-hidden">
                 <div className="bg-background p-4 text-center">
-                  <p className="text-xs text-muted-foreground mb-1">총 사고 건수</p>
+                  <p className="text-xs text-muted-foreground mb-1">총 발생</p>
                   <p className="text-xl font-semibold">{selectedReport.stats.totalAccidents}건</p>
                 </div>
                 <div className="bg-background p-4 text-center">
                   <p className="text-xs text-muted-foreground mb-1">처리 완료</p>
-                  <p className="text-xl font-semibold">{selectedReport.stats.resolved}건</p>
+                  <p className="text-xl font-semibold text-status-success">{selectedReport.stats.resolved}건</p>
                 </div>
                 <div className="bg-background p-4 text-center">
                   <p className="text-xs text-muted-foreground mb-1">처리 중</p>
-                  <p className="text-xl font-semibold">{selectedReport.stats.pending}건</p>
+                  <p className="text-xl font-semibold text-status-warning">{selectedReport.stats.pending}건</p>
                 </div>
                 <div className="bg-background p-4 text-center">
-                  <p className="text-xs text-muted-foreground mb-1">전기 대비 증감</p>
-                  <p className="text-xl font-semibold">
-                    {selectedReport.stats.changeRate > 0 ? '+' : ''}{selectedReport.stats.changeRate}%
+                  <p className="text-xs text-muted-foreground mb-1">처리율</p>
+                  <p className="text-xl font-semibold">{getProcessingRate(selectedReport.stats)}%</p>
+                </div>
+                <div className="bg-background p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">전기 대비</p>
+                  <p className={`text-xl font-semibold ${selectedReport.stats.changeRate > 0 ? 'text-status-error' : selectedReport.stats.changeRate < 0 ? 'text-status-success' : ''}`}>
+                    {selectedReport.stats.changeRate > 0 ? '▲' : selectedReport.stats.changeRate < 0 ? '▼' : '-'} {Math.abs(selectedReport.stats.changeRate)}%
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 3. 유형별 현황 */}
+          {/* 4. 유형별 현황 */}
           {selectedReport.details && (
             <div className="p-6 border-b border-border">
-              <h2 className="text-sm font-semibold mb-4">3. 유형별 사고 현황</h2>
-              <table className="w-full ml-4 text-sm">
+              <h2 className="text-sm font-semibold mb-4">4. 사고 유형별 분석</h2>
+              <table className="w-full text-sm">
                 <thead>
                   <tr className="border-y border-border bg-muted/30">
+                    <th className="text-left p-3 font-medium w-12">순번</th>
                     <th className="text-left p-3 font-medium">사고 유형</th>
                     <th className="text-right p-3 font-medium w-24">발생 건수</th>
-                    <th className="text-right p-3 font-medium w-24">추세</th>
+                    <th className="text-right p-3 font-medium w-20">비율</th>
+                    <th className="text-right p-3 font-medium w-24">전기 대비</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {selectedReport.details.map((detail, idx) => (
-                    <tr key={idx}>
-                      <td className="p-3">{detail.category}</td>
-                      <td className="p-3 text-right">{detail.count}건</td>
-                      <td className="p-3 text-right text-muted-foreground">
-                        {detail.trend === 'up' ? '증가' : detail.trend === 'down' ? '감소' : '유지'}
-                      </td>
-                    </tr>
-                  ))}
+                  {selectedReport.details.map((detail, idx) => {
+                    const totalCount = selectedReport.details?.reduce((sum, d) => sum + d.count, 0) || 1;
+                    const percentage = Math.round((detail.count / totalCount) * 100);
+                    return (
+                      <tr key={idx}>
+                        <td className="p-3 text-center text-muted-foreground">{idx + 1}</td>
+                        <td className="p-3">{detail.category}</td>
+                        <td className="p-3 text-right font-medium">{detail.count}건</td>
+                        <td className="p-3 text-right text-muted-foreground">{percentage}%</td>
+                        <td className={`p-3 text-right ${detail.trend === 'up' ? 'text-status-error' : detail.trend === 'down' ? 'text-status-success' : 'text-muted-foreground'}`}>
+                          {detail.trend === 'up' ? '▲ 증가' : detail.trend === 'down' ? '▼ 감소' : '- 유지'}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           )}
 
-          {/* 4. 권고사항 */}
+          {/* 5. 권고사항 */}
           {selectedReport.recommendations && (
-            <div className="p-6">
-              <h2 className="text-sm font-semibold mb-3">4. 권고사항</h2>
-              <ul className="space-y-2 pl-4">
+            <div className="p-6 border-b border-border">
+              <h2 className="text-sm font-semibold mb-3">5. 권고사항 및 개선방안</h2>
+              <div className="space-y-2 pl-4">
                 {selectedReport.recommendations.map((rec, idx) => (
-                  <li key={idx} className="text-sm text-muted-foreground flex gap-2">
-                    <span>{String.fromCharCode(97 + idx)}.</span>
-                    <span>{rec}</span>
-                  </li>
+                  <p key={idx} className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">{String.fromCharCode(97 + idx)}.</span> {rec}
+                  </p>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
+
+          {/* 6. 결론 */}
+          <div className="p-6">
+            <h2 className="text-sm font-semibold mb-3">6. 결론</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed pl-4">
+              상기 분석 결과를 바탕으로 지속적인 안전관리 활동 및 예방 조치를 시행하여 사고 발생률 저감에 기여하고자 함. 
+              각 부대는 본 보고서의 권고사항을 참고하여 자체 안전관리 계획을 수립·시행할 것을 권고함.
+            </p>
+          </div>
         </div>
       </div>
     );
