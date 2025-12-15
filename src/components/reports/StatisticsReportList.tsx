@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Download, ArrowLeft, Eye, ChevronDown, Plus, Loader2, Calendar as CalendarIcon, Printer } from 'lucide-react';
+import { Download, ArrowLeft, Eye, ChevronDown, Plus, Loader2, Calendar as CalendarIcon, Printer, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -612,6 +612,13 @@ export function StatisticsReportList() {
             목록으로 돌아가기
           </button>
           <div className="flex items-center gap-2">
+            <button 
+              onClick={() => toast({ title: '삭제', description: '삭제 기능은 추후 구현 예정입니다.', variant: 'destructive' })}
+              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors text-red-400"
+            >
+              <Trash2 className="w-4 h-4" />
+              삭제
+            </button>
             <button
               onClick={() => handlePrint(selectedReport)}
               disabled={isPrinting}
