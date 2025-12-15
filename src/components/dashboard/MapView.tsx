@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.heat';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-
+import { ARMY_UNITS } from '@/data/armyUnits';
 // Extend L namespace for heat layer
 declare module 'leaflet' {
   function heatLayer(latlngs: Array<[number, number, number]>, options?: {
@@ -20,6 +20,7 @@ declare module 'leaflet' {
 interface MapViewProps {
   className?: string;
   onMarkerClick?: (unitId: string) => void;
+  selectedUnitId?: string | null;
 }
 
 // 전체 부대 데이터
@@ -97,13 +98,25 @@ const createMarkerIcon = (risk: number) => {
   });
 };
 
-export function MapView({ className, onMarkerClick }: MapViewProps) {
+export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const heatLayerRef = useRef<L.Layer | null>(null);
   const [showHeatmap, setShowHeatmap] = useState(true);
   const { user } = useAuth();
+
+  // 선택된 부대로 맵 이동
+  useEffect(() => {
+    if (!mapRef.current || !selectedUnitId) return;
+
+    const unit = ARMY_UNITS.find(u => u.id === selectedUnitId);
+    if (unit && unit.lat && unit.lng) {
+      mapRef.current.flyTo([unit.lat, unit.lng], 10, {
+        duration: 1.5,
+      });
+    }
+  }, [selectedUnitId]);
 
   // 권한별 표시할 부대 및 줌 레벨 결정 (MAIN-MAP)
   const getViewConfig = () => {

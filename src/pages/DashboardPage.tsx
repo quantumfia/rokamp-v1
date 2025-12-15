@@ -77,6 +77,7 @@ export default function DashboardPage() {
             <MapView
               className="absolute inset-0"
               onMarkerClick={handleMarkerClick}
+              selectedUnitId={selectedUnitId}
             />
           )}
           
