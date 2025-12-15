@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { Shield, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { GeometricScene } from './GeometricScene';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -127,175 +128,10 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           }}
         />
 
-        {/* Floating particles */}
-        {[...Array(30)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: `${2 + Math.random() * 4}px`,
-              height: `${2 + Math.random() * 4}px`,
-              background: i % 3 === 0 
-                ? 'hsl(187, 85%, 50%)' 
-                : i % 3 === 1 
-                  ? 'hsl(45, 90%, 60%)' 
-                  : 'hsl(340, 80%, 60%)',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `particle-float ${5 + Math.random() * 10}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 5}s`,
-              boxShadow: i % 3 === 0 
-                ? '0 0 10px hsl(187, 85%, 50%)' 
-                : i % 3 === 1 
-                  ? '0 0 10px hsl(45, 90%, 60%)' 
-                  : '0 0 10px hsl(340, 80%, 60%)',
-            }}
-          />
-        ))}
-
-        {/* Abstract geometric shape - Rotating rings */}
-        <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-          style={{ animation: 'shape-rotate 30s linear infinite' }}
-        >
-          {/* Outer ring */}
-          <div 
-            className="absolute w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              border: '1px solid hsl(187, 85%, 43%, 0.3)',
-              boxShadow: '0 0 40px hsl(187, 85%, 43%, 0.1), inset 0 0 40px hsl(187, 85%, 43%, 0.05)',
-            }}
-          />
-          
-          {/* Middle ring - counter rotate */}
-          <div 
-            className="absolute w-[450px] h-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              border: '1px solid hsl(187, 85%, 43%, 0.2)',
-              animation: 'shape-rotate-reverse 20s linear infinite',
-            }}
-          />
-          
-          {/* Inner glow ring */}
-          <div 
-            className="absolute w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              background: 'radial-gradient(circle, hsl(187, 85%, 43%, 0.1) 0%, transparent 70%)',
-              border: '1px solid hsl(187, 85%, 43%, 0.4)',
-              boxShadow: '0 0 60px hsl(187, 85%, 43%, 0.2)',
-              animation: 'pulse-ring 4s ease-in-out infinite',
-            }}
-          />
-
-          {/* Orbiting dots on outer ring */}
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={`orbit-${i}`}
-              className="absolute w-2 h-2 rounded-full bg-primary"
-              style={{
-                left: '50%',
-                top: '50%',
-                transform: `rotate(${i * 45}deg) translateX(300px) translateY(-50%)`,
-                boxShadow: '0 0 15px hsl(187, 85%, 50%)',
-                animation: 'orbit-pulse 2s ease-in-out infinite',
-                animationDelay: `${i * 0.25}s`,
-              }}
-            />
-          ))}
-
-          {/* Connection lines - hexagonal pattern */}
-          <svg 
-            className="absolute w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2"
-            viewBox="0 0 500 500"
-            style={{ animation: 'shape-rotate-reverse 25s linear infinite' }}
-          >
-            <polygon 
-              points="250,50 450,150 450,350 250,450 50,350 50,150" 
-              fill="none" 
-              stroke="hsl(187, 85%, 43%)" 
-              strokeWidth="0.5"
-              opacity="0.3"
-            />
-            <polygon 
-              points="250,100 400,175 400,325 250,400 100,325 100,175" 
-              fill="none" 
-              stroke="hsl(187, 85%, 43%)" 
-              strokeWidth="0.5"
-              opacity="0.2"
-            />
-            {/* Cross lines */}
-            <line x1="250" y1="50" x2="250" y2="450" stroke="hsl(187, 85%, 43%)" strokeWidth="0.3" opacity="0.2" />
-            <line x1="50" y1="250" x2="450" y2="250" stroke="hsl(187, 85%, 43%)" strokeWidth="0.3" opacity="0.2" />
-            <line x1="100" y1="100" x2="400" y2="400" stroke="hsl(187, 85%, 43%)" strokeWidth="0.3" opacity="0.15" />
-            <line x1="400" y1="100" x2="100" y2="400" stroke="hsl(187, 85%, 43%)" strokeWidth="0.3" opacity="0.15" />
-          </svg>
-
-          {/* Arc segments */}
-          <svg 
-            className="absolute w-[550px] h-[550px] -translate-x-1/2 -translate-y-1/2"
-            viewBox="0 0 550 550"
-            style={{ animation: 'shape-rotate 15s linear infinite' }}
-          >
-            <defs>
-              <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="hsl(187, 85%, 43%)" stopOpacity="0" />
-                <stop offset="50%" stopColor="hsl(187, 85%, 43%)" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="hsl(187, 85%, 43%)" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path 
-              d="M 275 50 A 225 225 0 0 1 450 200" 
-              fill="none" 
-              stroke="url(#arcGradient)" 
-              strokeWidth="2"
-            />
-            <path 
-              d="M 100 350 A 225 225 0 0 1 275 500" 
-              fill="none" 
-              stroke="url(#arcGradient)" 
-              strokeWidth="2"
-            />
-          </svg>
-
-          {/* Spark effects */}
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={`spark-${i}`}
-              className="absolute"
-              style={{
-                left: '50%',
-                top: '50%',
-                width: '4px',
-                height: '4px',
-                background: i % 2 === 0 ? 'hsl(45, 100%, 70%)' : 'hsl(340, 90%, 65%)',
-                borderRadius: '50%',
-                transform: `rotate(${i * 30}deg) translateX(${200 + Math.random() * 100}px)`,
-                boxShadow: i % 2 === 0 
-                  ? '0 0 8px hsl(45, 100%, 70%)' 
-                  : '0 0 8px hsl(340, 90%, 65%)',
-                animation: 'spark-twinkle 3s ease-in-out infinite',
-                animationDelay: `${i * 0.2}s`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Data stream lines */}
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={`stream-${i}`}
-            className="absolute h-px"
-            style={{
-              width: `${100 + Math.random() * 200}px`,
-              background: 'linear-gradient(90deg, transparent, hsl(187, 85%, 43%), transparent)',
-              top: `${20 + i * 15}%`,
-              left: '-200px',
-              animation: `data-stream-horizontal ${3 + Math.random() * 2}s linear infinite`,
-              animationDelay: `${i * 0.5}s`,
-              opacity: 0.4,
-            }}
-          />
-        ))}
+        {/* 3D Geometric Scene */}
+        <Suspense fallback={null}>
+          <GeometricScene />
+        </Suspense>
       </div>
 
       {/* Vignette overlay */}
@@ -475,13 +311,6 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           100% { transform: translate(100px, 100px); }
         }
         
-        @keyframes particle-float {
-          0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
-          25% { transform: translateY(-30px) translateX(15px); opacity: 0.8; }
-          50% { transform: translateY(-15px) translateX(-15px); opacity: 0.4; }
-          75% { transform: translateY(-40px) translateX(10px); opacity: 0.7; }
-        }
-        
         @keyframes scan-line {
           0% { transform: translateY(0); opacity: 0; }
           50% { opacity: 1; }
@@ -491,38 +320,6 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes shape-rotate {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        
-        @keyframes shape-rotate-reverse {
-          from { transform: translate(-50%, -50%) rotate(360deg); }
-          to { transform: translate(-50%, -50%) rotate(0deg); }
-        }
-        
-        @keyframes pulse-ring {
-          0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-          50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
-        }
-        
-        @keyframes orbit-pulse {
-          0%, 100% { opacity: 0.4; transform: scale(0.8); }
-          50% { opacity: 1; transform: scale(1.2); }
-        }
-        
-        @keyframes spark-twinkle {
-          0%, 100% { opacity: 0.2; transform: scale(0.5); }
-          50% { opacity: 1; transform: scale(1.5); }
-        }
-        
-        @keyframes data-stream-horizontal {
-          0% { left: -200px; opacity: 0; }
-          10% { opacity: 0.6; }
-          90% { opacity: 0.6; }
-          100% { left: 100%; opacity: 0; }
         }
         
         .animate-fade-in {
