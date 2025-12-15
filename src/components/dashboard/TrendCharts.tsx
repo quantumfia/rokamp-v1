@@ -48,7 +48,7 @@ const trainingTypeData = [
 const accidentTypeData = [
   { name: '훈련', value: 35, color: 'hsl(0, 72%, 51%)' },
   { name: '안전', value: 28, color: 'hsl(38, 92%, 50%)' },
-  { name: '장비', value: 20, color: 'hsl(187, 85%, 43%)' },
+  { name: '장비', value: 20, color: 'hsl(210, 75%, 55%)' },
   { name: '기타', value: 17, color: 'hsl(220, 10%, 50%)' },
 ];
 
@@ -71,8 +71,8 @@ export function TrendCharts() {
             <AreaChart data={riskTrendData}>
               <defs>
                 <linearGradient id="riskGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(187, 85%, 43%)" stopOpacity={0.3}/>
-                  <stop offset="100%" stopColor="hsl(187, 85%, 43%)" stopOpacity={0}/>
+                  <stop offset="0%" stopColor="hsl(210, 75%, 55%)" stopOpacity={0.3}/>
+                  <stop offset="100%" stopColor="hsl(210, 75%, 55%)" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <XAxis 
@@ -95,7 +95,7 @@ export function TrendCharts() {
               <Area 
                 type="monotone" 
                 dataKey="risk" 
-                stroke="hsl(187, 85%, 43%)" 
+                stroke="hsl(210, 75%, 55%)" 
                 fill="url(#riskGradient)"
                 strokeWidth={1.5}
               />
@@ -165,7 +165,7 @@ export function TrendCharts() {
               />
               <Bar 
                 dataKey="risk" 
-                fill="hsl(187, 85%, 43%)"
+                fill="hsl(210, 75%, 55%)"
                 radius={[2, 2, 0, 0]}
               />
             </BarChart>
