@@ -51,63 +51,63 @@
     --risk-danger: 0 72% 51%;
 
     /* Terminal/Console Colors */
-    --terminal-bg: 220 13% 10%;
+    --terminal-bg: 220 15% 15%;
     --terminal-text: 142 71% 55%;
-    --terminal-accent: 210 75% 55%;
-    --terminal-muted: 220 10% 40%;
+    --terminal-accent: 210 75% 50%;
+    --terminal-muted: 220 10% 50%;
 
     /* Map Dark Theme */
-    --map-bg: 220 13% 12%;
-    --map-overlay: 220 13% 8%;
-    --map-border: 220 10% 20%;
+    --map-bg: 220 15% 18%;
+    --map-overlay: 220 13% 12%;
+    --map-border: 220 10% 28%;
 
-    /* Sidebar - Dark like Palantir */
-    --sidebar-background: 220 13% 10%;
+    /* Sidebar - Lighter for better contrast with Army Blue */
+    --sidebar-background: 220 15% 18%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 210 75% 39%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 13% 18%;
+    --sidebar-accent: 220 13% 25%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 220 10% 22%;
+    --sidebar-border: 220 10% 30%;
     --sidebar-ring: 210 75% 39%;
-    --sidebar-muted: 220 10% 65%;
+    --sidebar-muted: 220 10% 60%;
 
     /* Header Bar */
     --header-bg: 142 55% 35%;
     --header-foreground: 0 0% 100%;
 
     /* Panel Colors */
-    --panel-dark: 220 13% 10%;
-    --panel-dark-foreground: 0 0% 90%;
+    --panel-dark: 220 15% 18%;
+    --panel-dark-foreground: 0 0% 95%;
   }
 
   .dark {
-    --background: 220 13% 10%;
+    --background: 220 15% 15%;
     --foreground: 0 0% 95%;
-    --card: 220 13% 12%;
+    --card: 220 15% 18%;
     --card-foreground: 0 0% 95%;
-    --popover: 220 13% 12%;
+    --popover: 220 15% 18%;
     --popover-foreground: 0 0% 95%;
     --primary: 210 75% 39%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 13% 18%;
+    --secondary: 220 13% 25%;
     --secondary-foreground: 0 0% 95%;
-    --muted: 220 13% 15%;
-    --muted-foreground: 220 10% 55%;
-    --accent: 220 13% 18%;
+    --muted: 220 13% 22%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 220 13% 25%;
     --accent-foreground: 0 0% 95%;
     --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 10% 20%;
-    --input: 220 10% 20%;
+    --border: 220 10% 28%;
+    --input: 220 10% 28%;
     --ring: 210 75% 39%;
-    --sidebar-background: 220 13% 8%;
-    --sidebar-foreground: 0 0% 90%;
+    --sidebar-background: 220 15% 15%;
+    --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 210 75% 39%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 13% 12%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 220 10% 15%;
+    --sidebar-accent: 220 13% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 10% 25%;
     --sidebar-ring: 210 75% 39%;
   }
 }
