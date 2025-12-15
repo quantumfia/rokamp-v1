@@ -7,7 +7,9 @@ import {
   Printer,
   ChevronDown,
   Search,
-  Plus
+  Plus,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
@@ -34,7 +36,10 @@ interface AccidentReport {
   reporter: string;
   reporterRank: string;
   createdAt: string;
-  content: string;
+  overview: string; // 사고 경위 (간단)
+  actionsTaken: string; // 조치사항
+  preventionMeasures: string; // 재발 방지 대책
+  content: string; // 전체 내용 (PDF용)
   casualties: {
     militaryDeaths: number;
     civilianDeaths: number;
@@ -58,6 +63,9 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     reporter: '김철수',
     reporterRank: '대위',
     createdAt: '2024-12-10 14:30',
+    overview: '12월 10일 09:30경, 야외 기동훈련 중 2.5톤 트럭이 결빙된 도로에서 미끄러져 도로변으로 전복됨. 당시 운전병은 병장 이영호였으며, 동승자 상병 박민수와 함께 부상을 입음.',
+    actionsTaken: '- 부상자 즉시 후송 및 치료 (현재 안정)\n- 사고 현장 통제 및 증거 확보\n- 관련자 진술 확보',
+    preventionMeasures: '가. 단기 대책:\n  - 동절기 차량 운행 시 도로 상태 사전 점검 의무화\n  - 결빙 구간 우회 또는 운행 중단 기준 마련\n나. 중장기 대책:\n  - 동절기 운전 교육 강화\n  - 차량별 윈터타이어 및 체인 확보',
     content: `1. 사고 개요
   가. 발생 일시: 2024-12-10 09:30
   나. 발생 장소: 강원도 인제군 훈련장 (영내 / 야외훈련장)
@@ -69,30 +77,19 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     2) 사고자: 상병 박민수 (제1대대 3중대)
 
 3. 사고 경위
-  12월 10일 09:30경, 야외 기동훈련 중 2.5톤 트럭이 결빙된 도로에서 미끄러져 도로변으로 전복됨. 당시 운전병은 병장 이영호였으며, 동승자 상병 박민수와 함께 부상을 입음.
+  12월 10일 09:30경, 야외 기동훈련 중 2.5톤 트럭이 결빙된 도로에서 미끄러져 도로변으로 전복됨.
 
 4. 피해 현황
   가. 인명 피해: 군인 부상 2명
   나. 군 피해: 2.5톤 트럭 1대 파손 (수리 필요)
-  다. 민간 피해: 없음
 
 5. 조치 사항
   - 부상자 즉시 후송 및 치료 (현재 안정)
   - 사고 현장 통제 및 증거 확보
-  - 관련자 진술 확보
 
 6. 재발 방지 대책
-  가. 단기 대책:
-    - 동절기 차량 운행 시 도로 상태 사전 점검 의무화
-    - 결빙 구간 우회 또는 운행 중단 기준 마련
-  나. 중장기 대책:
-    - 동절기 운전 교육 강화
-    - 차량별 윈터타이어 및 체인 확보
-
-7. 보고자
-  대위 김철수 (010-1234-5678)
-
-※ 본 보고서는 사고 발생 당일 작성되었으며, 추가 조사 결과에 따라 내용이 보완될 수 있습니다.`,
+  가. 단기 대책: 동절기 차량 운행 시 도로 상태 사전 점검 의무화
+  나. 중장기 대책: 동절기 운전 교육 강화`,
     casualties: {
       militaryDeaths: 0,
       civilianDeaths: 0,
@@ -113,31 +110,20 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     reporter: '박지훈',
     reporterRank: '중위',
     createdAt: '2024-12-08 22:15',
+    overview: '12월 8일 21:00경, 내무반에서 병장 최동훈이 일병 김태우에게 청소 상태를 빌미로 폭행을 가함. 동료 병사의 신고로 사건이 인지됨.',
+    actionsTaken: '- 피해자 의무대 진료 및 상담 조치\n- 가해자 격리 조치\n- 헌병대 조사 의뢰',
+    preventionMeasures: '가. 단기 대책:\n  - 병영생활 고충상담 강화\n  - 선임-후임 관계 지도 강화\n나. 중장기 대책:\n  - 인성교육 프로그램 확대\n  - 익명 신고 시스템 활성화',
     content: `1. 사고 개요
   가. 발생 일시: 2024-12-08 21:00
   나. 발생 장소: 경기도 포천시 부대 내무반 (영내 / 생활관)
   다. 사고 유형: 군기사고 > 폭행사고
-  라. 사고 원인: 선임병의 후임병에 대한 가혹행위
 
-2. 관련자 현황
-    1) 피의자: 병장 최동훈 (제33연대 2중대)
-    2) 피해자: 일병 김태우 (제33연대 2중대)
+2. 사고 경위
+  12월 8일 21:00경, 내무반에서 병장 최동훈이 일병 김태우에게 폭행을 가함.
 
-3. 사고 경위
-  12월 8일 21:00경, 내무반에서 병장 최동훈이 일병 김태우에게 청소 상태를 빌미로 폭행을 가함. 동료 병사의 신고로 사건이 인지됨.
-
-4. 피해 현황
-  가. 인명 피해: 군인 부상 1명 (타박상)
-  나. 군 피해: 없음
-  다. 민간 피해: 없음
-
-5. 조치 사항
+3. 조치 사항
   - 피해자 의무대 진료 및 상담 조치
-  - 가해자 격리 조치
-  - 헌병대 조사 의뢰
-
-6. 보고자
-  중위 박지훈 (010-2345-6789)`,
+  - 가해자 격리 조치`,
     casualties: {
       militaryDeaths: 0,
       civilianDeaths: 0,
@@ -158,27 +144,19 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     reporter: '이상민',
     reporterRank: '소령',
     createdAt: '2024-12-07 16:45',
+    overview: '탄약고 주변 CCTV 3대 중 2대가 동시 고장 발생. 즉시 인력 경계로 전환하고 긴급 수리 요청함.',
+    actionsTaken: '- 인력 경계 강화 (2인 1조 순찰)\n- 긴급 장비 수리 요청\n- 야간 조명 추가 설치',
+    preventionMeasures: '가. 단기 대책:\n  - CCTV 장비 정기 점검 주기 단축\n  - 예비 장비 확보\n나. 중장기 대책:\n  - 노후 보안장비 교체 계획 수립',
     content: `1. 사고 개요
   가. 발생 일시: 2024-12-07 15:00
   나. 발생 장소: 충청남도 계룡시 탄약고 (영내 / 보안시설)
-  다. 사고 유형: 기타 > 장비고장
-  라. 사고 원인: CCTV 시스템 노후화로 인한 고장
 
 2. 사고 경위
-  탄약고 주변 CCTV 3대 중 2대가 동시 고장 발생. 즉시 인력 경계로 전환하고 긴급 수리 요청함.
+  탄약고 주변 CCTV 3대 중 2대가 동시 고장 발생.
 
-3. 피해 현황
-  가. 인명 피해: 없음
-  나. 군 피해: CCTV 장비 2대 (교체 필요)
-  다. 민간 피해: 없음
-
-4. 조치 사항
+3. 조치 사항
   - 인력 경계 강화 (2인 1조 순찰)
-  - 긴급 장비 수리 요청
-  - 야간 조명 추가 설치
-
-5. 보고자
-  소령 이상민 (010-3456-7890)`,
+  - 긴급 장비 수리 요청`,
     casualties: {
       militaryDeaths: 0,
       civilianDeaths: 0,
@@ -199,30 +177,19 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     reporter: '정우성',
     reporterRank: '대위',
     createdAt: '2024-12-05 11:20',
+    overview: '사격훈련 중 사격 통제관의 지시 전 조기 발사로 오발 발생. 인명 피해는 없으나 안전 사고로 분류.',
+    actionsTaken: '- 훈련 즉시 중단 및 안전 점검\n- 관련자 면담 및 재교육 실시\n- 사격장 안전 수칙 재교육',
+    preventionMeasures: '가. 단기 대책:\n  - 사격 전 안전교육 강화\n  - 통제관 지시 준수 철저\n나. 중장기 대책:\n  - 사격훈련 절차 재정립',
     content: `1. 사고 개요
   가. 발생 일시: 2024-12-05 10:15
   나. 발생 장소: 경기도 양주시 사격장 (영내 / 훈련시설)
-  다. 사고 유형: 안전사고 > 훈련사고
-  라. 사고 원인: 사격 절차 미준수
 
-2. 관련자 현황
-    1) 사고자: 하사 윤현준 (특수전여단 1대대)
+2. 사고 경위
+  사격훈련 중 통제관 지시 전 조기 발사로 오발 발생.
 
-3. 사고 경위
-  사격훈련 중 사격 통제관의 지시 전 조기 발사로 오발 발생. 인명 피해는 없으나 안전 사고로 분류.
-
-4. 피해 현황
-  가. 인명 피해: 없음
-  나. 군 피해: 없음
-  다. 민간 피해: 없음
-
-5. 조치 사항
+3. 조치 사항
   - 훈련 즉시 중단 및 안전 점검
-  - 관련자 면담 및 재교육 실시
-  - 사격장 안전 수칙 재교육
-
-6. 보고자
-  대위 정우성 (010-4567-8901)`,
+  - 관련자 면담 및 재교육 실시`,
     casualties: {
       militaryDeaths: 0,
       civilianDeaths: 0,
@@ -243,30 +210,19 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     reporter: '한승우',
     reporterRank: '중위',
     createdAt: '2024-12-03 19:30',
+    overview: '휴가 복귀 중 개인 차량으로 이동 중 신호 위반 차량과 충돌. 경상을 입고 인근 병원에서 치료 후 귀대.',
+    actionsTaken: '- 부상자 응급 치료 후 귀대\n- 교통사고 보험 처리 진행\n- 휴가자 안전 교육 강화 예정',
+    preventionMeasures: '가. 단기 대책:\n  - 휴가 전 교통안전 교육 강화\n나. 중장기 대책:\n  - 휴가자 안전 귀대 확인 시스템 구축',
     content: `1. 사고 개요
   가. 발생 일시: 2024-12-03 18:45
   나. 발생 장소: 서울특별시 강남구 교차로 (영외 / 일반도로)
-  다. 사고 유형: 안전사고 > 차량사고
-  라. 사고 원인: 신호 위반 차량과의 충돌
 
-2. 관련자 현황
-    1) 사고자: 상병 조민혁 (제21보병사단 본부대대)
+2. 사고 경위
+  휴가 복귀 중 개인 차량으로 이동 중 신호 위반 차량과 충돌.
 
-3. 사고 경위
-  휴가 복귀 중 개인 차량으로 이동 중 신호 위반 차량과 충돌. 경상을 입고 인근 병원에서 치료 후 귀대.
-
-4. 피해 현황
-  가. 인명 피해: 군인 부상 1명 (경상)
-  나. 군 피해: 없음
-  다. 민간 피해: 상대 차량 파손
-
-5. 조치 사항
+3. 조치 사항
   - 부상자 응급 치료 후 귀대
-  - 교통사고 보험 처리 진행
-  - 휴가자 안전 교육 강화 예정
-
-6. 보고자
-  중위 한승우 (010-5678-9012)`,
+  - 교통사고 보험 처리 진행`,
     casualties: {
       militaryDeaths: 0,
       civilianDeaths: 0,
@@ -719,13 +675,29 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
             <ArrowLeft className="w-4 h-4" />
             목록으로 돌아가기
           </button>
-          <button 
-            onClick={() => setShowPreview(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity"
-          >
-            <Eye className="w-4 h-4" />
-            PDF 미리보기
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => toast({ title: '수정', description: '수정 기능은 추후 구현 예정입니다.' })}
+              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors"
+            >
+              <Pencil className="w-4 h-4" />
+              수정
+            </button>
+            <button 
+              onClick={() => toast({ title: '삭제', description: '삭제 기능은 추후 구현 예정입니다.', variant: 'destructive' })}
+              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors text-red-400"
+            >
+              <Trash2 className="w-4 h-4" />
+              삭제
+            </button>
+            <button 
+              onClick={() => setShowPreview(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity"
+            >
+              <Eye className="w-4 h-4" />
+              PDF 미리보기
+            </button>
+          </div>
         </div>
 
         {/* 폼 스타일 상세보기 */}
@@ -816,8 +788,24 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
             {/* 사고 경위 */}
             <div className="border-t border-border pt-4 mt-4">
               <h3 className="text-xs font-medium text-foreground mb-3">사고 경위</h3>
-              <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap min-h-[200px]">
-                {selectedReport.content}
+              <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap">
+                {selectedReport.overview}
+              </div>
+            </div>
+
+            {/* 조치 사항 */}
+            <div className="border-t border-border pt-4 mt-4">
+              <h3 className="text-xs font-medium text-foreground mb-3">조치 사항</h3>
+              <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap">
+                {selectedReport.actionsTaken}
+              </div>
+            </div>
+
+            {/* 재발 방지 대책 */}
+            <div className="border-t border-border pt-4 mt-4">
+              <h3 className="text-xs font-medium text-foreground mb-3">재발 방지 대책</h3>
+              <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap">
+                {selectedReport.preventionMeasures}
               </div>
             </div>
 
