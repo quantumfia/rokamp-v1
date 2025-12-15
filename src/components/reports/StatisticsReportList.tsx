@@ -794,10 +794,10 @@ export function StatisticsReportList() {
             </button>
           </div>
 
-          {/* Row 1: 분석 대상 + 보고서 유형 */}
+          {/* Row 1: 분석 대상 + 보고서 유형 + 기간 선택 */}
           <div className="flex gap-4 mb-4">
             {/* 분석 대상 */}
-            <div className="w-40">
+            <div className="w-32">
               <label className="block text-xs text-muted-foreground mb-2">분석 대상</label>
               <select
                 value={createForm.analysisTarget}
@@ -810,7 +810,7 @@ export function StatisticsReportList() {
             </div>
 
             {/* 보고서 유형 */}
-            <div className="w-40">
+            <div className="w-28">
               <label className="block text-xs text-muted-foreground mb-2">보고서 유형</label>
               <select
                 value={createForm.reportType}
@@ -824,22 +824,22 @@ export function StatisticsReportList() {
             </div>
 
             {/* 기간 유형 */}
-            <div className="w-40">
-              <label className="block text-xs text-muted-foreground mb-2">기간 선택 방식</label>
+            <div className="w-32">
+              <label className="block text-xs text-muted-foreground mb-2">기간 선택</label>
               <select
                 value={createForm.periodType}
                 onChange={(e) => setCreateForm(prev => ({ ...prev, periodType: e.target.value as 'preset' | 'custom' }))}
                 className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
               >
-                <option value="preset">프리셋 선택</option>
+                <option value="preset">프리셋</option>
                 <option value="custom">직접 입력</option>
               </select>
             </div>
 
             {/* 프리셋 기간 or 커스텀 날짜 */}
             {createForm.periodType === 'preset' ? (
-              <div className="w-40">
-                <label className="block text-xs text-muted-foreground mb-2">분석 기간</label>
+              <div className="w-32">
+                <label className="block text-xs text-muted-foreground mb-2">기간</label>
                 <select
                   value={createForm.presetPeriod}
                   onChange={(e) => setCreateForm(prev => ({ ...prev, presetPeriod: e.target.value as 'current' | 'previous' }))}
@@ -855,7 +855,7 @@ export function StatisticsReportList() {
               </div>
             ) : (
               <>
-                <div className="w-40">
+                <div className="w-36">
                   <label className="block text-xs text-muted-foreground mb-2">시작일</label>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -880,7 +880,7 @@ export function StatisticsReportList() {
                     </PopoverContent>
                   </Popover>
                 </div>
-                <div className="w-40">
+                <div className="w-36">
                   <label className="block text-xs text-muted-foreground mb-2">종료일</label>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -907,19 +907,19 @@ export function StatisticsReportList() {
                 </div>
               </>
             )}
-
-            {/* 부대 선택 (분석 대상이 부대인 경우만) */}
-            {createForm.analysisTarget === 'unit' && (
-              <div className="flex-1 min-w-[200px]">
-                <label className="block text-xs text-muted-foreground mb-2">분석 대상 부대</label>
-                <UnitCascadeSelect
-                  value={createForm.unitId}
-                  onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
-                  placeholder="부대 선택"
-                />
-              </div>
-            )}
           </div>
+
+          {/* Row 2: 부대 선택 (분석 대상이 부대인 경우만) */}
+          {createForm.analysisTarget === 'unit' && (
+            <div className="mb-4">
+              <label className="block text-xs text-muted-foreground mb-2">분석 대상 부대</label>
+              <UnitCascadeSelect
+                value={createForm.unitId}
+                onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
+                placeholder="부대 선택"
+              />
+            </div>
+          )}
 
           {/* 선택된 기간 표시 */}
           <div className="text-xs text-muted-foreground mb-4">
