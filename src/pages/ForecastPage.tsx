@@ -393,7 +393,7 @@ export default function ForecastPage() {
           <div className="grid grid-cols-2 gap-8">
             {/* 월별 사고 추세 */}
             <div>
-              <h2 className="text-sm font-medium text-foreground mb-4">월별 사고 추세 (전년 대비)</h2>
+              <h2 className="text-sm font-medium text-foreground mb-3">월별 사고 추세 (전년 대비)</h2>
               <div className="h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={TREND_DATA}>
@@ -433,7 +433,7 @@ export default function ForecastPage() {
 
             {/* 사고 유형별 분포 */}
             <div>
-              <h2 className="text-sm font-medium text-foreground mb-4">사고 유형별 분포</h2>
+              <h2 className="text-sm font-medium text-foreground mb-3">사고 유형별 분포</h2>
               <div className="h-[220px] flex items-center">
                 <div className="w-1/2 h-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -474,7 +474,7 @@ export default function ForecastPage() {
 
           {/* 계급별 위험 지수 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-4">계급별 사고 비율</h2>
+            <h2 className="text-sm font-medium text-foreground mb-3">계급별 사고 비율</h2>
             <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={RANK_RISK_DATA} layout="vertical">
