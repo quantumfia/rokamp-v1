@@ -18,6 +18,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import armyLogo from '@/assets/army-logo.png';
 
 interface StatReport {
   id: string;
@@ -541,11 +542,26 @@ export function StatisticsReportList() {
               fontFamily: "'Noto Sans KR', 'Malgun Gothic', serif"
             }}
           >
-            {/* 문서 헤더 */}
-            <div className="text-center border-b-2 border-black pb-6 mb-8">
-              <p className="text-sm tracking-widest mb-2">육군 안전관리단</p>
-              <h1 className="text-2xl font-bold tracking-wide">통 계 보 고 서</h1>
+            {/* 워터마크 로고 */}
+            <div 
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              style={{ zIndex: 0 }}
+            >
+              <img 
+                src={armyLogo} 
+                alt="" 
+                className="w-64 h-64 opacity-[0.05]"
+                style={{ filter: 'grayscale(100%)' }}
+              />
             </div>
+
+            {/* 콘텐츠 영역 */}
+            <div className="relative z-10">
+              {/* 문서 헤더 */}
+              <div className="text-center border-b-2 border-black pb-6 mb-8">
+                <p className="text-sm tracking-widest mb-2">육군 안전관리단</p>
+                <h1 className="text-2xl font-bold tracking-wide">통 계 보 고 서</h1>
+              </div>
 
             {/* 기본 정보 테이블 */}
             <table className="w-full border-collapse mb-8 text-sm">
@@ -733,6 +749,7 @@ export function StatisticsReportList() {
                 상기 분석 결과를 바탕으로 지속적인 안전관리 활동 및 예방 조치를 시행하여 사고 발생률 저감에 기여하고자 함. 
                 각 부대는 본 보고서의 권고사항을 참고하여 자체 안전관리 계획을 수립·시행할 것을 권고함.
               </p>
+            </div>
             </div>
 
             {/* 문서 푸터 */}
