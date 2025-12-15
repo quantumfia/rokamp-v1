@@ -191,7 +191,7 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
               <p className="text-sm font-medium text-sidebar-foreground">{user?.name || '홍길동'}</p>
               <p className="text-xs text-sidebar-muted">{user?.militaryId || '24-503994'}</p>
               <p className="text-xs text-sidebar-muted mt-1">
-                {user?.rank || '대위'} · {user?.unit || '육군본부'}
+                {user?.rank || '대령'} · {user?.unit || '육군본부'}
               </p>
               <p className="text-[10px] text-primary mt-1">
                 권한: {user?.role ? ROLE_LABELS[user.role] : 'Super Admin'}
