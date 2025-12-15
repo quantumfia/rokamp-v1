@@ -14,9 +14,7 @@ const generateMockReport = (data: ReportFormData): string => {
     other: '기타 사고',
   };
 
-  return `사 고 보 고 서
-
-1. 사고 개요
+  return `1. 사고 개요
   가. 발생 일시: ${data.date} ${data.time || '시간 미상'}
   나. 발생 장소: ${data.location}
   다. 사고 유형: ${typeLabels[data.accidentType] || data.accidentType}

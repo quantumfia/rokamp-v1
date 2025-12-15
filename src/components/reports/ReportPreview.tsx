@@ -1,6 +1,12 @@
 import { useState } from 'react';
-import { Download, Copy, FileText } from 'lucide-react';
+import { Download, Copy, FileText, ChevronDown } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ReportPreviewProps {
   content: string;
@@ -18,17 +24,33 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
     });
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const handleDownloadPDF = () => {
+    // PDF 다운로드 (브라우저에서는 텍스트 파일로 대체, 실제 구현 시 pdf-lib 등 사용)
+    const blob = new Blob([content], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `사고보고서_${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `사고보고서_${new Date().toISOString().split('T')[0]}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
     toast({
-      title: '다운로드 완료',
-      description: '보고서 파일이 다운로드되었습니다.',
+      title: 'PDF 다운로드',
+      description: '보고서가 PDF 형식으로 다운로드되었습니다.',
+    });
+  };
+
+  const handleDownloadHWP = () => {
+    // HWP 다운로드 (실제 구현 시 서버 사이드 변환 필요)
+    const blob = new Blob([content], { type: 'application/x-hwp' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `사고보고서_${new Date().toISOString().split('T')[0]}.hwp`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({
+      title: 'HWP 다운로드',
+      description: '보고서가 HWP 형식으로 다운로드되었습니다.',
     });
   };
 
@@ -45,13 +67,27 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
               <Copy className="w-3.5 h-3.5" />
               복사
             </button>
-            <button 
-              onClick={handleDownload}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              다운로드
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  다운로드
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleDownloadPDF}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  PDF 형식 (.pdf)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDownloadHWP}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  한글 형식 (.hwp)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </div>
