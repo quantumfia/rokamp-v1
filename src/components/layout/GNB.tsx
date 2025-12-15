@@ -92,7 +92,7 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
   };
 
   return (
-    <header className="h-12 bg-sidebar flex items-center justify-between px-4 sticky top-0 z-40 border-b border-sidebar-border">
+    <header className="h-12 bg-sidebar flex items-center justify-between px-4 sticky top-0 z-[100] border-b border-sidebar-border">
       {/* Logo */}
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center w-8 h-8 rounded bg-primary">
@@ -127,7 +127,7 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
 
         {/* Search Results Dropdown */}
         {showResults && searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-sidebar border border-sidebar-border rounded shadow-xl overflow-hidden z-50">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-sidebar border border-sidebar-border rounded shadow-xl overflow-hidden z-[200]">
             {searchResults.map((unit) => (
               <button
                 key={unit.id}
@@ -153,7 +153,7 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
         )}
 
         {showResults && searchQuery.trim() && searchResults.length === 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-sidebar border border-sidebar-border rounded shadow-xl p-3 z-50">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-sidebar border border-sidebar-border rounded shadow-xl p-3 z-[200]">
             <p className="text-xs text-sidebar-muted text-center">
               "{searchQuery}"에 해당하는 부대가 없습니다
             </p>
