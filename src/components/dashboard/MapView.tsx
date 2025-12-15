@@ -254,25 +254,69 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
         icon: createMarkerIcon(unit.risk!),
       }).addTo(mapRef.current!);
 
-      // Create popup content
+      // 위험 요인 생성 (위험도에 따라)
+      const getRiskFactors = (risk: number) => {
+        if (risk >= 70) return ['훈련 강도 과다', '장비 노후화', '피로도 누적'];
+        if (risk >= 50) return ['야간 훈련 증가', '신병 비율 높음'];
+        if (risk >= 30) return ['기상 악화 예보', '정비 일정 지연'];
+        return ['정상 운영 중'];
+      };
+
+      const riskFactors = getRiskFactors(unit.risk!);
+      const riskLevel = unit.risk! >= 70 ? '위험' : unit.risk! >= 50 ? '경고' : unit.risk! >= 30 ? '주의' : '안전';
+
+      // Create popup content with more info
       const popupContent = `
         <div style="
           background: hsl(220, 13%, 10%);
-          padding: 8px 12px;
-          border-radius: 4px;
+          padding: 12px 16px;
+          border-radius: 6px;
           border: 1px solid hsl(220, 10%, 25%);
-          min-width: 120px;
+          min-width: 200px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         ">
           <div style="
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             color: hsl(0, 0%, 95%);
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid hsl(220, 10%, 20%);
           ">${unit.name}</div>
+          
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 11px; color: hsl(0, 0%, 60%);">위험도</span>
+            <span style="font-size: 12px; font-weight: 600; color: ${getRiskColor(unit.risk!)};">${unit.risk}% (${riskLevel})</span>
+          </div>
+          
+          ${unit.commander ? `
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 11px; color: hsl(0, 0%, 60%);">지휘관</span>
+            <span style="font-size: 11px; color: hsl(0, 0%, 85%);">${unit.commander}</span>
+          </div>
+          ` : ''}
+          
+          ${unit.personnel ? `
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="font-size: 11px; color: hsl(0, 0%, 60%);">병력</span>
+            <span style="font-size: 11px; color: hsl(0, 0%, 85%);">${unit.personnel.toLocaleString()}명</span>
+          </div>
+          ` : ''}
+          
           <div style="
-            font-size: 10px;
-            color: ${getRiskColor(unit.risk!)};
-          ">위험도: ${unit.risk}%</div>
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid hsl(220, 10%, 20%);
+          ">
+            <div style="font-size: 10px; color: hsl(0, 0%, 50%); margin-bottom: 4px;">주요 위험 요인</div>
+            ${riskFactors.map(f => `
+              <div style="
+                font-size: 10px;
+                color: ${unit.risk! >= 50 ? 'hsl(40, 90%, 60%)' : 'hsl(0, 0%, 70%)'};
+                padding: 2px 0;
+              ">• ${f}</div>
+            `).join('')}
+          </div>
         </div>
       `;
 
