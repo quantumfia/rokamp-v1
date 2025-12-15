@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Bell, ChevronDown, LogOut, Settings, User, MapPin, Menu } from 'lucide-react';
-import { Shield } from 'lucide-react';
+import { Search, Bell, ChevronDown, LogOut, Settings, User, MapPin } from 'lucide-react';
+import armyLogo from '@/assets/army-logo.png';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -85,8 +85,8 @@ export function GNB({ onNotificationClick, onSearchSelect }: GNBProps) {
     <header className="h-12 bg-sidebar flex items-center justify-between px-4 sticky top-0 z-[100] border-b border-sidebar-border">
       {/* Logo */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-8 h-8 rounded bg-primary">
-          <Shield className="w-4 h-4 text-primary-foreground" />
+        <div className="flex items-center justify-center w-8 h-8">
+          <img src={armyLogo} alt="육군본부" className="w-8 h-8 object-contain" />
         </div>
         <div className="hidden sm:block">
           <h1 className="text-sm font-semibold text-sidebar-foreground tracking-tight">ROKA-MP</h1>
