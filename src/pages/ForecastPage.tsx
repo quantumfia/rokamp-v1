@@ -77,9 +77,10 @@ export default function ForecastPage() {
               {['월', '화', '수', '목', '금', '토', '일'].map((day, index) => {
                 const risk = [45, 52, 68, 55, 42, 25, 18][index];
                 const level = risk >= 75 ? '경고' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
+                const dayColor = index === 5 ? 'text-blue-500' : index === 6 ? 'text-red-500' : 'text-muted-foreground';
                 return (
                   <div key={day} className="text-center py-3">
-                    <p className="text-xs text-muted-foreground mb-2">{day}요일</p>
+                    <p className={`text-xs mb-2 ${dayColor}`}>{day}요일</p>
                     <p className="text-xl font-semibold tabular-nums text-foreground">{risk}%</p>
                     <p className="text-xs text-muted-foreground mt-1">{level}</p>
                   </div>
@@ -159,9 +160,10 @@ export default function ForecastPage() {
                   <div className="flex items-center gap-3">
                     {['월', '화', '수', '목', '금', '토', '일'].map((day, dayIndex) => {
                       const risk = (index * 12 + dayIndex * 8 + 15) % 100;
+                      const dayColor = dayIndex === 5 ? 'text-blue-500' : dayIndex === 6 ? 'text-red-500' : 'text-muted-foreground';
                       return (
                         <div key={day} className="flex flex-col items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">{day}</span>
+                          <span className={`text-[10px] ${dayColor}`}>{day}</span>
                           <span className="text-xs font-medium tabular-nums text-foreground">{risk}</span>
                         </div>
                       );
