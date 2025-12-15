@@ -45,6 +45,24 @@ interface ChecklistItem {
   assignee: string;
 }
 
+interface InspectionItem {
+  id: number;
+  item: string;
+  cycle: '일일' | '주간' | '월간';
+  lastDate: string;
+  nextDate: string;
+  status: 'complete' | 'warning' | 'overdue';
+}
+
+interface TrainingItem {
+  id: number;
+  name: string;
+  target: string;
+  rate: number;
+  deadline: string;
+  status: 'complete' | 'inprogress';
+}
+
 const INITIAL_CHECKLIST: ChecklistItem[] = [
   { id: 1, task: '차량 일일 점검 실시 (동절기 배터리/부동액)', completed: true, priority: '높음', assignee: '수송반' },
   { id: 2, task: '동절기 안전교육 시행 (저체온증 예방)', completed: true, priority: '높음', assignee: '교육계' },
@@ -54,13 +72,46 @@ const INITIAL_CHECKLIST: ChecklistItem[] = [
   { id: 6, task: '야간 훈련 조명 장비 점검', completed: false, priority: '낮음', assignee: '정비반' },
 ];
 
+const INITIAL_INSPECTIONS: InspectionItem[] = [
+  { id: 1, item: '차량 일일 점검 (배터리, 부동액, 타이어)', cycle: '일일', lastDate: '12/15', nextDate: '12/16', status: 'complete' },
+  { id: 2, item: '훈련장 안전시설 점검', cycle: '주간', lastDate: '12/14', nextDate: '12/21', status: 'complete' },
+  { id: 3, item: '응급장비 점검 (AED, 구급함)', cycle: '주간', lastDate: '12/10', nextDate: '12/17', status: 'warning' },
+  { id: 4, item: '소방시설 점검', cycle: '월간', lastDate: '12/01', nextDate: '01/01', status: 'complete' },
+  { id: 5, item: '탄약고 안전점검', cycle: '주간', lastDate: '12/08', nextDate: '12/15', status: 'overdue' },
+];
+
+const INITIAL_TRAININGS: TrainingItem[] = [
+  { id: 1, name: '동절기 안전교육', target: '전 장병', rate: 95, deadline: '12/20', status: 'complete' },
+  { id: 2, name: '차량 안전운행 교육', target: '운전병', rate: 88, deadline: '12/18', status: 'inprogress' },
+  { id: 3, name: '응급처치 교육 (심폐소생술)', target: '간부', rate: 72, deadline: '12/25', status: 'inprogress' },
+  { id: 4, name: '화생방 대응 교육', target: '전 장병', rate: 45, deadline: '12/31', status: 'inprogress' },
+  { id: 5, name: '사이버보안 교육', target: '전 장병', rate: 100, deadline: '12/10', status: 'complete' },
+];
+
+const PRIORITY_OPTIONS = ['높음', '중간', '낮음'] as const;
+const ASSIGNEE_OPTIONS = ['수송반', '교육계', '작전과', '행정반', '의무반', '정비반', '보급반', '통신반'];
+const CYCLE_OPTIONS = ['일일', '주간', '월간'] as const;
+const TARGET_OPTIONS = ['전 장병', '간부', '운전병', '병사', '부사관'];
+
 export default function ForecastPage() {
   const [activeTab, setActiveTab] = useState('weekly');
   const [isLoading, setIsLoading] = useState(true);
   const [selectedUnitId, setSelectedUnitId] = useState<string>('');
+  
+  // 체크리스트 상태
   const [checklist, setChecklist] = useState<ChecklistItem[]>(INITIAL_CHECKLIST);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingTask, setEditingTask] = useState('');
+  const [editingChecklistId, setEditingChecklistId] = useState<number | null>(null);
+  const [editingChecklist, setEditingChecklist] = useState<Partial<ChecklistItem>>({});
+  
+  // 점검 현황 상태
+  const [inspections, setInspections] = useState<InspectionItem[]>(INITIAL_INSPECTIONS);
+  const [editingInspectionId, setEditingInspectionId] = useState<number | null>(null);
+  const [editingInspection, setEditingInspection] = useState<Partial<InspectionItem>>({});
+  
+  // 교육 현황 상태
+  const [trainings, setTrainings] = useState<TrainingItem[]>(INITIAL_TRAININGS);
+  const [editingTrainingId, setEditingTrainingId] = useState<number | null>(null);
+  const [editingTraining, setEditingTraining] = useState<Partial<TrainingItem>>({});
 
   // 부대별 주간 예보 기본 목데이터 (모든 부대에 동일하게 적용)
   const DEFAULT_UNIT_FORECAST = {
@@ -68,47 +119,129 @@ export default function ForecastPage() {
     events: ['체력단련', '사격훈련', '야외훈련', '정비점검', '안전교육', '휴일', '휴일']
   };
 
+  // 체크리스트 핸들러
   const handleToggleComplete = (id: number) => {
     setChecklist(prev => prev.map(item => 
       item.id === id ? { ...item, completed: !item.completed } : item
     ));
   };
 
-  const handleStartEdit = (item: ChecklistItem) => {
-    setEditingId(item.id);
-    setEditingTask(item.task);
+  const handleStartEditChecklist = (item: ChecklistItem) => {
+    setEditingChecklistId(item.id);
+    setEditingChecklist({ ...item });
   };
 
-  const handleSaveEdit = (id: number) => {
-    if (editingTask.trim()) {
+  const handleSaveChecklist = (id: number) => {
+    if (editingChecklist.task?.trim()) {
       setChecklist(prev => prev.map(item => 
-        item.id === id ? { ...item, task: editingTask.trim() } : item
+        item.id === id ? { ...item, ...editingChecklist } as ChecklistItem : item
       ));
     }
-    setEditingId(null);
-    setEditingTask('');
+    setEditingChecklistId(null);
+    setEditingChecklist({});
   };
 
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setEditingTask('');
+  const handleCancelEditChecklist = () => {
+    setEditingChecklistId(null);
+    setEditingChecklist({});
   };
 
-  const handleDeleteItem = (id: number) => {
+  const handleDeleteChecklist = (id: number) => {
     setChecklist(prev => prev.filter(item => item.id !== id));
   };
 
-  const handleAddItem = () => {
+  const handleAddChecklist = () => {
     const newId = Math.max(...checklist.map(c => c.id), 0) + 1;
-    setChecklist(prev => [...prev, {
+    const newItem: ChecklistItem = {
       id: newId,
       task: '새 점검 항목',
       completed: false,
       priority: '중간',
-      assignee: '-'
-    }]);
-    setEditingId(newId);
-    setEditingTask('새 점검 항목');
+      assignee: '행정반'
+    };
+    setChecklist(prev => [...prev, newItem]);
+    setEditingChecklistId(newId);
+    setEditingChecklist(newItem);
+  };
+
+  // 점검 현황 핸들러
+  const handleStartEditInspection = (item: InspectionItem) => {
+    setEditingInspectionId(item.id);
+    setEditingInspection({ ...item });
+  };
+
+  const handleSaveInspection = (id: number) => {
+    if (editingInspection.item?.trim()) {
+      setInspections(prev => prev.map(item => 
+        item.id === id ? { ...item, ...editingInspection } as InspectionItem : item
+      ));
+    }
+    setEditingInspectionId(null);
+    setEditingInspection({});
+  };
+
+  const handleCancelEditInspection = () => {
+    setEditingInspectionId(null);
+    setEditingInspection({});
+  };
+
+  const handleDeleteInspection = (id: number) => {
+    setInspections(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleAddInspection = () => {
+    const newId = Math.max(...inspections.map(c => c.id), 0) + 1;
+    const newItem: InspectionItem = {
+      id: newId,
+      item: '새 점검 항목',
+      cycle: '주간',
+      lastDate: '12/15',
+      nextDate: '12/22',
+      status: 'complete'
+    };
+    setInspections(prev => [...prev, newItem]);
+    setEditingInspectionId(newId);
+    setEditingInspection(newItem);
+  };
+
+  // 교육 현황 핸들러
+  const handleStartEditTraining = (item: TrainingItem) => {
+    setEditingTrainingId(item.id);
+    setEditingTraining({ ...item });
+  };
+
+  const handleSaveTraining = (id: number) => {
+    if (editingTraining.name?.trim()) {
+      setTrainings(prev => prev.map(item => 
+        item.id === id ? { ...item, ...editingTraining } as TrainingItem : item
+      ));
+    }
+    setEditingTrainingId(null);
+    setEditingTraining({});
+  };
+
+  const handleCancelEditTraining = () => {
+    setEditingTrainingId(null);
+    setEditingTraining({});
+  };
+
+  const handleDeleteTraining = (id: number) => {
+    setTrainings(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleAddTraining = () => {
+    const newId = Math.max(...trainings.map(c => c.id), 0) + 1;
+    const newItem: TrainingItem = {
+      id: newId,
+      name: '새 교육',
+      target: '전 장병',
+      rate: 0,
+      deadline: '12/31',
+      status: 'inprogress'
+    };
+    setTrainings(prev => [...prev, newItem]);
+    setEditingTrainingId(newId);
+    setEditingTraining(newItem);
   };
 
   useEffect(() => {
@@ -617,38 +750,80 @@ export default function ForecastPage() {
 
           {/* 점검 현황 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-3">점검 현황</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-medium text-foreground">점검 현황</h2>
+              <button
+                onClick={handleAddInspection}
+                className="text-xs text-primary hover:underline"
+              >
+                + 항목 추가
+              </button>
+            </div>
             <div className="border border-border rounded overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="bg-muted/30 border-b-2 border-foreground/30">
                     <th className="py-2 text-xs font-medium text-foreground text-left px-4 border-r border-border">점검 항목</th>
-                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">주기</th>
-                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-28">최근 점검일</th>
-                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-28">다음 점검일</th>
-                    <th className="py-2 text-xs font-medium text-foreground text-center w-20">상태</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-20">주기</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">최근 점검일</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">다음 점검일</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-16">상태</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center w-20">관리</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { item: '차량 일일 점검 (배터리, 부동액, 타이어)', cycle: '일일', lastDate: '12/15', nextDate: '12/16', status: 'complete' },
-                    { item: '훈련장 안전시설 점검', cycle: '주간', lastDate: '12/14', nextDate: '12/21', status: 'complete' },
-                    { item: '응급장비 점검 (AED, 구급함)', cycle: '주간', lastDate: '12/10', nextDate: '12/17', status: 'warning' },
-                    { item: '소방시설 점검', cycle: '월간', lastDate: '12/01', nextDate: '01/01', status: 'complete' },
-                    { item: '탄약고 안전점검', cycle: '주간', lastDate: '12/08', nextDate: '12/15', status: 'overdue' },
-                  ].map((row, index) => (
-                    <tr key={index} className="border-b border-border last:border-b-0">
-                      <td className="py-2.5 text-sm text-foreground px-4 border-r border-border">{row.item}</td>
-                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.cycle}</td>
+                  {inspections.map((row) => (
+                    <tr key={row.id} className="border-b border-border last:border-b-0 group">
+                      <td className="py-2.5 text-sm px-4 border-r border-border">
+                        {editingInspectionId === row.id ? (
+                          <input
+                            type="text"
+                            value={editingInspection.item || ''}
+                            onChange={(e) => setEditingInspection(prev => ({ ...prev, item: e.target.value }))}
+                            className="w-full bg-transparent border border-border rounded px-2 py-1 text-sm focus:outline-none focus:border-foreground"
+                            autoFocus
+                          />
+                        ) : (
+                          <span className="text-foreground">{row.item}</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-center border-r border-border">
+                        {editingInspectionId === row.id ? (
+                          <select
+                            value={editingInspection.cycle || '주간'}
+                            onChange={(e) => setEditingInspection(prev => ({ ...prev, cycle: e.target.value as any }))}
+                            className="bg-background border border-border rounded px-1 py-0.5 text-xs focus:outline-none"
+                          >
+                            {CYCLE_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{row.cycle}</span>
+                        )}
+                      </td>
                       <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.lastDate}</td>
                       <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.nextDate}</td>
-                      <td className="py-2.5 text-center">
+                      <td className="py-2.5 text-center border-r border-border">
                         <span className={`text-xs font-medium ${
                           row.status === 'complete' ? 'text-status-success' : 
                           row.status === 'warning' ? 'text-status-warning' : 'text-status-error'
                         }`}>
                           {row.status === 'complete' ? '완료' : row.status === 'warning' ? '임박' : '지연'}
                         </span>
+                      </td>
+                      <td className="py-2.5 text-center">
+                        {editingInspectionId === row.id ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <button onClick={() => handleSaveInspection(row.id)} className="text-xs text-status-success hover:underline">저장</button>
+                            <button onClick={handleCancelEditInspection} className="text-xs text-muted-foreground hover:underline">취소</button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => handleStartEditInspection(row)} className="text-xs text-muted-foreground hover:text-foreground">수정</button>
+                            <button onClick={() => handleDeleteInspection(row.id)} className="text-xs text-muted-foreground hover:text-status-error">삭제</button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -661,29 +836,58 @@ export default function ForecastPage() {
 
           {/* 교육 현황 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-3">교육 현황</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-medium text-foreground">교육 현황</h2>
+              <button
+                onClick={handleAddTraining}
+                className="text-xs text-primary hover:underline"
+              >
+                + 항목 추가
+              </button>
+            </div>
             <div className="border border-border rounded overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="bg-muted/30 border-b-2 border-foreground/30">
                     <th className="py-2 text-xs font-medium text-foreground text-left px-4 border-r border-border">교육명</th>
                     <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">대상</th>
-                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">이수율</th>
-                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-28">마감일</th>
-                    <th className="py-2 text-xs font-medium text-foreground text-center w-20">상태</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-20">이수율</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-24">마감일</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center border-r border-border w-16">상태</th>
+                    <th className="py-2 text-xs font-medium text-foreground text-center w-20">관리</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { name: '동절기 안전교육', target: '전 장병', rate: 95, deadline: '12/20', status: 'complete' },
-                    { name: '차량 안전운행 교육', target: '운전병', rate: 88, deadline: '12/18', status: 'inprogress' },
-                    { name: '응급처치 교육 (심폐소생술)', target: '간부', rate: 72, deadline: '12/25', status: 'inprogress' },
-                    { name: '화생방 대응 교육', target: '전 장병', rate: 45, deadline: '12/31', status: 'inprogress' },
-                    { name: '사이버보안 교육', target: '전 장병', rate: 100, deadline: '12/10', status: 'complete' },
-                  ].map((row, index) => (
-                    <tr key={index} className="border-b border-border last:border-b-0">
-                      <td className="py-2.5 text-sm text-foreground px-4 border-r border-border">{row.name}</td>
-                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.target}</td>
+                  {trainings.map((row) => (
+                    <tr key={row.id} className="border-b border-border last:border-b-0 group">
+                      <td className="py-2.5 text-sm px-4 border-r border-border">
+                        {editingTrainingId === row.id ? (
+                          <input
+                            type="text"
+                            value={editingTraining.name || ''}
+                            onChange={(e) => setEditingTraining(prev => ({ ...prev, name: e.target.value }))}
+                            className="w-full bg-transparent border border-border rounded px-2 py-1 text-sm focus:outline-none focus:border-foreground"
+                            autoFocus
+                          />
+                        ) : (
+                          <span className="text-foreground">{row.name}</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-center border-r border-border">
+                        {editingTrainingId === row.id ? (
+                          <select
+                            value={editingTraining.target || '전 장병'}
+                            onChange={(e) => setEditingTraining(prev => ({ ...prev, target: e.target.value }))}
+                            className="bg-background border border-border rounded px-1 py-0.5 text-xs focus:outline-none"
+                          >
+                            {TARGET_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{row.target}</span>
+                        )}
+                      </td>
                       <td className="py-2.5 text-center border-r border-border">
                         <span className={`text-xs font-medium tabular-nums ${
                           row.rate >= 90 ? 'text-status-success' : 
@@ -693,12 +897,25 @@ export default function ForecastPage() {
                         </span>
                       </td>
                       <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.deadline}</td>
-                      <td className="py-2.5 text-center">
+                      <td className="py-2.5 text-center border-r border-border">
                         <span className={`text-xs font-medium ${
                           row.status === 'complete' ? 'text-status-success' : 'text-primary'
                         }`}>
                           {row.status === 'complete' ? '완료' : '진행중'}
                         </span>
+                      </td>
+                      <td className="py-2.5 text-center">
+                        {editingTrainingId === row.id ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <button onClick={() => handleSaveTraining(row.id)} className="text-xs text-status-success hover:underline">저장</button>
+                            <button onClick={handleCancelEditTraining} className="text-xs text-muted-foreground hover:underline">취소</button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => handleStartEditTraining(row)} className="text-xs text-muted-foreground hover:text-foreground">수정</button>
+                            <button onClick={() => handleDeleteTraining(row.id)} className="text-xs text-muted-foreground hover:text-status-error">삭제</button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -714,7 +931,7 @@ export default function ForecastPage() {
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-medium text-foreground">예방 체크리스트</h2>
               <button
-                onClick={handleAddItem}
+                onClick={handleAddChecklist}
                 className="text-xs text-primary hover:underline"
               >
                 + 항목 추가
@@ -749,15 +966,11 @@ export default function ForecastPage() {
                         </button>
                       </td>
                       <td className="py-2.5 text-sm px-4 border-r border-border">
-                        {editingId === item.id ? (
+                        {editingChecklistId === item.id ? (
                           <input
                             type="text"
-                            value={editingTask}
-                            onChange={(e) => setEditingTask(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') handleSaveEdit(item.id);
-                              if (e.key === 'Escape') handleCancelEdit();
-                            }}
+                            value={editingChecklist.task || ''}
+                            onChange={(e) => setEditingChecklist(prev => ({ ...prev, task: e.target.value }))}
                             className="w-full bg-transparent border border-border rounded px-2 py-1 text-sm focus:outline-none focus:border-foreground"
                             autoFocus
                           />
@@ -768,44 +981,50 @@ export default function ForecastPage() {
                         )}
                       </td>
                       <td className="py-2.5 text-center border-r border-border">
-                        <span className={`text-xs font-medium ${
-                          item.priority === '높음' ? 'text-status-error' : 
-                          item.priority === '중간' ? 'text-status-warning' : 'text-muted-foreground'
-                        }`}>
-                          {item.priority}
-                        </span>
+                        {editingChecklistId === item.id ? (
+                          <select
+                            value={editingChecklist.priority || '중간'}
+                            onChange={(e) => setEditingChecklist(prev => ({ ...prev, priority: e.target.value as any }))}
+                            className="bg-background border border-border rounded px-1 py-0.5 text-xs focus:outline-none"
+                          >
+                            {PRIORITY_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className={`text-xs font-medium ${
+                            item.priority === '높음' ? 'text-status-error' : 
+                            item.priority === '중간' ? 'text-status-warning' : 'text-muted-foreground'
+                          }`}>
+                            {item.priority}
+                          </span>
+                        )}
                       </td>
-                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{item.assignee}</td>
+                      <td className="py-2.5 text-center border-r border-border">
+                        {editingChecklistId === item.id ? (
+                          <select
+                            value={editingChecklist.assignee || '행정반'}
+                            onChange={(e) => setEditingChecklist(prev => ({ ...prev, assignee: e.target.value }))}
+                            className="bg-background border border-border rounded px-1 py-0.5 text-xs focus:outline-none"
+                          >
+                            {ASSIGNEE_OPTIONS.map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{item.assignee}</span>
+                        )}
+                      </td>
                       <td className="py-2.5 text-center">
-                        {editingId === item.id ? (
+                        {editingChecklistId === item.id ? (
                           <div className="flex items-center justify-center gap-2">
-                            <button
-                              onClick={() => handleSaveEdit(item.id)}
-                              className="text-xs text-status-success hover:underline"
-                            >
-                              저장
-                            </button>
-                            <button
-                              onClick={handleCancelEdit}
-                              className="text-xs text-muted-foreground hover:underline"
-                            >
-                              취소
-                            </button>
+                            <button onClick={() => handleSaveChecklist(item.id)} className="text-xs text-status-success hover:underline">저장</button>
+                            <button onClick={handleCancelEditChecklist} className="text-xs text-muted-foreground hover:underline">취소</button>
                           </div>
                         ) : (
                           <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => handleStartEdit(item)}
-                              className="text-xs text-muted-foreground hover:text-foreground"
-                            >
-                              수정
-                            </button>
-                            <button
-                              onClick={() => handleDeleteItem(item.id)}
-                              className="text-xs text-muted-foreground hover:text-status-error"
-                            >
-                              삭제
-                            </button>
+                            <button onClick={() => handleStartEditChecklist(item)} className="text-xs text-muted-foreground hover:text-foreground">수정</button>
+                            <button onClick={() => handleDeleteChecklist(item.id)} className="text-xs text-muted-foreground hover:text-status-error">삭제</button>
                           </div>
                         )}
                       </td>
