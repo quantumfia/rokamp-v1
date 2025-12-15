@@ -92,6 +92,8 @@ const PRIORITY_OPTIONS = ['높음', '중간', '낮음'] as const;
 const ASSIGNEE_OPTIONS = ['수송반', '교육계', '작전과', '행정반', '의무반', '정비반', '보급반', '통신반'];
 const CYCLE_OPTIONS = ['일일', '주간', '월간'] as const;
 const TARGET_OPTIONS = ['전 장병', '간부', '운전병', '병사', '부사관'];
+const STATUS_OPTIONS = ['complete', 'warning', 'overdue'] as const;
+const TRAINING_STATUS_OPTIONS = ['complete', 'inprogress'] as const;
 
 export default function ForecastPage() {
   const [activeTab, setActiveTab] = useState('weekly');
@@ -802,15 +804,51 @@ export default function ForecastPage() {
                           <span className="text-xs text-muted-foreground">{row.cycle}</span>
                         )}
                       </td>
-                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.lastDate}</td>
-                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.nextDate}</td>
                       <td className="py-2.5 text-center border-r border-border">
-                        <span className={`text-xs font-medium ${
-                          row.status === 'complete' ? 'text-status-success' : 
-                          row.status === 'warning' ? 'text-status-warning' : 'text-status-error'
-                        }`}>
-                          {row.status === 'complete' ? '완료' : row.status === 'warning' ? '임박' : '지연'}
-                        </span>
+                        {editingInspectionId === row.id ? (
+                          <input
+                            type="text"
+                            value={editingInspection.lastDate || ''}
+                            onChange={(e) => setEditingInspection(prev => ({ ...prev, lastDate: e.target.value }))}
+                            className="w-16 bg-transparent border border-border rounded px-1 py-0.5 text-xs text-center focus:outline-none focus:border-foreground"
+                            placeholder="MM/DD"
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{row.lastDate}</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-center border-r border-border">
+                        {editingInspectionId === row.id ? (
+                          <input
+                            type="text"
+                            value={editingInspection.nextDate || ''}
+                            onChange={(e) => setEditingInspection(prev => ({ ...prev, nextDate: e.target.value }))}
+                            className="w-16 bg-transparent border border-border rounded px-1 py-0.5 text-xs text-center focus:outline-none focus:border-foreground"
+                            placeholder="MM/DD"
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{row.nextDate}</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-center border-r border-border">
+                        {editingInspectionId === row.id ? (
+                          <select
+                            value={editingInspection.status || 'complete'}
+                            onChange={(e) => setEditingInspection(prev => ({ ...prev, status: e.target.value as any }))}
+                            className="bg-background border border-border rounded px-1 py-0.5 text-xs focus:outline-none"
+                          >
+                            <option value="complete">완료</option>
+                            <option value="warning">임박</option>
+                            <option value="overdue">지연</option>
+                          </select>
+                        ) : (
+                          <span className={`text-xs font-medium ${
+                            row.status === 'complete' ? 'text-status-success' : 
+                            row.status === 'warning' ? 'text-status-warning' : 'text-status-error'
+                          }`}>
+                            {row.status === 'complete' ? '완료' : row.status === 'warning' ? '임박' : '지연'}
+                          </span>
+                        )}
                       </td>
                       <td className="py-2.5 text-center">
                         {editingInspectionId === row.id ? (
@@ -889,20 +927,54 @@ export default function ForecastPage() {
                         )}
                       </td>
                       <td className="py-2.5 text-center border-r border-border">
-                        <span className={`text-xs font-medium tabular-nums ${
-                          row.rate >= 90 ? 'text-status-success' : 
-                          row.rate >= 70 ? 'text-status-warning' : 'text-foreground'
-                        }`}>
-                          {row.rate}%
-                        </span>
+                        {editingTrainingId === row.id ? (
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={editingTraining.rate ?? 0}
+                            onChange={(e) => setEditingTraining(prev => ({ ...prev, rate: parseInt(e.target.value) || 0 }))}
+                            className="w-14 bg-transparent border border-border rounded px-1 py-0.5 text-xs text-center focus:outline-none focus:border-foreground"
+                          />
+                        ) : (
+                          <span className={`text-xs font-medium tabular-nums ${
+                            row.rate >= 90 ? 'text-status-success' : 
+                            row.rate >= 70 ? 'text-status-warning' : 'text-foreground'
+                          }`}>
+                            {row.rate}%
+                          </span>
+                        )}
                       </td>
-                      <td className="py-2.5 text-xs text-muted-foreground text-center border-r border-border">{row.deadline}</td>
                       <td className="py-2.5 text-center border-r border-border">
-                        <span className={`text-xs font-medium ${
-                          row.status === 'complete' ? 'text-status-success' : 'text-primary'
-                        }`}>
-                          {row.status === 'complete' ? '완료' : '진행중'}
-                        </span>
+                        {editingTrainingId === row.id ? (
+                          <input
+                            type="text"
+                            value={editingTraining.deadline || ''}
+                            onChange={(e) => setEditingTraining(prev => ({ ...prev, deadline: e.target.value }))}
+                            className="w-16 bg-transparent border border-border rounded px-1 py-0.5 text-xs text-center focus:outline-none focus:border-foreground"
+                            placeholder="MM/DD"
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{row.deadline}</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-center border-r border-border">
+                        {editingTrainingId === row.id ? (
+                          <select
+                            value={editingTraining.status || 'inprogress'}
+                            onChange={(e) => setEditingTraining(prev => ({ ...prev, status: e.target.value as any }))}
+                            className="bg-background border border-border rounded px-1 py-0.5 text-xs focus:outline-none"
+                          >
+                            <option value="complete">완료</option>
+                            <option value="inprogress">진행중</option>
+                          </select>
+                        ) : (
+                          <span className={`text-xs font-medium ${
+                            row.status === 'complete' ? 'text-status-success' : 'text-primary'
+                          }`}>
+                            {row.status === 'complete' ? '완료' : '진행중'}
+                          </span>
+                        )}
                       </td>
                       <td className="py-2.5 text-center">
                         {editingTrainingId === row.id ? (
