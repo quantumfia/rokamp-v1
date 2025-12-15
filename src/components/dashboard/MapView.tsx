@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
@@ -65,18 +64,10 @@ const createMarkerIcon = (risk: number) => {
   });
 };
 
-// Map controller component for dynamic updates
-function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    map.flyTo(center, zoom, { duration: 1.5 });
-  }, [map, center, zoom]);
-  
-  return null;
-}
-
 export function MapView({ className, onMarkerClick }: MapViewProps) {
+  const mapRef = useRef<L.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const markersRef = useRef<L.Marker[]>([]);
   const { user } = useAuth();
 
   // 권한별 표시할 부대 및 줌 레벨 결정 (MAIN-MAP)
@@ -122,46 +113,92 @@ export function MapView({ className, onMarkerClick }: MapViewProps) {
     return '#ef4444';
   };
 
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
+
+    // Create map instance
+    mapRef.current = L.map(mapContainerRef.current, {
+      center: viewConfig.center,
+      zoom: viewConfig.zoom,
+      zoomControl: true,
+      attributionControl: false,
+    });
+
+    // Add dark tile layer - CartoDB Dark Matter
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+    }).addTo(mapRef.current);
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update view when user role changes
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.flyTo(viewConfig.center, viewConfig.zoom, {
+        duration: 1.5,
+      });
+    }
+  }, [user?.role]);
+
+  // Add/update markers
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+
+    // Add unit markers
+    viewConfig.units.forEach((unit) => {
+      const marker = L.marker([unit.lat, unit.lng], {
+        icon: createMarkerIcon(unit.risk),
+      }).addTo(mapRef.current!);
+
+      // Create popup content
+      const popupContent = `
+        <div style="
+          background: hsl(220, 13%, 10%);
+          padding: 8px 12px;
+          border-radius: 4px;
+          border: 1px solid hsl(220, 10%, 25%);
+          min-width: 120px;
+        ">
+          <div style="
+            font-size: 12px;
+            font-weight: 600;
+            color: hsl(0, 0%, 95%);
+            margin-bottom: 4px;
+          ">${unit.name}</div>
+          <div style="
+            font-size: 10px;
+            color: ${getRiskColor(unit.risk)};
+          ">위험도: ${unit.risk}%</div>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent, {
+        closeButton: false,
+        className: 'military-popup',
+      });
+
+      marker.on('click', () => {
+        onMarkerClick?.(unit.id);
+      });
+
+      markersRef.current.push(marker);
+    });
+  }, [viewConfig.units, onMarkerClick]);
+
   return (
     <div className={cn('relative overflow-hidden', className)}>
-      <MapContainer
-        center={viewConfig.center}
-        zoom={viewConfig.zoom}
-        className="w-full h-full"
-        zoomControl={false}
-        attributionControl={false}
-        style={{ background: 'hsl(220, 13%, 8%)' }}
-      >
-        {/* Dark tile layer - CartoDB Dark Matter */}
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        />
-        
-        <MapController center={viewConfig.center} zoom={viewConfig.zoom} />
-        
-        {/* Unit markers */}
-        {viewConfig.units.map((unit) => (
-          <Marker
-            key={unit.id}
-            position={[unit.lat, unit.lng]}
-            icon={createMarkerIcon(unit.risk)}
-            eventHandlers={{
-              click: () => onMarkerClick?.(unit.id),
-            }}
-          >
-            <Popup className="military-popup">
-              <div className="bg-panel-dark border border-sidebar-border rounded p-2 min-w-[120px]">
-                <div className="text-xs font-semibold text-panel-dark-foreground mb-1">
-                  {unit.name}
-                </div>
-                <div className="text-[10px]" style={{ color: getRiskColor(unit.risk) }}>
-                  위험도: {unit.risk}%
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+      <div ref={mapContainerRef} className="w-full h-full" style={{ background: 'hsl(220, 13%, 8%)' }} />
       
       {/* Map Legend */}
       <div className="absolute bottom-3 left-3 floating-panel p-2.5 z-[1000]">
