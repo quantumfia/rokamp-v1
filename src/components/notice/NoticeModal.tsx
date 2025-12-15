@@ -58,7 +58,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
         <div className="flex items-center justify-between h-10 px-4 bg-[#111] border-b border-[#1a1a1a]">
           <div className="flex items-center gap-2">
             <div className="w-1 h-4 bg-primary" />
-            <span className="text-xs font-medium text-foreground tracking-wide">공지사항</span>
+            <span className="text-xs font-medium text-white tracking-wide">공지사항</span>
             <span className="text-[10px] text-muted-foreground ml-2">NOTICE</span>
           </div>
           <button
