@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { Download, Copy, FileText, ChevronDown, Printer } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
@@ -10,6 +10,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import armyLogo from '@/assets/army-logo.png';
+
+// A4 비율: 210mm x 297mm (약 1:1.414)
+const A4_WIDTH_PX = 595; // 약 210mm at 72dpi
+const A4_HEIGHT_PX = 842; // 약 297mm at 72dpi
+const CONTENT_PADDING = 40; // 상하좌우 여백
+const HEADER_HEIGHT = 120; // 헤더 영역 높이
+const FOOTER_HEIGHT = 50; // 푸터 영역 높이
+const CONTENT_HEIGHT = A4_HEIGHT_PX - HEADER_HEIGHT - FOOTER_HEIGHT - (CONTENT_PADDING * 2);
 
 interface ReportPreviewProps {
   content: string;
@@ -28,6 +36,22 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
   const currentDate = new Date();
   const formattedDate = `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월 ${currentDate.getDate()}일`;
   const formattedTime = `${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}`;
+  const documentNumber = useMemo(() => `ACC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(5, '0')}`, []);
+
+  // 콘텐츠를 페이지별로 분할
+  const pages = useMemo(() => {
+    if (!content) return [];
+    
+    const lines = content.split('\n');
+    const linesPerPage = 28; // 페이지당 라인 수 (대략적인 값)
+    const result: string[][] = [];
+    
+    for (let i = 0; i < lines.length; i += linesPerPage) {
+      result.push(lines.slice(i, i + linesPerPage));
+    }
+    
+    return result.length > 0 ? result : [lines];
+  }, [content]);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
@@ -62,11 +86,23 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { 
               font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; 
-              padding: 20mm;
               background: white;
             }
+            .a4-page {
+              width: 210mm;
+              min-height: 297mm;
+              padding: 20mm;
+              background: white;
+              page-break-after: always;
+            }
+            .a4-page:last-child {
+              page-break-after: auto;
+            }
             @media print {
-              body { padding: 0; }
+              .a4-page {
+                padding: 15mm;
+                margin: 0;
+              }
             }
           </style>
         </head>
@@ -78,7 +114,6 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
     
     printWindow.document.close();
     
-    // 폰트 로딩 대기 후 인쇄
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
@@ -96,49 +131,36 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
     setIsGeneratingPDF(true);
     
     try {
-      // html2canvas로 HTML을 이미지로 변환 (한글 폰트 포함)
-      const canvas = await html2canvas(printRef.current, {
-        scale: 2, // 고해상도
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      
-      // PDF 생성
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
+      const pageElements = printRef.current.querySelectorAll('.a4-page');
       
-      const imgWidth = pageWidth - margin * 2;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      // 여러 페이지 처리
-      let heightLeft = imgHeight;
-      let position = margin;
-      let page = 1;
+      for (let i = 0; i < pageElements.length; i++) {
+        const pageEl = pageElements[i] as HTMLElement;
+        
+        const canvas = await html2canvas(pageEl, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+        });
 
-      // 첫 페이지
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-      heightLeft -= (pageHeight - margin * 2);
-
-      // 추가 페이지가 필요한 경우
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + margin;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-        heightLeft -= (pageHeight - margin * 2);
-        page++;
+        const imgData = canvas.toDataURL('image/png');
+        
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
       }
 
-      // 다운로드
       pdf.save(`사고보고서_${new Date().toISOString().split('T')[0]}.pdf`);
       
       toast({
@@ -158,7 +180,6 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
   };
 
   const handleDownloadHWP = () => {
-    // HWP 다운로드 (실제 구현 시 서버 사이드 변환 필요)
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -170,6 +191,30 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
       title: 'HWP 다운로드',
       description: '보고서가 HWP 형식으로 다운로드되었습니다. (텍스트 기반)',
     });
+  };
+
+  const renderLine = (line: string, idx: number) => {
+    // 제목 스타일
+    if (line.match(/^\d+\.\s/)) {
+      return <p key={idx} className="font-bold mt-3 mb-1 text-[11px]">{line}</p>;
+    }
+    // 부제목 스타일
+    if (line.match(/^\s+[가-힣]\.\s/)) {
+      return <p key={idx} className="font-medium ml-3 text-[11px]">{line}</p>;
+    }
+    // 리스트 항목
+    if (line.match(/^\s+-\s/)) {
+      return <p key={idx} className="ml-6 text-[11px]">{line}</p>;
+    }
+    // 관련자 번호
+    if (line.match(/^\s+\d+\)/)) {
+      return <p key={idx} className="ml-4 text-[11px]">{line}</p>;
+    }
+    // 주석
+    if (line.startsWith('※')) {
+      return <p key={idx} className="text-[9px] text-gray-500 mt-4 pt-2 border-t border-gray-200">{line}</p>;
+    }
+    return <p key={idx} className="text-[11px] leading-[1.6]">{line || '\u00A0'}</p>;
   };
 
   return (
@@ -231,117 +276,110 @@ export function ReportPreview({ content, onContentChange, reporterInfo }: Report
           ) : (
             <div 
               ref={printRef}
-              className="flex-1 bg-white rounded overflow-auto cursor-pointer hover:shadow-lg transition-shadow min-h-[500px] shadow-md relative"
+              className="flex-1 overflow-auto cursor-pointer"
               onClick={() => setIsEditing(true)}
+              style={{ backgroundColor: '#e5e5e5', padding: '20px' }}
             >
-              {/* 워터마크 로고 */}
-              <div 
-                className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
-                style={{ top: '30%' }}
-              >
-                <img 
-                  src={armyLogo} 
-                  alt="" 
-                  className="w-64 h-64 opacity-[0.06]"
-                  style={{ filter: 'grayscale(100%)' }}
-                />
-              </div>
+              {/* A4 페이지들 */}
+              <div className="flex flex-col items-center gap-6">
+                {pages.map((pageLines, pageIdx) => (
+                  <div 
+                    key={pageIdx}
+                    className="a4-page bg-white shadow-lg hover:shadow-xl transition-shadow relative"
+                    style={{ 
+                      width: `${A4_WIDTH_PX}px`, 
+                      minHeight: `${A4_HEIGHT_PX}px`,
+                      padding: `${CONTENT_PADDING}px`,
+                      fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
+                    }}
+                  >
+                    {/* 워터마크 로고 */}
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                      style={{ zIndex: 0 }}
+                    >
+                      <img 
+                        src={armyLogo} 
+                        alt="" 
+                        className="w-48 h-48 opacity-[0.05]"
+                        style={{ filter: 'grayscale(100%)' }}
+                      />
+                    </div>
 
-              {/* PDF 스타일 문서 */}
-              <div className="p-8 relative z-10" style={{ fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif" }}>
-                {/* 문서 헤더 - 기관 정보 */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <img src={armyLogo} alt="육군본부" className="w-12 h-12" />
-                    <div>
-                      <p className="text-xs text-gray-500">대한민국 육군</p>
-                      <p className="text-sm font-bold text-black">육군본부</p>
+                    {/* 페이지 콘텐츠 */}
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* 첫 페이지에만 헤더 표시 */}
+                      {pageIdx === 0 && (
+                        <>
+                          {/* 문서 헤더 - 기관 정보 */}
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <img src={armyLogo} alt="육군본부" className="w-10 h-10" />
+                              <div>
+                                <p className="text-[9px] text-gray-500">대한민국 육군</p>
+                                <p className="text-[11px] font-bold text-black">육군본부</p>
+                              </div>
+                            </div>
+                            <div className="text-right text-[9px] text-gray-500">
+                              <p>문서번호: {documentNumber}</p>
+                              <p>작성일시: {formattedDate} {formattedTime}</p>
+                              {reporterInfo && (
+                                <p>작 성 자: {reporterInfo.rank} {reporterInfo.name}</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* 문서 제목 */}
+                          <div className="text-center border-y-2 border-black py-3 mb-4">
+                            <h1 className="text-base font-bold text-black tracking-widest">사 고 보 고 서</h1>
+                            <p className="text-[9px] text-gray-500 mt-0.5">ACCIDENT REPORT</p>
+                          </div>
+                        </>
+                      )}
+                      
+                      {/* 문서 본문 */}
+                      <div className="flex-1 text-black whitespace-pre-wrap">
+                        {pageLines.map((line, idx) => renderLine(line, idx))}
+                      </div>
+
+                      {/* 마지막 페이지에만 결재란과 푸터 표시 */}
+                      {pageIdx === pages.length - 1 && (
+                        <>
+                          {/* 결재란 */}
+                          <div className="mt-6 flex justify-end">
+                            <table className="border-collapse text-[9px] text-black">
+                              <thead>
+                                <tr>
+                                  <th className="border border-gray-400 px-3 py-1 bg-gray-100">담당</th>
+                                  <th className="border border-gray-400 px-3 py-1 bg-gray-100">검토</th>
+                                  <th className="border border-gray-400 px-3 py-1 bg-gray-100">승인</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
+                                  <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
+                                  <td className="border border-gray-400 px-3 py-3 h-10 w-12"></td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </>
+                      )}
+
+                      {/* 문서 푸터 */}
+                      <div className="mt-auto pt-4 border-t border-gray-300 flex justify-between items-center">
+                        <p className="text-[8px] text-gray-400">본 문서는 대외비로 취급하시기 바랍니다.</p>
+                        <p className="text-[9px] text-gray-400">- {pageIdx + 1} / {pages.length} -</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right text-xs text-gray-500">
-                    <p>문서번호: ACC-{new Date().getFullYear()}-{String(Math.floor(Math.random() * 10000)).padStart(5, '0')}</p>
-                    <p>작성일시: {formattedDate} {formattedTime}</p>
-                    {reporterInfo && (
-                      <p>작 성 자: {reporterInfo.rank} {reporterInfo.name}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* 문서 제목 */}
-                <div className="text-center border-y-2 border-black py-4 mb-6">
-                  <h1 className="text-xl font-bold text-black tracking-widest">사 고 보 고 서</h1>
-                  <p className="text-xs text-gray-500 mt-1">ACCIDENT REPORT</p>
-                </div>
-                
-                {/* 문서 본문 */}
-                <div className="text-black text-sm leading-7 whitespace-pre-wrap">
-                  {content.split('\n').map((line, idx) => {
-                    // 제목 스타일
-                    if (line.match(/^\d+\.\s/)) {
-                      return (
-                        <p key={idx} className="font-bold mt-4 mb-2">{line}</p>
-                      );
-                    }
-                    // 부제목 스타일
-                    if (line.match(/^\s+[가-힣]\.\s/)) {
-                      return (
-                        <p key={idx} className="font-medium ml-4">{line}</p>
-                      );
-                    }
-                    // 리스트 항목
-                    if (line.match(/^\s+-\s/)) {
-                      return (
-                        <p key={idx} className="ml-8">{line}</p>
-                      );
-                    }
-                    // 관련자 번호 (1), 2) 등)
-                    if (line.match(/^\s+\d+\)/)) {
-                      return (
-                        <p key={idx} className="ml-6">{line}</p>
-                      );
-                    }
-                    // 주석
-                    if (line.startsWith('※')) {
-                      return (
-                        <p key={idx} className="text-xs text-gray-500 mt-6 pt-4 border-t border-gray-200">{line}</p>
-                      );
-                    }
-                    return (
-                      <p key={idx}>{line || '\u00A0'}</p>
-                    );
-                  })}
-                </div>
-
-                {/* 결재란 */}
-                <div className="mt-10 flex justify-end">
-                  <table className="border-collapse text-xs text-black">
-                    <thead>
-                      <tr>
-                        <th className="border border-gray-400 px-4 py-1 bg-gray-100">담당</th>
-                        <th className="border border-gray-400 px-4 py-1 bg-gray-100">검토</th>
-                        <th className="border border-gray-400 px-4 py-1 bg-gray-100">승인</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="border border-gray-400 px-4 py-4 h-12 w-16"></td>
-                        <td className="border border-gray-400 px-4 py-4 h-12 w-16"></td>
-                        <td className="border border-gray-400 px-4 py-4 h-12 w-16"></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* 문서 푸터 */}
-                <div className="mt-8 pt-4 border-t border-gray-300 flex justify-between items-center">
-                  <p className="text-xs text-gray-400">본 문서는 대외비로 취급하시기 바랍니다.</p>
-                  <p className="text-xs text-gray-400">- 1 / 1 -</p>
-                </div>
+                ))}
               </div>
             </div>
           )}
           <p className="text-xs text-muted-foreground mt-2">
-            {isEditing ? '편집 중 - 외부 클릭 시 저장' : '클릭하여 편집'}
+            {isEditing ? '편집 중 - 외부 클릭 시 저장' : '클릭하여 편집'} · 총 {pages.length}페이지
           </p>
         </div>
       ) : (
