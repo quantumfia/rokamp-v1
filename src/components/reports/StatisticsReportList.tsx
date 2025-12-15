@@ -159,6 +159,7 @@ export function StatisticsReportList() {
     customEndDate: undefined as Date | undefined,
     analysisTarget: 'unit' as 'unit' | 'rank',
     unitId: '',
+    rankType: 'all' as 'all' | 'enlisted' | 'nco' | 'officer',
   });
 
   // 기간 계산 함수
@@ -299,10 +300,18 @@ export function StatisticsReportList() {
       const details = generateMockDetails();
       const recommendations = generateRecommendations(stats);
 
+      // 계급 라벨
+      const rankLabels: Record<string, string> = {
+        all: '전체 계급',
+        enlisted: '병사',
+        nco: '부사관',
+        officer: '장교',
+      };
+
       // 제목 생성
       const targetLabel = createForm.analysisTarget === 'unit' 
         ? (unit?.name || '전체') 
-        : '계급별';
+        : rankLabels[createForm.rankType];
       
       const typeLabels: Record<string, string> = {
         weekly: '주간',
@@ -319,13 +328,18 @@ export function StatisticsReportList() {
         `전체 ${stats.totalAccidents}건 중 ${stats.resolved}건이 처리 완료되었으며, ${stats.pending}건이 처리 진행 중입니다.`,
       ];
 
+      // 대상 표시 문자열
+      const unitDisplayLabel = createForm.analysisTarget === 'unit' 
+        ? (unit?.name || '전체') 
+        : rankLabels[createForm.rankType];
+
       const newReport: StatReport = {
         id: `generated-${Date.now()}`,
         title: `${targetLabel} ${titleType} 사고 위험도 분석`,
         type: reportTypeForTitle,
         period: periodLabel,
         generatedAt: format(new Date(), 'yyyy-MM-dd'),
-        unit: createForm.analysisTarget === 'unit' ? (unit?.name || '전체') : '전체 (계급별)',
+        unit: unitDisplayLabel,
         analysisTarget: createForm.analysisTarget,
         summary: summaryTemplates[Math.floor(Math.random() * summaryTemplates.length)],
         stats,
@@ -909,8 +923,8 @@ export function StatisticsReportList() {
             )}
           </div>
 
-          {/* Row 2: 부대 선택 (분석 대상이 부대인 경우만) */}
-          {createForm.analysisTarget === 'unit' && (
+          {/* Row 2: 부대 선택 (분석 대상이 부대인 경우) 또는 계급 선택 (분석 대상이 계급인 경우) */}
+          {createForm.analysisTarget === 'unit' ? (
             <div className="mb-4">
               <label className="block text-xs text-muted-foreground mb-2">분석 대상 부대</label>
               <UnitCascadeSelect
@@ -918,6 +932,20 @@ export function StatisticsReportList() {
                 onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
                 placeholder="부대 선택"
               />
+            </div>
+          ) : (
+            <div className="mb-4">
+              <label className="block text-xs text-muted-foreground mb-2">분석 대상 계급</label>
+              <select
+                value={createForm.rankType}
+                onChange={(e) => setCreateForm(prev => ({ ...prev, rankType: e.target.value as 'all' | 'enlisted' | 'nco' | 'officer' }))}
+                className="w-64 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+              >
+                <option value="all">전체 계급</option>
+                <option value="enlisted">병사 (이병~병장)</option>
+                <option value="nco">부사관 (하사~원사)</option>
+                <option value="officer">장교 (소위~대장)</option>
+              </select>
             </div>
           )}
 
@@ -958,7 +986,7 @@ export function StatisticsReportList() {
           <div>유형</div>
           <div>제목</div>
           <div>기간</div>
-          <div>부대</div>
+          <div>대상</div>
           <div>생성일</div>
           <div></div>
         </div>
