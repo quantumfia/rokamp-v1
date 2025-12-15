@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Copy } from 'lucide-react';
+import { Download, Copy, FileText } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface ReportPreviewProps {
@@ -63,15 +63,60 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
               value={content}
               onChange={(e) => onContentChange(e.target.value)}
               onBlur={() => setIsEditing(false)}
-              className="flex-1 min-h-[400px] bg-transparent border border-border rounded px-4 py-3 font-mono text-sm resize-none focus:outline-none focus:border-foreground transition-colors"
+              className="flex-1 min-h-[500px] bg-white text-black border border-border rounded px-8 py-6 font-serif text-sm resize-none focus:outline-none focus:border-foreground transition-colors leading-relaxed"
               autoFocus
             />
           ) : (
             <div 
-              className="flex-1 px-4 py-3 border border-border rounded overflow-auto whitespace-pre-wrap font-mono text-sm cursor-pointer hover:bg-muted/30 transition-colors min-h-[400px]"
+              className="flex-1 bg-white rounded overflow-auto cursor-pointer hover:shadow-lg transition-shadow min-h-[500px] shadow-md"
               onClick={() => setIsEditing(true)}
             >
-              {content}
+              {/* PDF 스타일 문서 */}
+              <div className="p-8">
+                {/* 문서 헤더 */}
+                <div className="text-center border-b-2 border-black pb-4 mb-6">
+                  <p className="text-xs text-gray-500 mb-2">육군 사고보고서</p>
+                  <h1 className="text-lg font-bold text-black tracking-wider">사 고 보 고 서</h1>
+                </div>
+                
+                {/* 문서 본문 */}
+                <div className="text-black font-serif text-sm leading-7 whitespace-pre-wrap">
+                  {content.split('\n').map((line, idx) => {
+                    // 제목 스타일
+                    if (line.match(/^\d+\.\s/)) {
+                      return (
+                        <p key={idx} className="font-bold mt-4 mb-2">{line}</p>
+                      );
+                    }
+                    // 부제목 스타일
+                    if (line.match(/^\s+[가-힣]\.\s/)) {
+                      return (
+                        <p key={idx} className="font-medium ml-4">{line}</p>
+                      );
+                    }
+                    // 리스트 항목
+                    if (line.match(/^\s+-\s/)) {
+                      return (
+                        <p key={idx} className="ml-8">{line}</p>
+                      );
+                    }
+                    // 주석
+                    if (line.startsWith('※')) {
+                      return (
+                        <p key={idx} className="text-xs text-gray-500 mt-6 pt-4 border-t border-gray-200">{line}</p>
+                      );
+                    }
+                    return (
+                      <p key={idx}>{line || '\u00A0'}</p>
+                    );
+                  })}
+                </div>
+
+                {/* 문서 푸터 */}
+                <div className="mt-8 pt-4 border-t border-gray-300 text-center">
+                  <p className="text-xs text-gray-400">- {Math.ceil(content.length / 500)} / {Math.ceil(content.length / 500)} -</p>
+                </div>
+              </div>
             </div>
           )}
           <p className="text-xs text-muted-foreground mt-2">
@@ -79,10 +124,11 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
           </p>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center text-center py-12 border border-dashed border-border rounded">
+        <div className="flex-1 flex flex-col items-center justify-center text-center py-12 bg-muted/20 rounded border border-dashed border-border min-h-[500px]">
+          <FileText className="w-12 h-12 text-muted-foreground/50 mb-4" />
           <p className="text-sm text-muted-foreground">
             좌측 폼에서 정보를 입력하고<br />
-            'AI 보고서 초안 생성' 버튼을 클릭하세요
+            &apos;AI 보고서 초안 생성&apos; 버튼을 클릭하세요
           </p>
           <p className="text-xs text-muted-foreground mt-3">
             과거 유사 보고서 패턴을 학습한 AI가<br />
