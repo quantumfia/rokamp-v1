@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Download, ArrowLeft, Eye, ChevronDown } from 'lucide-react';
+import { Download, ArrowLeft, Eye, ChevronDown, Plus, Loader2, Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -10,6 +10,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FileText } from 'lucide-react';
+import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
+import { getUnitById } from '@/data/armyUnits';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 interface StatReport {
   id: string;
@@ -138,8 +142,147 @@ export function StatisticsReportList() {
   const [selectedReport, setSelectedReport] = useState<StatReport | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+  
+  // 보고서 생성 관련 상태
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [reports, setReports] = useState<StatReport[]>(MOCK_STAT_REPORTS);
+  const [createForm, setCreateForm] = useState({
+    reportType: 'weekly' as 'weekly' | 'monthly',
+    periodType: 'current' as 'current' | 'previous',
+    unitId: '',
+  });
 
-  const filteredReports = MOCK_STAT_REPORTS.filter((report) => {
+  // 기간 계산 함수
+  const calculatePeriod = (reportType: 'weekly' | 'monthly', periodType: 'current' | 'previous') => {
+    const now = new Date();
+    let start: Date, end: Date;
+    
+    if (reportType === 'weekly') {
+      if (periodType === 'current') {
+        start = startOfWeek(now, { weekStartsOn: 1 });
+        end = endOfWeek(now, { weekStartsOn: 1 });
+      } else {
+        const lastWeek = subWeeks(now, 1);
+        start = startOfWeek(lastWeek, { weekStartsOn: 1 });
+        end = endOfWeek(lastWeek, { weekStartsOn: 1 });
+      }
+    } else {
+      if (periodType === 'current') {
+        start = startOfMonth(now);
+        end = endOfMonth(now);
+      } else {
+        const lastMonth = subMonths(now, 1);
+        start = startOfMonth(lastMonth);
+        end = endOfMonth(lastMonth);
+      }
+    }
+    
+    return {
+      start: format(start, 'yyyy.MM.dd'),
+      end: format(end, 'yyyy.MM.dd'),
+      label: `${format(start, 'yyyy.MM.dd')} ~ ${format(end, 'yyyy.MM.dd')}`
+    };
+  };
+
+  // 랜덤 통계 데이터 생성 (실제로는 DB에서 집계)
+  const generateMockStats = () => {
+    const totalAccidents = Math.floor(Math.random() * 20) + 5;
+    const resolved = Math.floor(totalAccidents * (0.7 + Math.random() * 0.25));
+    const changeRate = Math.floor(Math.random() * 40) - 20;
+    
+    return {
+      totalAccidents,
+      resolved,
+      pending: totalAccidents - resolved,
+      changeRate
+    };
+  };
+
+  const generateMockDetails = () => {
+    const categories = ['차량 사고', '훈련 사고', '시설 안전', '개인 부주의'];
+    return categories.map(category => ({
+      category,
+      count: Math.floor(Math.random() * 8) + 1,
+      trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable'
+    }));
+  };
+
+  const generateRecommendations = (stats: { changeRate: number }) => {
+    const recommendations = [
+      '안전교육 프로그램 지속 실시',
+      '훈련 전 안전점검 체크리스트 활용 강화',
+      '야간 훈련 시 안전요원 추가 배치 권고',
+      '신병 대상 안전교육 강화 필요',
+      '정비 시 안전수칙 준수 강조',
+      '동절기 차량 점검 체크리스트 활용',
+      '결빙 구간 표지판 추가 설치',
+      '응급처치 교육 정기 실시',
+    ];
+    
+    // 랜덤으로 3개 선택
+    const shuffled = recommendations.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  };
+
+  // 보고서 자동 생성
+  const handleGenerateReport = () => {
+    if (!createForm.unitId) {
+      toast({
+        title: '부대 선택 필요',
+        description: '보고서를 생성할 부대를 선택해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    // 시뮬레이션: 2초 후 생성 완료
+    setTimeout(() => {
+      const unit = getUnitById(createForm.unitId);
+      const period = calculatePeriod(createForm.reportType, createForm.periodType);
+      const stats = generateMockStats();
+      const details = generateMockDetails();
+      const recommendations = generateRecommendations(stats);
+
+      const typeLabel = createForm.reportType === 'weekly' ? '주차' : '월';
+      const periodLabel = createForm.reportType === 'weekly' 
+        ? `${format(new Date(), 'yyyy년 M월')} ${Math.ceil(new Date().getDate() / 7)}${typeLabel}`
+        : `${format(new Date(), 'yyyy년 M월')}`;
+
+      const summaryTemplates = [
+        `분석 기간 동안 총 ${stats.totalAccidents}건의 사고가 발생하였으며, 전기 대비 ${stats.changeRate > 0 ? '증가' : '감소'} 추세입니다.`,
+        `해당 기간 사고 발생률이 ${Math.abs(stats.changeRate)}% ${stats.changeRate > 0 ? '상승' : '하락'}하였습니다. 지속적인 안전관리가 필요합니다.`,
+        `전체 ${stats.totalAccidents}건 중 ${stats.resolved}건이 처리 완료되었으며, ${stats.pending}건이 처리 진행 중입니다.`,
+      ];
+
+      const newReport: StatReport = {
+        id: `generated-${Date.now()}`,
+        title: `${periodLabel} 사고 위험도 분석`,
+        type: createForm.reportType,
+        period: period.label,
+        generatedAt: format(new Date(), 'yyyy-MM-dd'),
+        unit: unit?.name || '전체',
+        summary: summaryTemplates[Math.floor(Math.random() * summaryTemplates.length)],
+        stats,
+        details,
+        recommendations,
+      };
+
+      setReports(prev => [newReport, ...prev]);
+      setIsGenerating(false);
+      setShowCreateForm(false);
+      setSelectedReport(newReport);
+      
+      toast({
+        title: '보고서 생성 완료',
+        description: `${newReport.title} 보고서가 생성되었습니다.`,
+      });
+    }, 2000);
+  };
+
+  const filteredReports = reports.filter((report) => {
     const matchesType = filterType === 'all' || report.type === filterType;
     const matchesSearch = report.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesType && matchesSearch;
@@ -547,24 +690,116 @@ export function StatisticsReportList() {
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex gap-4">
-        <input 
-          placeholder="보고서 검색..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 max-w-sm bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
-        />
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="w-40 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+      {/* 헤더 영역 */}
+      <div className="flex items-center justify-between">
+        <div className="flex gap-4">
+          <input 
+            placeholder="보고서 검색..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-64 bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+          />
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="w-40 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+          >
+            <option value="all">전체</option>
+            <option value="weekly">주간 보고서</option>
+            <option value="monthly">월간 보고서</option>
+          </select>
+        </div>
+        <button
+          onClick={() => setShowCreateForm(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-sm hover:opacity-90 transition-opacity"
         >
-          <option value="all">전체</option>
-          <option value="weekly">주간 보고서</option>
-          <option value="monthly">월간 보고서</option>
-        </select>
+          <Plus className="w-4 h-4" />
+          새 보고서 생성
+        </button>
       </div>
+
+      {/* 보고서 생성 폼 */}
+      {showCreateForm && (
+        <div className="border border-border rounded-lg p-6 bg-card">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-sm font-semibold">통계 보고서 자동 생성</h3>
+            <button
+              onClick={() => setShowCreateForm(false)}
+              className="text-muted-foreground hover:text-foreground text-sm"
+            >
+              취소
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-6">
+            {/* 보고서 유형 */}
+            <div>
+              <label className="block text-xs text-muted-foreground mb-2">보고서 유형</label>
+              <select
+                value={createForm.reportType}
+                onChange={(e) => setCreateForm(prev => ({ ...prev, reportType: e.target.value as 'weekly' | 'monthly' }))}
+                className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+              >
+                <option value="weekly">주간 보고서</option>
+                <option value="monthly">월간 보고서</option>
+              </select>
+            </div>
+
+            {/* 기간 선택 */}
+            <div>
+              <label className="block text-xs text-muted-foreground mb-2">분석 기간</label>
+              <select
+                value={createForm.periodType}
+                onChange={(e) => setCreateForm(prev => ({ ...prev, periodType: e.target.value as 'current' | 'previous' }))}
+                className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+              >
+                <option value="current">
+                  {createForm.reportType === 'weekly' ? '이번 주' : '이번 달'}
+                </option>
+                <option value="previous">
+                  {createForm.reportType === 'weekly' ? '지난 주' : '지난 달'}
+                </option>
+              </select>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {calculatePeriod(createForm.reportType, createForm.periodType).label}
+              </p>
+            </div>
+
+            {/* 부대 선택 */}
+            <div>
+              <label className="block text-xs text-muted-foreground mb-2">분석 대상 부대</label>
+              <UnitCascadeSelect
+                value={createForm.unitId}
+                onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
+                placeholder="부대 선택"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              선택한 기간과 부대의 사고 데이터를 자동으로 집계하여 보고서를 생성합니다.
+            </p>
+            <button
+              onClick={handleGenerateReport}
+              disabled={isGenerating || !createForm.unitId}
+              className="flex items-center gap-2 px-6 py-2 bg-foreground text-background rounded text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  생성 중...
+                </>
+              ) : (
+                <>
+                  <CalendarIcon className="w-4 h-4" />
+                  보고서 생성
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Reports Table */}
       <div>
