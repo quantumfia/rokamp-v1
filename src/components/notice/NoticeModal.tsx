@@ -71,23 +71,23 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
 
         <div className="flex">
           {/* Left: Notice List */}
-          <div className="w-48 border-r border-[#1a1a1a] bg-[#0d0d0d]">
-            <div className="px-3 py-2 border-b border-[#1a1a1a]">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">목록</span>
+          <div className="w-48 border-r border-[#2a2a2a] bg-[#1a1a1a]">
+            <div className="px-3 py-2 border-b border-[#2a2a2a]">
+              <span className="text-[10px] text-gray-400 uppercase tracking-wider">목록</span>
             </div>
             <div className="max-h-[280px] overflow-y-auto">
               {MOCK_NOTICES.map((notice, index) => (
                 <button
                   key={notice.id}
                   onClick={() => setSelectedNotice(notice)}
-                  className={`w-full text-left px-3 py-3 border-b border-[#1a1a1a] transition-colors ${
+                  className={`w-full text-left px-3 py-3 border-b border-[#2a2a2a] transition-colors ${
                     selectedNotice.id === notice.id 
-                      ? 'bg-primary/10 border-l-2 border-l-primary' 
-                      : 'hover:bg-white/5 border-l-2 border-l-transparent'
+                      ? 'bg-[#2a2a2a] border-l-2 border-l-gray-500' 
+                      : 'hover:bg-[#252525] border-l-2 border-l-transparent'
                   }`}
                 >
-                  <div className="text-[10px] text-muted-foreground mb-1">{notice.number}</div>
-                  <div className="text-xs text-white line-clamp-2 leading-relaxed">{notice.title}</div>
+                  <div className="text-[10px] text-gray-500 mb-1">{notice.number}</div>
+                  <div className="text-xs text-gray-300 line-clamp-2 leading-relaxed">{notice.title}</div>
                 </button>
               ))}
             </div>
