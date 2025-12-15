@@ -17,7 +17,7 @@ export interface AuthState {
 }
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  'ROLE_HQ': '육군본부',
-  'ROLE_DIV': '사단급',
-  'ROLE_BN': '대대급',
+  'ROLE_HQ': 'Super Admin',
+  'ROLE_DIV': 'Admin',
+  'ROLE_BN': 'User',
 };
