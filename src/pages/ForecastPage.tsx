@@ -83,16 +83,32 @@ export default function ForecastPage() {
         <div className="space-y-6">
           {/* 주간 종합 위험도 */}
           <div>
-            <h2 className="text-sm font-medium text-foreground mb-3">주간 종합 위험도</h2>
+            <div className="flex items-start justify-between mb-3">
+              <h2 className="text-sm font-medium text-foreground">주간 종합 위험도</h2>
+              <div className="flex items-center gap-3 text-[10px]">
+                <span className="text-status-error">■ 위험 75%↑</span>
+                <span className="text-orange-500">■ 주의 50~74%</span>
+                <span className="text-status-warning">■ 관심 25~49%</span>
+                <span className="text-status-success">■ 안전 ~24%</span>
+              </div>
+            </div>
             <div className="border border-border rounded overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="bg-muted/30">
-                    {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => {
+                    {[
+                      { date: '12/21', day: '일' },
+                      { date: '12/22', day: '월' },
+                      { date: '12/23', day: '화' },
+                      { date: '12/24', day: '수' },
+                      { date: '12/25', day: '목' },
+                      { date: '12/26', day: '금' },
+                      { date: '12/27', day: '토' },
+                    ].map((item, index) => {
                       const dayColor = index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-muted-foreground';
                       return (
-                        <th key={day} className={`py-2 text-xs font-medium ${dayColor} text-center border-r border-border last:border-r-0`}>
-                          {day}
+                        <th key={item.date} className={`py-2 text-xs font-medium ${dayColor} text-center border-r border-border last:border-r-0`}>
+                          {item.date}({item.day})
                         </th>
                       );
                     })}
@@ -101,7 +117,7 @@ export default function ForecastPage() {
                 <tbody>
                   {/* 위험도 수치 */}
                   <tr className="border-t border-border">
-                    {[18, 45, 52, 68, 55, 42, 25].map((risk, index) => (
+                    {[18, 45, 52, 78, 55, 42, 25].map((risk, index) => (
                       <td key={index} className="py-3 text-center border-r border-border last:border-r-0">
                         <span className="text-lg font-semibold tabular-nums text-foreground">{risk}%</span>
                       </td>
@@ -109,9 +125,9 @@ export default function ForecastPage() {
                   </tr>
                   {/* 위험 등급 */}
                   <tr className="border-t border-border bg-muted/20">
-                    {[18, 45, 52, 68, 55, 42, 25].map((risk, index) => {
-                      const level = risk >= 75 ? '경고' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
-                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-status-error' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
+                    {[18, 45, 52, 78, 55, 42, 25].map((risk, index) => {
+                      const level = risk >= 75 ? '위험' : risk >= 50 ? '주의' : risk >= 25 ? '관심' : '안전';
+                      const levelColor = risk >= 75 ? 'text-status-error' : risk >= 50 ? 'text-orange-500' : risk >= 25 ? 'text-status-warning' : 'text-status-success';
                       return (
                         <td key={index} className="py-2 text-center border-r border-border last:border-r-0">
                           <span className={`text-xs font-medium ${levelColor}`}>{level}</span>
