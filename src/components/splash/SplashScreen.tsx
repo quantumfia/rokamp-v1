@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Shield, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import landingHero from '@/assets/landing-hero.png';
+import armyLogo from '@/assets/army-logo.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -132,7 +133,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
               boxShadow: '0 0 60px hsl(187, 85%, 43%, 0.4), 0 0 100px hsl(187, 85%, 43%, 0.2)',
             }}
           >
-            <Shield className="w-12 h-12 text-primary-foreground" strokeWidth={1.5} />
+            <img src={armyLogo} alt="육군본부" className="w-16 h-16" />
           </div>
         </div>
 
