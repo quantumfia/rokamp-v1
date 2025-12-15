@@ -39,16 +39,16 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/forecast',
   },
   {
-    id: 'chatbot',
-    label: '챗봇',
-    icon: MessageSquare,
-    path: '/chatbot',
-  },
-  {
     id: 'reports',
     label: '보고서',
     icon: FileText,
     path: '/reports',
+  },
+  {
+    id: 'chatbot',
+    label: '챗봇',
+    icon: MessageSquare,
+    path: '/chatbot',
   },
   {
     id: 'data',
@@ -81,14 +81,14 @@ export function LNB() {
   // Super Admin 권한: 모든 메뉴 항상 표시
   const filteredMenuItems = MENU_ITEMS;
 
+  const toggleSidebar = () => setIsExpanded(prev => !prev);
+
   return (
     <aside
       className={cn(
         'h-[calc(100vh-3rem)] bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-200 sticky top-12 flex-shrink-0',
         isExpanded ? 'w-48' : 'w-12'
       )}
-      onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
     >
       {/* Menu Items */}
       <nav className="flex-1 py-2 space-y-0.5 px-1.5">
@@ -139,15 +139,18 @@ export function LNB() {
         })}
       </nav>
 
-      {/* Footer Info */}
+      {/* Toggle Button */}
       <div className="p-2 border-t border-sidebar-border">
-        <div className={cn(
-          'flex items-center gap-2 text-sidebar-muted transition-opacity duration-150',
-          isExpanded ? 'opacity-100' : 'opacity-0'
-        )}>
-          <Activity className="w-3 h-3 text-status-success" />
-          <span className="text-[10px]">시스템 정상</span>
-        </div>
+        <button
+          onClick={toggleSidebar}
+          className="w-full flex items-center justify-center h-8 rounded text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+        >
+          {isExpanded ? (
+            <ChevronLeft className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
+        </button>
       </div>
     </aside>
   );
