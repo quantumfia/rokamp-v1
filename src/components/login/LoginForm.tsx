@@ -52,36 +52,36 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       <div className="bg-card rounded-lg shadow-2xl border border-border p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="militaryId" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <Label htmlFor="militaryId" className="text-xs font-medium text-foreground/70 uppercase tracking-wide">
               군번 (ID)
             </Label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/50" />
               <Input
                 id="militaryId"
                 type="text"
                 value={militaryId}
                 onChange={(e) => setMilitaryId(e.target.value)}
                 placeholder="군번을 입력하세요"
-                className="pl-9 h-10 text-sm bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary"
+                className="pl-9 h-10 text-sm bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary text-foreground placeholder:text-foreground/40"
                 disabled={isLoading}
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <Label htmlFor="password" className="text-xs font-medium text-foreground/70 uppercase tracking-wide">
               비밀번호
             </Label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/50" />
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호를 입력하세요"
-                className="pl-9 h-10 text-sm bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary"
+                className="pl-9 h-10 text-sm bg-muted/50 border-border focus:border-primary focus:ring-1 focus:ring-primary text-foreground placeholder:text-foreground/40"
                 disabled={isLoading}
               />
             </div>
