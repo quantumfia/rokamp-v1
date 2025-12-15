@@ -40,7 +40,7 @@ export default function DashboardPage() {
     }
   }, [searchContext?.selectedUnitFromSearch]);
 
-  const showTicker = user?.role === 'ROLE_HQ' || user?.role === 'ROLE_DIV';
+  const showTicker = true; // 모든 역할에서 실시간 경고 표시
 
   const handleMarkerClick = (unitId: string) => {
     setSelectedUnitId(unitId);
