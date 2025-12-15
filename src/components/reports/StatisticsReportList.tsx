@@ -157,19 +157,15 @@ export function StatisticsReportList() {
   if (selectedReport) {
     return (
       <div className="space-y-6">
-        {/* 뒤로가기 헤더 */}
-        <div className="flex items-center gap-4">
+        {/* 상단 네비게이션 */}
+        <div className="flex items-center justify-between">
           <button 
             onClick={() => setSelectedReport(null)}
-            className="p-2 hover:bg-muted rounded transition-colors"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
+            목록으로
           </button>
-          <div className="flex-1">
-            <p className="text-sm text-muted-foreground">{selectedReport.unit} · {getTypeLabel(selectedReport.type)}</p>
-            <h2 className="text-lg font-semibold mt-1">{selectedReport.title}</h2>
-            <p className="text-sm text-muted-foreground mt-0.5">{selectedReport.period}</p>
-          </div>
           <button 
             onClick={() => handleDownload(selectedReport)}
             className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity"
@@ -179,74 +175,112 @@ export function StatisticsReportList() {
           </button>
         </div>
 
-        {/* 요약 */}
-        <div className="p-4 bg-muted/30 rounded-lg border border-border">
-          <h3 className="text-sm font-medium mb-2">요약</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">{selectedReport.summary}</p>
+        {/* 보고서 본문 */}
+        <div className="border border-border rounded-lg">
+          {/* 보고서 헤더 */}
+          <div className="p-6 border-b border-border text-center">
+            <h1 className="text-xl font-semibold">{selectedReport.title}</h1>
+          </div>
+
+          {/* 기본 정보 테이블 */}
+          <div className="border-b border-border">
+            <div className="grid grid-cols-2 divide-x divide-border">
+              <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
+                <div className="p-3 bg-muted/30 text-sm font-medium">부대</div>
+                <div className="p-3 text-sm">{selectedReport.unit}</div>
+              </div>
+              <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
+                <div className="p-3 bg-muted/30 text-sm font-medium">보고서 유형</div>
+                <div className="p-3 text-sm">{getTypeLabel(selectedReport.type)} 보고서</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 divide-x divide-border border-t border-border">
+              <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
+                <div className="p-3 bg-muted/30 text-sm font-medium">분석 기간</div>
+                <div className="p-3 text-sm">{selectedReport.period}</div>
+              </div>
+              <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
+                <div className="p-3 bg-muted/30 text-sm font-medium">생성일</div>
+                <div className="p-3 text-sm">{selectedReport.generatedAt}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 1. 요약 */}
+          <div className="p-6 border-b border-border">
+            <h2 className="text-sm font-semibold mb-3">1. 요약</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed pl-4">{selectedReport.summary}</p>
+          </div>
+
+          {/* 2. 주요 통계 */}
+          {selectedReport.stats && (
+            <div className="p-6 border-b border-border">
+              <h2 className="text-sm font-semibold mb-4">2. 주요 통계</h2>
+              <div className="grid grid-cols-4 gap-px bg-border ml-4">
+                <div className="bg-background p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">총 사고 건수</p>
+                  <p className="text-xl font-semibold">{selectedReport.stats.totalAccidents}건</p>
+                </div>
+                <div className="bg-background p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">처리 완료</p>
+                  <p className="text-xl font-semibold">{selectedReport.stats.resolved}건</p>
+                </div>
+                <div className="bg-background p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">처리 중</p>
+                  <p className="text-xl font-semibold">{selectedReport.stats.pending}건</p>
+                </div>
+                <div className="bg-background p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">전기 대비 증감</p>
+                  <p className="text-xl font-semibold">
+                    {selectedReport.stats.changeRate > 0 ? '+' : ''}{selectedReport.stats.changeRate}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3. 유형별 현황 */}
+          {selectedReport.details && (
+            <div className="p-6 border-b border-border">
+              <h2 className="text-sm font-semibold mb-4">3. 유형별 사고 현황</h2>
+              <table className="w-full ml-4 text-sm">
+                <thead>
+                  <tr className="border-y border-border bg-muted/30">
+                    <th className="text-left p-3 font-medium">사고 유형</th>
+                    <th className="text-right p-3 font-medium w-24">발생 건수</th>
+                    <th className="text-right p-3 font-medium w-24">추세</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {selectedReport.details.map((detail, idx) => (
+                    <tr key={idx}>
+                      <td className="p-3">{detail.category}</td>
+                      <td className="p-3 text-right">{detail.count}건</td>
+                      <td className="p-3 text-right text-muted-foreground">
+                        {detail.trend === 'up' ? '증가' : detail.trend === 'down' ? '감소' : '유지'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* 4. 권고사항 */}
+          {selectedReport.recommendations && (
+            <div className="p-6">
+              <h2 className="text-sm font-semibold mb-3">4. 권고사항</h2>
+              <ul className="space-y-2 pl-4">
+                {selectedReport.recommendations.map((rec, idx) => (
+                  <li key={idx} className="text-sm text-muted-foreground flex gap-2">
+                    <span>{String.fromCharCode(97 + idx)}.</span>
+                    <span>{rec}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-
-        {/* 통계 카드 */}
-        {selectedReport.stats && (
-          <div className="grid grid-cols-4 gap-4">
-            <div className="p-4 border border-border rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">총 사고 건수</p>
-              <p className="text-2xl font-semibold">{selectedReport.stats.totalAccidents}</p>
-            </div>
-            <div className="p-4 border border-border rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">처리 완료</p>
-              <p className="text-2xl font-semibold">{selectedReport.stats.resolved}</p>
-            </div>
-            <div className="p-4 border border-border rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">처리 중</p>
-              <p className="text-2xl font-semibold">{selectedReport.stats.pending}</p>
-            </div>
-            <div className="p-4 border border-border rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">전기 대비</p>
-              <p className="text-2xl font-semibold">
-                {selectedReport.stats.changeRate > 0 ? '+' : ''}{selectedReport.stats.changeRate}%
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* 유형별 현황 */}
-        {selectedReport.details && (
-          <div className="border border-border rounded-lg">
-            <div className="p-4 border-b border-border">
-              <h3 className="text-sm font-medium">유형별 사고 현황</h3>
-            </div>
-            <div className="divide-y divide-border">
-              {selectedReport.details.map((detail, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4">
-                  <span className="text-sm">{detail.category}</span>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium w-8 text-right">{detail.count}건</span>
-                    <span className="text-xs text-muted-foreground w-12 text-right">
-                      {detail.trend === 'up' ? '증가' : detail.trend === 'down' ? '감소' : '유지'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 권고사항 */}
-        {selectedReport.recommendations && (
-          <div className="border border-border rounded-lg">
-            <div className="p-4 border-b border-border">
-              <h3 className="text-sm font-medium">권고사항</h3>
-            </div>
-            <div className="p-4 space-y-3">
-              {selectedReport.recommendations.map((rec, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <span className="text-sm text-muted-foreground">•</span>
-                  <p className="text-sm text-muted-foreground">{rec}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     );
   }
