@@ -339,7 +339,7 @@ export default function ForecastPage() {
                   </tr>
                   {/* 사건사고 예측 */}
                   <tr>
-                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">예측 내용</td>
+                    <td className="py-2 text-xs text-muted-foreground text-center border-r border-border bg-muted/20">비고</td>
                     {(selectedUnitId && !hasChildren(selectedUnitId)
                       ? DEFAULT_UNIT_FORECAST.events 
                       : [null, null, null, null, null, null, null]
