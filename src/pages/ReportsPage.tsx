@@ -101,6 +101,7 @@ export default function ReportsPage() {
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [reporterInfo, setReporterInfo] = useState<{ name: string; rank: string } | undefined>();
 
   // 초기 로딩 시뮬레이션
   useEffect(() => {
@@ -113,6 +114,12 @@ export default function ReportsPage() {
 
   const handleGenerate = async (data: ReportFormData) => {
     setIsGenerating(true);
+    
+    // 보고자 정보 저장
+    setReporterInfo({
+      name: data.reporter,
+      rank: data.reporterRank,
+    });
     
     // Simulate AI generation delay
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -169,6 +176,7 @@ export default function ReportsPage() {
               <ReportPreview 
                 content={generatedContent}
                 onContentChange={setGeneratedContent}
+                reporterInfo={reporterInfo}
               />
             </>
           )}

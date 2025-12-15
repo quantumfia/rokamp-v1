@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Download, Copy, FileText, ChevronDown } from 'lucide-react';
+import { Download, Copy, FileText, ChevronDown, Printer } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -9,22 +9,84 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import armyLogo from '@/assets/army-logo.png';
 
 interface ReportPreviewProps {
   content: string;
   onContentChange: (content: string) => void;
+  reporterInfo?: {
+    name: string;
+    rank: string;
+  };
 }
 
-export function ReportPreview({ content, onContentChange }: ReportPreviewProps) {
+export function ReportPreview({ content, onContentChange, reporterInfo }: ReportPreviewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+
+  const currentDate = new Date();
+  const formattedDate = `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월 ${currentDate.getDate()}일`;
+  const formattedTime = `${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
     toast({
       title: '복사 완료',
       description: '보고서 내용이 클립보드에 복사되었습니다.',
+    });
+  };
+
+  const handlePrint = () => {
+    if (!printRef.current) return;
+    
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast({
+        title: '인쇄 실패',
+        description: '팝업이 차단되었습니다. 팝업 차단을 해제해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const printContent = printRef.current.innerHTML;
+    
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>사고보고서</title>
+          <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+              font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; 
+              padding: 20mm;
+              background: white;
+            }
+            @media print {
+              body { padding: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    
+    // 폰트 로딩 대기 후 인쇄
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+    
+    toast({
+      title: '인쇄',
+      description: '인쇄 대화상자가 열립니다.',
     });
   };
 
@@ -123,17 +185,25 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
               <Copy className="w-3.5 h-3.5" />
               복사
             </button>
+            <button 
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              인쇄
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button 
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-border rounded hover:bg-muted/50 transition-colors"
+                  disabled={isGeneratingPDF}
                 >
                   <Download className="w-3.5 h-3.5" />
-                  다운로드
+                  {isGeneratingPDF ? '생성 중...' : '다운로드'}
                   <ChevronDown className="w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="bg-popover">
                 <DropdownMenuItem onClick={handleDownloadPDF}>
                   <FileText className="w-4 h-4 mr-2" />
                   PDF 형식 (.pdf)
@@ -161,15 +231,46 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
           ) : (
             <div 
               ref={printRef}
-              className="flex-1 bg-white rounded overflow-auto cursor-pointer hover:shadow-lg transition-shadow min-h-[500px] shadow-md"
+              className="flex-1 bg-white rounded overflow-auto cursor-pointer hover:shadow-lg transition-shadow min-h-[500px] shadow-md relative"
               onClick={() => setIsEditing(true)}
             >
+              {/* 워터마크 로고 */}
+              <div 
+                className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
+                style={{ top: '30%' }}
+              >
+                <img 
+                  src={armyLogo} 
+                  alt="" 
+                  className="w-64 h-64 opacity-[0.06]"
+                  style={{ filter: 'grayscale(100%)' }}
+                />
+              </div>
+
               {/* PDF 스타일 문서 */}
-              <div className="p-8" style={{ fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif" }}>
-                {/* 문서 헤더 */}
-                <div className="text-center border-b-2 border-black pb-4 mb-6">
-                  <p className="text-xs text-gray-500 mb-2">육군 사고보고서</p>
-                  <h1 className="text-lg font-bold text-black tracking-wider">사 고 보 고 서</h1>
+              <div className="p-8 relative z-10" style={{ fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif" }}>
+                {/* 문서 헤더 - 기관 정보 */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <img src={armyLogo} alt="육군본부" className="w-12 h-12" />
+                    <div>
+                      <p className="text-xs text-gray-500">대한민국 육군</p>
+                      <p className="text-sm font-bold text-black">육군본부</p>
+                    </div>
+                  </div>
+                  <div className="text-right text-xs text-gray-500">
+                    <p>문서번호: ACC-{new Date().getFullYear()}-{String(Math.floor(Math.random() * 10000)).padStart(5, '0')}</p>
+                    <p>작성일시: {formattedDate} {formattedTime}</p>
+                    {reporterInfo && (
+                      <p>작 성 자: {reporterInfo.rank} {reporterInfo.name}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* 문서 제목 */}
+                <div className="text-center border-y-2 border-black py-4 mb-6">
+                  <h1 className="text-xl font-bold text-black tracking-widest">사 고 보 고 서</h1>
+                  <p className="text-xs text-gray-500 mt-1">ACCIDENT REPORT</p>
                 </div>
                 
                 {/* 문서 본문 */}
@@ -193,6 +294,12 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
                         <p key={idx} className="ml-8">{line}</p>
                       );
                     }
+                    // 관련자 번호 (1), 2) 등)
+                    if (line.match(/^\s+\d+\)/)) {
+                      return (
+                        <p key={idx} className="ml-6">{line}</p>
+                      );
+                    }
                     // 주석
                     if (line.startsWith('※')) {
                       return (
@@ -205,8 +312,29 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
                   })}
                 </div>
 
+                {/* 결재란 */}
+                <div className="mt-10 flex justify-end">
+                  <table className="border-collapse text-xs text-black">
+                    <thead>
+                      <tr>
+                        <th className="border border-gray-400 px-4 py-1 bg-gray-100">담당</th>
+                        <th className="border border-gray-400 px-4 py-1 bg-gray-100">검토</th>
+                        <th className="border border-gray-400 px-4 py-1 bg-gray-100">승인</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-gray-400 px-4 py-4 h-12 w-16"></td>
+                        <td className="border border-gray-400 px-4 py-4 h-12 w-16"></td>
+                        <td className="border border-gray-400 px-4 py-4 h-12 w-16"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
                 {/* 문서 푸터 */}
-                <div className="mt-8 pt-4 border-t border-gray-300 text-center">
+                <div className="mt-8 pt-4 border-t border-gray-300 flex justify-between items-center">
+                  <p className="text-xs text-gray-400">본 문서는 대외비로 취급하시기 바랍니다.</p>
                   <p className="text-xs text-gray-400">- 1 / 1 -</p>
                 </div>
               </div>
