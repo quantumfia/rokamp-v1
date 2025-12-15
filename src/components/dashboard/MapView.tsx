@@ -97,38 +97,14 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
     }
   }, [selectedUnitId]);
 
-  // 권한별 표시할 부대 및 줌 레벨 결정 (MAIN-MAP)
+  // 항상 전군 보기 (HQ 뷰)
   const getViewConfig = () => {
-    switch (user?.role) {
-      case 'ROLE_HQ':
-        return { 
-          units: ALL_UNITS, 
-          center: [37.5, 127.0] as [number, number], 
-          zoom: 8,
-          title: '대한민국 전도' 
-        };
-      case 'ROLE_DIV':
-        return { 
-          units: DIV_UNITS, 
-          center: [37.9, 127.0] as [number, number], 
-          zoom: 11,
-          title: '제1사단 작전구역' 
-        };
-      case 'ROLE_BN':
-        return { 
-          units: BN_UNITS, 
-          center: [37.92, 127.05] as [number, number], 
-          zoom: 13,
-          title: '11연대 1대대 주둔지' 
-        };
-      default:
-        return { 
-          units: ALL_UNITS, 
-          center: [37.5, 127.0] as [number, number], 
-          zoom: 8,
-          title: '대한민국 전도' 
-        };
-    }
+    return { 
+      units: ALL_UNITS, 
+      center: [37.5, 127.0] as [number, number], 
+      zoom: 8,
+      title: '대한민국 전도' 
+    };
   };
 
   const viewConfig = getViewConfig();
@@ -166,14 +142,14 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
   }, []);
 
 
-  // Update view when user role changes
+  // Update view - 역할 변경 시 뷰 업데이트 제거 (항상 전군 보기)
   useEffect(() => {
     if (mapRef.current) {
       mapRef.current.flyTo(viewConfig.center, viewConfig.zoom, {
         duration: 1.5,
       });
     }
-  }, [user?.role]);
+  }, []);
 
   // Add/update markers - 전체 부대 마커 표시
   useEffect(() => {

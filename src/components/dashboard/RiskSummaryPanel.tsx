@@ -39,9 +39,7 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
       <div className="px-4 py-3 border-b border-border">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground">위험도 요약</h3>
-          <span className="text-[10px] text-muted-foreground">
-            {user?.role === 'ROLE_HQ' ? '전군' : user?.unit}
-          </span>
+          <span className="text-[10px] text-muted-foreground">전군</span>
         </div>
       </div>
 
