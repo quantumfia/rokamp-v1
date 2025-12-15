@@ -166,12 +166,9 @@ export function StatisticsReportList() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                {getTypeLabel(selectedReport.type)}
-              </span>
-              <span className="text-xs text-muted-foreground">{selectedReport.unit}</span>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              {getTypeLabel(selectedReport.type)} · {selectedReport.unit}
+            </p>
             <h2 className="text-lg font-semibold mt-1">{selectedReport.title}</h2>
             <p className="text-sm text-muted-foreground">{selectedReport.period}</p>
           </div>
