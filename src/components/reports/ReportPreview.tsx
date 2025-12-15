@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Download, Copy, FileText, ChevronDown } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +17,8 @@ interface ReportPreviewProps {
 
 export function ReportPreview({ content, onContentChange }: ReportPreviewProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
@@ -26,113 +29,59 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
   };
 
   const handleDownloadPDF = async () => {
+    if (!printRef.current) return;
+    
+    setIsGeneratingPDF(true);
+    
     try {
-      const doc = new jsPDF({
+      // html2canvas로 HTML을 이미지로 변환 (한글 폰트 포함)
+      const canvas = await html2canvas(printRef.current, {
+        scale: 2, // 고해상도
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      
+      // PDF 생성
+      const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       });
 
-      // 페이지 설정
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 20;
-      const contentWidth = pageWidth - margin * 2;
-      let yPosition = margin;
-
-      // 헤더 영역
-      doc.setFontSize(10);
-      doc.setTextColor(128, 128, 128);
-      doc.text('Army Accident Report', pageWidth / 2, yPosition, { align: 'center' });
-      yPosition += 8;
-
-      doc.setFontSize(16);
-      doc.setTextColor(0, 0, 0);
-      doc.text('ACCIDENT REPORT', pageWidth / 2, yPosition, { align: 'center' });
-      yPosition += 5;
-
-      // 헤더 구분선
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5);
-      doc.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 10;
-
-      // 본문 내용
-      doc.setFontSize(11);
-      doc.setTextColor(0, 0, 0);
-
-      const lines = content.split('\n');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
       
-      for (const line of lines) {
-        // 페이지 넘김 체크
-        if (yPosition > pageHeight - margin - 20) {
-          doc.addPage();
-          yPosition = margin;
-        }
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // 여러 페이지 처리
+      let heightLeft = imgHeight;
+      let position = margin;
+      let page = 1;
 
-        if (line.match(/^\d+\.\s/)) {
-          // 섹션 제목
-          yPosition += 3;
-          doc.setFontSize(12);
-          doc.setFont('helvetica', 'bold');
-          doc.text(line, margin, yPosition);
-          yPosition += 7;
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(11);
-        } else if (line.match(/^\s+[가-힣]\.\s/) || line.match(/^\s+[a-z]\.\s/i)) {
-          // 부제목
-          doc.text(line.trim(), margin + 5, yPosition);
-          yPosition += 6;
-        } else if (line.match(/^\s+-\s/)) {
-          // 리스트 항목
-          doc.text(line.trim(), margin + 10, yPosition);
-          yPosition += 6;
-        } else if (line.startsWith('※')) {
-          // 주석
-          yPosition += 5;
-          doc.setFontSize(9);
-          doc.setTextColor(128, 128, 128);
-          doc.text(line, margin, yPosition);
-          yPosition += 6;
-          doc.setFontSize(11);
-          doc.setTextColor(0, 0, 0);
-        } else if (line.trim()) {
-          // 일반 텍스트
-          const splitText = doc.splitTextToSize(line, contentWidth);
-          for (const textLine of splitText) {
-            if (yPosition > pageHeight - margin - 20) {
-              doc.addPage();
-              yPosition = margin;
-            }
-            doc.text(textLine, margin, yPosition);
-            yPosition += 6;
-          }
-        } else {
-          // 빈 줄
-          yPosition += 3;
-        }
-      }
+      // 첫 페이지
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - margin * 2);
 
-      // 푸터
-      const totalPages = doc.getNumberOfPages();
-      for (let i = 1; i <= totalPages; i++) {
-        doc.setPage(i);
-        doc.setFontSize(9);
-        doc.setTextColor(128, 128, 128);
-        doc.text(
-          `- ${i} / ${totalPages} -`,
-          pageWidth / 2,
-          pageHeight - 10,
-          { align: 'center' }
-        );
+      // 추가 페이지가 필요한 경우
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + margin;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - margin * 2);
+        page++;
       }
 
       // 다운로드
-      doc.save(`사고보고서_${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.save(`사고보고서_${new Date().toISOString().split('T')[0]}.pdf`);
       
       toast({
         title: 'PDF 다운로드 완료',
-        description: '보고서가 PDF 형식으로 다운로드되었습니다.',
+        description: '한글이 포함된 PDF가 다운로드되었습니다.',
       });
     } catch (error) {
       console.error('PDF generation error:', error);
@@ -141,6 +90,8 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
         description: 'PDF 파일 생성 중 오류가 발생했습니다.',
         variant: 'destructive',
       });
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
@@ -209,11 +160,12 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
             />
           ) : (
             <div 
+              ref={printRef}
               className="flex-1 bg-white rounded overflow-auto cursor-pointer hover:shadow-lg transition-shadow min-h-[500px] shadow-md"
               onClick={() => setIsEditing(true)}
             >
               {/* PDF 스타일 문서 */}
-              <div className="p-8">
+              <div className="p-8" style={{ fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif" }}>
                 {/* 문서 헤더 */}
                 <div className="text-center border-b-2 border-black pb-4 mb-6">
                   <p className="text-xs text-gray-500 mb-2">육군 사고보고서</p>
@@ -221,7 +173,7 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
                 </div>
                 
                 {/* 문서 본문 */}
-                <div className="text-black font-serif text-sm leading-7 whitespace-pre-wrap">
+                <div className="text-black text-sm leading-7 whitespace-pre-wrap">
                   {content.split('\n').map((line, idx) => {
                     // 제목 스타일
                     if (line.match(/^\d+\.\s/)) {
@@ -255,7 +207,7 @@ export function ReportPreview({ content, onContentChange }: ReportPreviewProps) 
 
                 {/* 문서 푸터 */}
                 <div className="mt-8 pt-4 border-t border-gray-300 text-center">
-                  <p className="text-xs text-gray-400">- {Math.ceil(content.length / 500)} / {Math.ceil(content.length / 500)} -</p>
+                  <p className="text-xs text-gray-400">- 1 / 1 -</p>
                 </div>
               </div>
             </div>
