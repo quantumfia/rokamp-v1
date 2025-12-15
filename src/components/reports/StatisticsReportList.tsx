@@ -12,16 +12,20 @@ import {
 import { FileText } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById } from '@/data/armyUnits';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths, subQuarters, startOfQuarter, endOfQuarter } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 interface StatReport {
   id: string;
   title: string;
-  type: 'weekly' | 'monthly';
+  type: 'weekly' | 'monthly' | 'quarterly' | 'custom';
   period: string;
   generatedAt: string;
   unit: string;
+  analysisTarget?: 'unit' | 'rank';
   summary?: string;
   stats?: {
     totalAccidents: number;
@@ -148,13 +152,17 @@ export function StatisticsReportList() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [reports, setReports] = useState<StatReport[]>(MOCK_STAT_REPORTS);
   const [createForm, setCreateForm] = useState({
-    reportType: 'weekly' as 'weekly' | 'monthly',
-    periodType: 'current' as 'current' | 'previous',
+    reportType: 'weekly' as 'weekly' | 'monthly' | 'quarterly',
+    periodType: 'preset' as 'preset' | 'custom',
+    presetPeriod: 'previous' as 'current' | 'previous',
+    customStartDate: undefined as Date | undefined,
+    customEndDate: undefined as Date | undefined,
+    analysisTarget: 'unit' as 'unit' | 'rank',
     unitId: '',
   });
 
   // 기간 계산 함수
-  const calculatePeriod = (reportType: 'weekly' | 'monthly', periodType: 'current' | 'previous') => {
+  const calculatePeriod = (reportType: 'weekly' | 'monthly' | 'quarterly', periodType: 'current' | 'previous') => {
     const now = new Date();
     let start: Date, end: Date;
     
@@ -167,7 +175,7 @@ export function StatisticsReportList() {
         start = startOfWeek(lastWeek, { weekStartsOn: 1 });
         end = endOfWeek(lastWeek, { weekStartsOn: 1 });
       }
-    } else {
+    } else if (reportType === 'monthly') {
       if (periodType === 'current') {
         start = startOfMonth(now);
         end = endOfMonth(now);
@@ -176,6 +184,16 @@ export function StatisticsReportList() {
         start = startOfMonth(lastMonth);
         end = endOfMonth(lastMonth);
       }
+    } else {
+      // quarterly
+      if (periodType === 'current') {
+        start = startOfQuarter(now);
+        end = endOfQuarter(now);
+      } else {
+        const lastQuarter = subQuarters(now, 1);
+        start = startOfQuarter(lastQuarter);
+        end = endOfQuarter(lastQuarter);
+      }
     }
     
     return {
@@ -183,6 +201,17 @@ export function StatisticsReportList() {
       end: format(end, 'yyyy.MM.dd'),
       label: `${format(start, 'yyyy.MM.dd')} ~ ${format(end, 'yyyy.MM.dd')}`
     };
+  };
+
+  // 현재 선택된 기간 표시
+  const getSelectedPeriodLabel = () => {
+    if (createForm.periodType === 'custom') {
+      if (createForm.customStartDate && createForm.customEndDate) {
+        return `${format(createForm.customStartDate, 'yyyy.MM.dd')} ~ ${format(createForm.customEndDate, 'yyyy.MM.dd')}`;
+      }
+      return '날짜를 선택하세요';
+    }
+    return calculatePeriod(createForm.reportType, createForm.presetPeriod).label;
   };
 
   // 랜덤 통계 데이터 생성 (실제로는 DB에서 집계)
@@ -227,10 +256,21 @@ export function StatisticsReportList() {
 
   // 보고서 자동 생성
   const handleGenerateReport = () => {
-    if (!createForm.unitId) {
+    // 분석 대상이 부대인 경우에만 부대 선택 필수
+    if (createForm.analysisTarget === 'unit' && !createForm.unitId) {
       toast({
         title: '부대 선택 필요',
         description: '보고서를 생성할 부대를 선택해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // 커스텀 기간일 때 날짜 검증
+    if (createForm.periodType === 'custom' && (!createForm.customStartDate || !createForm.customEndDate)) {
+      toast({
+        title: '기간 선택 필요',
+        description: '시작일과 종료일을 모두 선택해주세요.',
         variant: 'destructive',
       });
       return;
@@ -240,16 +280,38 @@ export function StatisticsReportList() {
 
     // 시뮬레이션: 2초 후 생성 완료
     setTimeout(() => {
-      const unit = getUnitById(createForm.unitId);
-      const period = calculatePeriod(createForm.reportType, createForm.periodType);
+      const unit = createForm.analysisTarget === 'unit' ? getUnitById(createForm.unitId) : null;
+      
+      // 기간 결정
+      let periodLabel: string;
+      let reportTypeForTitle: 'weekly' | 'monthly' | 'quarterly' | 'custom';
+      
+      if (createForm.periodType === 'custom' && createForm.customStartDate && createForm.customEndDate) {
+        periodLabel = `${format(createForm.customStartDate, 'yyyy.MM.dd')} ~ ${format(createForm.customEndDate, 'yyyy.MM.dd')}`;
+        reportTypeForTitle = 'custom';
+      } else {
+        const period = calculatePeriod(createForm.reportType, createForm.presetPeriod);
+        periodLabel = period.label;
+        reportTypeForTitle = createForm.reportType;
+      }
+
       const stats = generateMockStats();
       const details = generateMockDetails();
       const recommendations = generateRecommendations(stats);
 
-      const typeLabel = createForm.reportType === 'weekly' ? '주차' : '월';
-      const periodLabel = createForm.reportType === 'weekly' 
-        ? `${format(new Date(), 'yyyy년 M월')} ${Math.ceil(new Date().getDate() / 7)}${typeLabel}`
-        : `${format(new Date(), 'yyyy년 M월')}`;
+      // 제목 생성
+      const targetLabel = createForm.analysisTarget === 'unit' 
+        ? (unit?.name || '전체') 
+        : '계급별';
+      
+      const typeLabels: Record<string, string> = {
+        weekly: '주간',
+        monthly: '월간',
+        quarterly: '분기',
+        custom: '기간'
+      };
+      
+      const titleType = typeLabels[reportTypeForTitle] || '기간';
 
       const summaryTemplates = [
         `분석 기간 동안 총 ${stats.totalAccidents}건의 사고가 발생하였으며, 전기 대비 ${stats.changeRate > 0 ? '증가' : '감소'} 추세입니다.`,
@@ -259,11 +321,12 @@ export function StatisticsReportList() {
 
       const newReport: StatReport = {
         id: `generated-${Date.now()}`,
-        title: `${periodLabel} 사고 위험도 분석`,
-        type: createForm.reportType,
-        period: period.label,
+        title: `${targetLabel} ${titleType} 사고 위험도 분석`,
+        type: reportTypeForTitle,
+        period: periodLabel,
         generatedAt: format(new Date(), 'yyyy-MM-dd'),
-        unit: unit?.name || '전체',
+        unit: createForm.analysisTarget === 'unit' ? (unit?.name || '전체') : '전체 (계급별)',
+        analysisTarget: createForm.analysisTarget,
         summary: summaryTemplates[Math.floor(Math.random() * summaryTemplates.length)],
         stats,
         details,
@@ -731,58 +794,145 @@ export function StatisticsReportList() {
             </button>
           </div>
 
-          <div className="grid grid-cols-3 gap-6">
+          {/* Row 1: 분석 대상 + 보고서 유형 */}
+          <div className="flex gap-4 mb-4">
+            {/* 분석 대상 */}
+            <div className="w-40">
+              <label className="block text-xs text-muted-foreground mb-2">분석 대상</label>
+              <select
+                value={createForm.analysisTarget}
+                onChange={(e) => setCreateForm(prev => ({ ...prev, analysisTarget: e.target.value as 'unit' | 'rank' }))}
+                className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+              >
+                <option value="unit">부대별</option>
+                <option value="rank">계급별</option>
+              </select>
+            </div>
+
             {/* 보고서 유형 */}
-            <div>
+            <div className="w-40">
               <label className="block text-xs text-muted-foreground mb-2">보고서 유형</label>
               <select
                 value={createForm.reportType}
-                onChange={(e) => setCreateForm(prev => ({ ...prev, reportType: e.target.value as 'weekly' | 'monthly' }))}
+                onChange={(e) => setCreateForm(prev => ({ ...prev, reportType: e.target.value as 'weekly' | 'monthly' | 'quarterly' }))}
                 className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
               >
-                <option value="weekly">주간 보고서</option>
-                <option value="monthly">월간 보고서</option>
+                <option value="weekly">주간</option>
+                <option value="monthly">월간</option>
+                <option value="quarterly">분기</option>
               </select>
             </div>
 
-            {/* 기간 선택 */}
-            <div>
-              <label className="block text-xs text-muted-foreground mb-2">분석 기간</label>
+            {/* 기간 유형 */}
+            <div className="w-40">
+              <label className="block text-xs text-muted-foreground mb-2">기간 선택 방식</label>
               <select
                 value={createForm.periodType}
-                onChange={(e) => setCreateForm(prev => ({ ...prev, periodType: e.target.value as 'current' | 'previous' }))}
+                onChange={(e) => setCreateForm(prev => ({ ...prev, periodType: e.target.value as 'preset' | 'custom' }))}
                 className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
               >
-                <option value="current">
-                  {createForm.reportType === 'weekly' ? '이번 주' : '이번 달'}
-                </option>
-                <option value="previous">
-                  {createForm.reportType === 'weekly' ? '지난 주' : '지난 달'}
-                </option>
+                <option value="preset">프리셋 선택</option>
+                <option value="custom">직접 입력</option>
               </select>
-              <p className="text-[10px] text-muted-foreground mt-1">
-                {calculatePeriod(createForm.reportType, createForm.periodType).label}
-              </p>
             </div>
 
-            {/* 부대 선택 */}
-            <div>
-              <label className="block text-xs text-muted-foreground mb-2">분석 대상 부대</label>
-              <UnitCascadeSelect
-                value={createForm.unitId}
-                onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
-                placeholder="부대 선택"
-              />
-            </div>
+            {/* 프리셋 기간 or 커스텀 날짜 */}
+            {createForm.periodType === 'preset' ? (
+              <div className="w-40">
+                <label className="block text-xs text-muted-foreground mb-2">분석 기간</label>
+                <select
+                  value={createForm.presetPeriod}
+                  onChange={(e) => setCreateForm(prev => ({ ...prev, presetPeriod: e.target.value as 'current' | 'previous' }))}
+                  className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                >
+                  <option value="current">
+                    {createForm.reportType === 'weekly' ? '이번 주' : createForm.reportType === 'monthly' ? '이번 달' : '이번 분기'}
+                  </option>
+                  <option value="previous">
+                    {createForm.reportType === 'weekly' ? '지난 주' : createForm.reportType === 'monthly' ? '지난 달' : '지난 분기'}
+                  </option>
+                </select>
+              </div>
+            ) : (
+              <>
+                <div className="w-40">
+                  <label className="block text-xs text-muted-foreground mb-2">시작일</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        className={cn(
+                          "w-full flex items-center gap-2 bg-background border border-border rounded px-3 py-2 text-sm text-left focus:outline-none focus:border-foreground transition-colors",
+                          !createForm.customStartDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="w-4 h-4" />
+                        {createForm.customStartDate ? format(createForm.customStartDate, 'yyyy.MM.dd') : '선택'}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 bg-card border-border z-50" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={createForm.customStartDate}
+                        onSelect={(date) => setCreateForm(prev => ({ ...prev, customStartDate: date }))}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="w-40">
+                  <label className="block text-xs text-muted-foreground mb-2">종료일</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        className={cn(
+                          "w-full flex items-center gap-2 bg-background border border-border rounded px-3 py-2 text-sm text-left focus:outline-none focus:border-foreground transition-colors",
+                          !createForm.customEndDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="w-4 h-4" />
+                        {createForm.customEndDate ? format(createForm.customEndDate, 'yyyy.MM.dd') : '선택'}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 bg-card border-border z-50" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={createForm.customEndDate}
+                        onSelect={(date) => setCreateForm(prev => ({ ...prev, customEndDate: date }))}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </>
+            )}
+
+            {/* 부대 선택 (분석 대상이 부대인 경우만) */}
+            {createForm.analysisTarget === 'unit' && (
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-xs text-muted-foreground mb-2">분석 대상 부대</label>
+                <UnitCascadeSelect
+                  value={createForm.unitId}
+                  onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
+                  placeholder="부대 선택"
+                />
+              </div>
+            )}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
+          {/* 선택된 기간 표시 */}
+          <div className="text-xs text-muted-foreground mb-4">
+            분석 기간: <span className="text-foreground font-medium">{getSelectedPeriodLabel()}</span>
+          </div>
+
+          <div className="pt-4 border-t border-border flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
-              선택한 기간과 부대의 사고 데이터를 자동으로 집계하여 보고서를 생성합니다.
+              선택한 조건으로 사고 데이터를 자동 집계하여 보고서를 생성합니다.
             </p>
             <button
               onClick={handleGenerateReport}
-              disabled={isGenerating || !createForm.unitId}
+              disabled={isGenerating || (createForm.analysisTarget === 'unit' && !createForm.unitId)}
               className="flex items-center gap-2 px-6 py-2 bg-foreground text-background rounded text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
