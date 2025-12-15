@@ -40,10 +40,10 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-primary mb-4">
           <Shield className="w-7 h-7 text-primary-foreground" />
         </div>
-        <h1 className="text-xl font-semibold text-foreground tracking-wide">
+        <h1 className="text-xl font-semibold text-white tracking-wide">
           ROKA-MP
         </h1>
-        <p className="text-xs text-muted-foreground mt-1 tracking-wider">
+        <p className="text-xs text-white/60 mt-1 tracking-wider">
           안전사고 예측 시스템
         </p>
       </div>
