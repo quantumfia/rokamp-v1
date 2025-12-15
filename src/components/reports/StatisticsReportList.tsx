@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, ArrowLeft, TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Download, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface StatReport {
@@ -199,24 +199,17 @@ export function StatisticsReportList() {
             </div>
             <div className="p-4 border border-border rounded-lg">
               <p className="text-xs text-muted-foreground mb-1">처리 완료</p>
-              <p className="text-2xl font-semibold text-status-success">{selectedReport.stats.resolved}</p>
+              <p className="text-2xl font-semibold">{selectedReport.stats.resolved}</p>
             </div>
             <div className="p-4 border border-border rounded-lg">
               <p className="text-xs text-muted-foreground mb-1">처리 중</p>
-              <p className="text-2xl font-semibold text-status-warning">{selectedReport.stats.pending}</p>
+              <p className="text-2xl font-semibold">{selectedReport.stats.pending}</p>
             </div>
             <div className="p-4 border border-border rounded-lg">
               <p className="text-xs text-muted-foreground mb-1">전기 대비</p>
-              <div className="flex items-center gap-1">
-                {selectedReport.stats.changeRate < 0 ? (
-                  <TrendingDown className="w-5 h-5 text-status-success" />
-                ) : (
-                  <TrendingUp className="w-5 h-5 text-status-danger" />
-                )}
-                <span className={`text-2xl font-semibold ${selectedReport.stats.changeRate < 0 ? 'text-status-success' : 'text-status-danger'}`}>
-                  {selectedReport.stats.changeRate > 0 ? '+' : ''}{selectedReport.stats.changeRate}%
-                </span>
-              </div>
+              <p className="text-2xl font-semibold">
+                {selectedReport.stats.changeRate > 0 ? '+' : ''}{selectedReport.stats.changeRate}%
+              </p>
             </div>
           </div>
         )}
@@ -233,21 +226,9 @@ export function StatisticsReportList() {
                   <span className="text-sm">{detail.category}</span>
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-medium w-8 text-right">{detail.count}건</span>
-                    <div className="w-16 flex justify-end">
-                      {detail.trend === 'up' && (
-                        <span className="flex items-center gap-1 text-xs text-status-danger">
-                          <TrendingUp className="w-3 h-3" /> 증가
-                        </span>
-                      )}
-                      {detail.trend === 'down' && (
-                        <span className="flex items-center gap-1 text-xs text-status-success">
-                          <TrendingDown className="w-3 h-3" /> 감소
-                        </span>
-                      )}
-                      {detail.trend === 'stable' && (
-                        <span className="text-xs text-muted-foreground">유지</span>
-                      )}
-                    </div>
+                    <span className="text-xs text-muted-foreground w-12 text-right">
+                      {detail.trend === 'up' ? '증가' : detail.trend === 'down' ? '감소' : '유지'}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -264,7 +245,7 @@ export function StatisticsReportList() {
             <div className="p-4 space-y-3">
               {selectedReport.recommendations.map((rec, idx) => (
                 <div key={idx} className="flex items-start gap-3">
-                  <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-muted-foreground">•</span>
                   <p className="text-sm text-muted-foreground">{rec}</p>
                 </div>
               ))}
