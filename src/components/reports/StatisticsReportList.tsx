@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, ArrowLeft } from 'lucide-react';
+import { Download, ArrowLeft, Eye } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface StatReport {
@@ -127,6 +127,7 @@ export function StatisticsReportList() {
   const [filterType, setFilterType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedReport, setSelectedReport] = useState<StatReport | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const filteredReports = MOCK_STAT_REPORTS.filter((report) => {
     const matchesType = filterType === 'all' || report.type === filterType;
@@ -153,18 +154,18 @@ export function StatisticsReportList() {
     }
   };
 
-  // 상세 페이지 뷰
-  if (selectedReport) {
+  // PDF 미리보기 뷰
+  if (selectedReport && showPreview) {
     return (
       <div className="space-y-6">
         {/* 상단 네비게이션 */}
         <div className="flex items-center justify-between">
           <button 
-            onClick={() => setSelectedReport(null)}
+            onClick={() => setShowPreview(false)}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            목록으로
+            상세로 돌아가기
           </button>
           <button 
             onClick={() => handleDownload(selectedReport)}
@@ -294,6 +295,147 @@ export function StatisticsReportList() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 상세 페이지 뷰
+  if (selectedReport) {
+    return (
+      <div className="space-y-6">
+        {/* 상단 네비게이션 */}
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => { setSelectedReport(null); setShowPreview(false); }}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            목록으로
+          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setShowPreview(true)}
+              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/30 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+              미리보기
+            </button>
+            <button 
+              onClick={() => handleDownload(selectedReport)}
+              className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity"
+            >
+              <Download className="w-4 h-4" />
+              다운로드
+            </button>
+          </div>
+        </div>
+
+        {/* 보고서 본문 */}
+        <div className="border border-border rounded-lg">
+          {/* 보고서 헤더 */}
+          <div className="p-6 border-b border-border text-center">
+            <h1 className="text-xl font-semibold">{selectedReport.title}</h1>
+          </div>
+
+          {/* 기본 정보 테이블 */}
+          <div className="border-b border-border">
+            <div className="grid grid-cols-2 divide-x divide-border">
+              <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
+                <div className="p-3 bg-muted/30 text-sm font-medium">부대</div>
+                <div className="p-3 text-sm">{selectedReport.unit}</div>
+              </div>
+              <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
+                <div className="p-3 bg-muted/30 text-sm font-medium">보고서 유형</div>
+                <div className="p-3 text-sm">{getTypeLabel(selectedReport.type)} 보고서</div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 divide-x divide-border border-t border-border">
+              <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
+                <div className="p-3 bg-muted/30 text-sm font-medium">분석 기간</div>
+                <div className="p-3 text-sm">{selectedReport.period}</div>
+              </div>
+              <div className="grid grid-cols-[100px_1fr] divide-x divide-border">
+                <div className="p-3 bg-muted/30 text-sm font-medium">생성일</div>
+                <div className="p-3 text-sm">{selectedReport.generatedAt}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 1. 요약 */}
+          <div className="p-6 border-b border-border">
+            <h2 className="text-sm font-semibold mb-3">1. 요약</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed pl-4">{selectedReport.summary}</p>
+          </div>
+
+          {/* 2. 주요 통계 */}
+          {selectedReport.stats && (
+            <div className="p-6 border-b border-border">
+              <h2 className="text-sm font-semibold mb-4">2. 주요 통계</h2>
+              <div className="grid grid-cols-4 gap-px bg-border ml-4">
+                <div className="bg-background p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">총 사고 건수</p>
+                  <p className="text-xl font-semibold">{selectedReport.stats.totalAccidents}건</p>
+                </div>
+                <div className="bg-background p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">처리 완료</p>
+                  <p className="text-xl font-semibold">{selectedReport.stats.resolved}건</p>
+                </div>
+                <div className="bg-background p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">처리 중</p>
+                  <p className="text-xl font-semibold">{selectedReport.stats.pending}건</p>
+                </div>
+                <div className="bg-background p-4 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">전기 대비 증감</p>
+                  <p className="text-xl font-semibold">
+                    {selectedReport.stats.changeRate > 0 ? '+' : ''}{selectedReport.stats.changeRate}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 3. 유형별 현황 */}
+          {selectedReport.details && (
+            <div className="p-6 border-b border-border">
+              <h2 className="text-sm font-semibold mb-4">3. 유형별 사고 현황</h2>
+              <table className="w-full ml-4 text-sm">
+                <thead>
+                  <tr className="border-y border-border bg-muted/30">
+                    <th className="text-left p-3 font-medium">사고 유형</th>
+                    <th className="text-right p-3 font-medium w-24">발생 건수</th>
+                    <th className="text-right p-3 font-medium w-24">추세</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {selectedReport.details.map((detail, idx) => (
+                    <tr key={idx}>
+                      <td className="p-3">{detail.category}</td>
+                      <td className="p-3 text-right">{detail.count}건</td>
+                      <td className="p-3 text-right text-muted-foreground">
+                        {detail.trend === 'up' ? '증가' : detail.trend === 'down' ? '감소' : '유지'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* 4. 권고사항 */}
+          {selectedReport.recommendations && (
+            <div className="p-6">
+              <h2 className="text-sm font-semibold mb-3">4. 권고사항</h2>
+              <ul className="space-y-2 pl-4">
+                {selectedReport.recommendations.map((rec, idx) => (
+                  <li key={idx} className="text-sm text-muted-foreground flex gap-2">
+                    <span>{String.fromCharCode(97 + idx)}.</span>
+                    <span>{rec}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     );
