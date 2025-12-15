@@ -43,34 +43,34 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-black/50" />
       
       {/* Modal */}
-      <div className="relative w-full max-w-md mx-4 bg-sidebar border border-sidebar-border shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-sidebar-border">
-          <h2 className="text-sm font-semibold text-sidebar-foreground">공지사항</h2>
+      <div className="relative w-full max-w-md mx-4 bg-background border border-border shadow-2xl rounded-sm overflow-hidden">
+        {/* Header - 하늘색 액센트 */}
+        <div className="flex items-center justify-between px-5 py-3 bg-primary">
+          <h2 className="text-sm font-semibold text-primary-foreground">공지사항</h2>
           <button
             onClick={handleClose}
-            className="p-1 hover:bg-sidebar-accent rounded transition-colors"
+            className="p-1 hover:bg-white/20 rounded transition-colors"
           >
-            <X className="w-4 h-4 text-sidebar-muted" />
+            <X className="w-4 h-4 text-primary-foreground" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="max-h-[50vh] overflow-y-auto">
+        {/* Content - 밝은 배경 */}
+        <div className="max-h-[50vh] overflow-y-auto bg-background">
           {MOCK_NOTICES.map((notice, index) => (
             <div
               key={notice.id}
-              className={index < MOCK_NOTICES.length - 1 ? 'border-b border-sidebar-border' : ''}
+              className={index < MOCK_NOTICES.length - 1 ? 'border-b border-border' : ''}
             >
               <div className="px-5 py-4">
                 <div className="flex items-baseline justify-between gap-4 mb-2">
-                  <h3 className="text-sm font-medium text-sidebar-foreground">{notice.title}</h3>
-                  <span className="text-[10px] text-sidebar-muted tabular-nums flex-shrink-0">{notice.date}</span>
+                  <h3 className="text-sm font-medium text-foreground">{notice.title}</h3>
+                  <span className="text-[10px] text-muted-foreground tabular-nums flex-shrink-0">{notice.date}</span>
                 </div>
-                <p className="text-xs text-sidebar-muted leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   {notice.content}
                 </p>
               </div>
@@ -79,20 +79,19 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-sidebar-border">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-border bg-muted/30">
           <label className="flex items-center gap-2 cursor-pointer">
             <CheckboxUI
               checked={hideToday}
               onCheckedChange={(checked) => setHideToday(checked === true)}
-              className="border-sidebar-border data-[state=checked]:bg-sidebar-foreground data-[state=checked]:border-sidebar-foreground"
             />
-            <span className="text-xs text-sidebar-muted">
+            <span className="text-xs text-muted-foreground">
               오늘 하루 보지 않기
             </span>
           </label>
           <button 
             onClick={handleClose}
-            className="px-4 py-1.5 text-xs font-medium bg-sidebar-foreground text-sidebar hover:opacity-80 transition-opacity"
+            className="px-4 py-1.5 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors rounded-sm"
           >
             확인
           </button>
