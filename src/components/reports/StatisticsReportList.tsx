@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Download, ArrowLeft, Eye, ChevronDown, Plus, Loader2, Calendar as CalendarIcon } from 'lucide-react';
+import { Download, ArrowLeft, Eye, ChevronDown, Plus, Loader2, Calendar as CalendarIcon, Printer } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -183,6 +183,7 @@ export function StatisticsReportList() {
   // 보고서 생성 관련 상태
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
   const [reports, setReports] = useState<StatReport[]>(MOCK_STAT_REPORTS);
   const [createForm, setCreateForm] = useState({
     reportType: 'weekly' as 'weekly' | 'monthly' | 'quarterly',
@@ -421,10 +422,13 @@ export function StatisticsReportList() {
         const pageEl = pageElements[i] as HTMLElement;
         
         const canvas = await html2canvas(pageEl, {
-          scale: 2,
+          scale: 3,
           useCORS: true,
           backgroundColor: '#ffffff',
           logging: false,
+          allowTaint: true,
+          windowWidth: pageEl.scrollWidth,
+          windowHeight: pageEl.scrollHeight,
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -452,6 +456,94 @@ export function StatisticsReportList() {
         description: 'PDF 파일 생성 중 오류가 발생했습니다.',
         variant: 'destructive',
       });
+    }
+  };
+
+  // 인쇄 기능
+  const handlePrint = async (report: StatReport) => {
+    if (!previewRef.current) {
+      toast({
+        title: '미리보기 필요',
+        description: '먼저 미리보기를 열어주세요.',
+      });
+      return;
+    }
+
+    setIsPrinting(true);
+
+    try {
+      const pageElements = Array.from(previewRef.current.querySelectorAll('.a4-page')) as HTMLElement[];
+      if (pageElements.length === 0) return;
+
+      const pageImages: string[] = [];
+      for (const pageEl of pageElements) {
+        const canvas = await html2canvas(pageEl, {
+          scale: 3,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          allowTaint: true,
+          windowWidth: pageEl.scrollWidth,
+          windowHeight: pageEl.scrollHeight,
+        });
+        pageImages.push(canvas.toDataURL('image/png'));
+      }
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        toast({
+          title: '인쇄 실패',
+          description: '팝업이 차단되었습니다. 팝업 차단을 해제해주세요.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const imgsHtml = pageImages
+        .map(
+          (src) => `
+            <div class="page">
+              <img src="${src}" alt="print-page" />
+            </div>
+          `
+        )
+        .join('');
+
+      printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <title>${report.title} 인쇄</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #fff; }
+    .page { width: 210mm; height: 297mm; page-break-after: always; }
+    .page:last-child { page-break-after: auto; }
+    img { width: 210mm; height: 297mm; object-fit: cover; display: block; }
+    @page { size: A4; margin: 0; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  </style>
+</head>
+<body>
+  ${imgsHtml}
+  <script>
+    const imgs = Array.from(document.images);
+    const wait = imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => img.onload = img.onerror = res));
+    Promise.all(wait).then(() => {
+      setTimeout(() => window.print(), 50);
+    });
+    window.onafterprint = () => window.close();
+  </script>
+</body>
+</html>`);
+
+      printWindow.document.close();
+
+      toast({
+        title: '인쇄',
+        description: '미리보기와 동일한 형태로 인쇄합니다.',
+      });
+    } finally {
+      setIsPrinting(false);
     }
   };
 
@@ -520,25 +612,35 @@ export function StatisticsReportList() {
             <ArrowLeft className="w-4 h-4" />
             상세로 돌아가기
           </button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity">
-                <Download className="w-4 h-4" />
-                다운로드
-                <ChevronDown className="w-3 h-3" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleDownloadPDF(selectedReport)}>
-                <FileText className="w-4 h-4 mr-2" />
-                PDF 형식 (.pdf)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleDownloadHWP(selectedReport)}>
-                <FileText className="w-4 h-4 mr-2" />
-                한글 형식 (.hwp)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handlePrint(selectedReport)}
+              disabled={isPrinting}
+              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Printer className="w-4 h-4" />
+              {isPrinting ? '인쇄 준비중...' : '인쇄'}
+            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity">
+                  <Download className="w-4 h-4" />
+                  다운로드
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleDownloadPDF(selectedReport)}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  PDF 형식 (.pdf)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleDownloadHWP(selectedReport)}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  한글 형식 (.hwp)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* PDF 스타일 미리보기 - A4 페이지들 */}
