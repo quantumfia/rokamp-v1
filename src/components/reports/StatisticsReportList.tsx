@@ -175,6 +175,7 @@ const generateTrendData = (type: 'weekly' | 'monthly' | 'quarterly' | 'custom') 
 
 export function StatisticsReportList() {
   const [filterType, setFilterType] = useState<string>('all');
+  const [filterTarget, setFilterTarget] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedReport, setSelectedReport] = useState<StatReport | null>(null);
   const [showPreview, setShowPreview] = useState(false);
@@ -396,7 +397,11 @@ export function StatisticsReportList() {
   const filteredReports = reports.filter((report) => {
     const matchesType = filterType === 'all' || report.type === filterType;
     const matchesSearch = report.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesType && matchesSearch;
+    // 대상 필터: unit이면 부대명에 '사단' 등이 포함된 것, rank면 '계급' 포함
+    const matchesTarget = filterTarget === 'all' || 
+      (filterTarget === 'unit' && !report.unit.includes('계급')) ||
+      (filterTarget === 'rank' && report.unit.includes('계급'));
+    return matchesType && matchesSearch && matchesTarget;
   });
 
   const handleDownloadPDF = async (report: StatReport) => {
@@ -1186,11 +1191,20 @@ export function StatisticsReportList() {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="w-40 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+            className="w-32 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
           >
             <option value="all">전체</option>
-            <option value="weekly">주간 보고서</option>
-            <option value="monthly">월간 보고서</option>
+            <option value="weekly">주간</option>
+            <option value="monthly">월간</option>
+          </select>
+          <select
+            value={filterTarget}
+            onChange={(e) => setFilterTarget(e.target.value)}
+            className="w-32 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+          >
+            <option value="all">대상: 전체</option>
+            <option value="unit">부대별</option>
+            <option value="rank">계급별</option>
           </select>
         </div>
         <button

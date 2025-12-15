@@ -7,7 +7,7 @@ import {
   Printer,
   ChevronDown,
   Search,
-  Filter
+  Plus
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
@@ -283,11 +283,14 @@ const PAGE_PADDING_X = 50;
 const PAGE_PADDING_TOP = 50;
 const PAGE_PADDING_BOTTOM = 60;
 
-export function AccidentReportList() {
+interface AccidentReportListProps {
+  onCreateNew?: () => void;
+}
+
+export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
   const [selectedReport, setSelectedReport] = useState<AccidentReport | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isPrinting, setIsPrinting] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -297,8 +300,7 @@ export function AccidentReportList() {
       report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.unit.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
 
   // 상태 라벨
@@ -701,8 +703,11 @@ export function AccidentReportList() {
     );
   }
 
-  // 상세보기
+  // 상세보기 - 폼 스타일
   if (selectedReport) {
+    const inputClass = "w-full bg-muted/30 border border-border rounded px-3 py-2 text-sm";
+    const labelClass = "text-xs text-muted-foreground";
+
     return (
       <div className="space-y-6">
         {/* 상단 네비게이션 */}
@@ -723,68 +728,103 @@ export function AccidentReportList() {
           </button>
         </div>
 
-        {/* 보고서 정보 */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">{selectedReport.title}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{selectedReport.id} · {getStatusLabel(selectedReport.status)}</p>
+        {/* 폼 스타일 상세보기 */}
+        <div className="max-h-[calc(100vh-220px)] overflow-y-auto pr-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium text-foreground">보고서 상세 정보</h2>
+            <span className="text-xs text-muted-foreground">{selectedReport.id}</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 py-4 border-y border-border">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">보고 부대</p>
-              <p className="text-sm">{selectedReport.unit}</p>
+          <div className="space-y-4">
+            {/* 발생 일시 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className={labelClass}>발생 일자</label>
+                <div className={inputClass}>{selectedReport.date}</div>
+              </div>
+              <div className="space-y-1.5">
+                <label className={labelClass}>작성 일시</label>
+                <div className={inputClass}>{selectedReport.createdAt}</div>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">발생 일시</p>
-              <p className="text-sm">{selectedReport.date}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">사고 유형</p>
-              <p className="text-sm">{selectedReport.category} &gt; {selectedReport.categoryDetail}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">발생 장소</p>
-              <p className="text-sm">{selectedReport.location}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">보고자</p>
-              <p className="text-sm">{selectedReport.reporterRank} {selectedReport.reporter}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">작성일시</p>
-              <p className="text-sm">{selectedReport.createdAt}</p>
-            </div>
-          </div>
 
-          {/* 피해 현황 */}
-          <div>
-            <h3 className="text-sm font-medium mb-3">피해 현황</h3>
-            <div className="grid grid-cols-4 gap-4">
-              <div className="text-center p-3 bg-muted/30 rounded">
-                <p className="text-xs text-muted-foreground mb-1">군인 사망</p>
-                <p className="text-lg font-semibold text-red-400">{selectedReport.casualties.militaryDeaths}</p>
-              </div>
-              <div className="text-center p-3 bg-muted/30 rounded">
-                <p className="text-xs text-muted-foreground mb-1">민간 사망</p>
-                <p className="text-lg font-semibold text-red-400">{selectedReport.casualties.civilianDeaths}</p>
-              </div>
-              <div className="text-center p-3 bg-muted/30 rounded">
-                <p className="text-xs text-muted-foreground mb-1">군인 부상</p>
-                <p className="text-lg font-semibold text-yellow-400">{selectedReport.casualties.militaryInjuries}</p>
-              </div>
-              <div className="text-center p-3 bg-muted/30 rounded">
-                <p className="text-xs text-muted-foreground mb-1">민간 부상</p>
-                <p className="text-lg font-semibold text-yellow-400">{selectedReport.casualties.civilianInjuries}</p>
+            {/* 발생 장소 */}
+            <div className="space-y-1.5">
+              <label className={labelClass}>발생 장소</label>
+              <div className={inputClass}>{selectedReport.location}</div>
+            </div>
+
+            {/* 보고 부대 */}
+            <div className="space-y-1.5">
+              <label className={labelClass}>보고 부대</label>
+              <div className={inputClass}>{selectedReport.unit}</div>
+            </div>
+
+            {/* 사고 분류 */}
+            <div className="border-t border-border pt-4 mt-4">
+              <h3 className="text-xs font-medium text-foreground mb-3">사고 분류</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className={labelClass}>대분류</label>
+                  <div className={inputClass}>{selectedReport.category}</div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>중분류</label>
+                  <div className={inputClass}>{selectedReport.categoryDetail}</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 보고서 내용 */}
-          <div>
-            <h3 className="text-sm font-medium mb-3">보고서 내용</h3>
-            <div className="bg-muted/20 rounded p-4 text-sm whitespace-pre-wrap font-mono">
-              {selectedReport.content}
+            {/* 피해 현황 */}
+            <div className="border-t border-border pt-4 mt-4">
+              <h3 className="text-xs font-medium text-foreground mb-3">피해 현황</h3>
+              <div className="grid grid-cols-4 gap-3">
+                <div className="space-y-1.5">
+                  <label className={labelClass}>군인 사망</label>
+                  <div className={inputClass}>{selectedReport.casualties.militaryDeaths}명</div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>민간 사망</label>
+                  <div className={inputClass}>{selectedReport.casualties.civilianDeaths}명</div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>군인 부상</label>
+                  <div className={inputClass}>{selectedReport.casualties.militaryInjuries}명</div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>민간 부상</label>
+                  <div className={inputClass}>{selectedReport.casualties.civilianInjuries}명</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 보고자 정보 */}
+            <div className="border-t border-border pt-4 mt-4">
+              <h3 className="text-xs font-medium text-foreground mb-3">보고자 정보</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className={labelClass}>계급</label>
+                  <div className={inputClass}>{selectedReport.reporterRank}</div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className={labelClass}>성명</label>
+                  <div className={inputClass}>{selectedReport.reporter}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 사고 경위 */}
+            <div className="border-t border-border pt-4 mt-4">
+              <h3 className="text-xs font-medium text-foreground mb-3">사고 경위</h3>
+              <div className="bg-muted/30 border border-border rounded p-4 text-sm whitespace-pre-wrap min-h-[200px]">
+                {selectedReport.content}
+              </div>
+            </div>
+
+            {/* 처리 상태 */}
+            <div className="border-t border-border pt-4 mt-4">
+              <h3 className="text-xs font-medium text-foreground mb-3">처리 상태</h3>
+              <div className={inputClass}>{getStatusLabel(selectedReport.status)}</div>
             </div>
           </div>
         </div>
@@ -795,35 +835,28 @@ export function AccidentReportList() {
   // 목록 뷰
   return (
     <div className="space-y-4">
-      {/* 검색 및 필터 */}
-      <div className="flex gap-4">
-        <div className="relative flex-1">
+      {/* 헤더 영역 - 검색 + 새 보고서 버튼 */}
+      <div className="flex items-center justify-between">
+        <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="보고서 검색 (제목, 부대, 문서번호)"
+            placeholder="보고서 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded text-sm focus:outline-none focus:border-foreground"
+            className="w-full pl-10 pr-4 py-2 bg-transparent border border-border rounded text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
           />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors">
-              <Filter className="w-4 h-4" />
-              상태: {statusFilter === 'all' ? '전체' : getStatusLabel(statusFilter)}
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setStatusFilter('all')}>전체</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter('completed')}>처리완료</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter('pending')}>처리중</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter('reviewing')}>검토중</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <button
+          onClick={() => onCreateNew?.()}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-sm hover:opacity-90 transition-opacity"
+        >
+          <Plus className="w-4 h-4" />
+          새 보고서 생성
+        </button>
       </div>
 
-      {/* 테이블 - 통계보고서와 동일한 스타일 */}
+      {/* 테이블 */}
       <div>
         {/* Header */}
         <div className="grid grid-cols-[100px_1fr_120px_100px_100px_80px_50px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">

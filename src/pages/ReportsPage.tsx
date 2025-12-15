@@ -9,7 +9,7 @@ import {
   ReportPreviewSkeleton, 
   StatisticsReportListSkeleton 
 } from '@/components/skeletons';
-import { Plus } from 'lucide-react';
+
 
 // 사고 분류 라벨
 const CATEGORY_LABELS: Record<string, string> = {
@@ -140,20 +140,9 @@ export default function ReportsPage() {
   return (
     <div className="p-6 space-y-6">
       {/* 헤더 */}
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <div>
-          <h1 className="text-lg font-semibold text-foreground">보고서</h1>
-          <p className="text-sm text-muted-foreground mt-1">사고 보고서 및 통계 보고서 조회·작성</p>
-        </div>
-        {activeTab === 'accident' && !showGenerator && (
-          <button
-            onClick={() => setShowGenerator(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-foreground text-background rounded text-sm hover:opacity-80 transition-opacity"
-          >
-            <Plus className="w-4 h-4" />
-            새 보고서 작성
-          </button>
-        )}
+      <div className="border-b border-border pb-4">
+        <h1 className="text-lg font-semibold text-foreground">보고서</h1>
+        <p className="text-sm text-muted-foreground mt-1">사고 보고서 및 통계 보고서 조회·작성</p>
       </div>
 
       {/* 탭 네비게이션 */}
@@ -212,7 +201,7 @@ export default function ReportsPage() {
 
       {/* 사고 보고서 목록 탭 */}
       {!showGenerator && activeTab === 'accident' && (
-        isLoading ? <StatisticsReportListSkeleton /> : <AccidentReportList />
+        isLoading ? <StatisticsReportListSkeleton /> : <AccidentReportList onCreateNew={() => setShowGenerator(true)} />
       )}
 
       {/* 통계 보고서 조회 탭 */}
