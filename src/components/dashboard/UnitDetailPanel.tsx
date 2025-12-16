@@ -16,7 +16,6 @@ interface RiskFactor {
 interface UnitDetailPanelProps {
   unitId: string;
   onClose: () => void;
-  onChatbotClick: () => void;
 }
 
 const MOCK_TRAININGS: Training[] = [
@@ -31,7 +30,7 @@ const MOCK_RISK_FACTORS: RiskFactor[] = [
   { id: '3', description: '사격장 결빙으로 인한 미끄러짐 주의' },
 ];
 
-export function UnitDetailPanel({ unitId, onClose, onChatbotClick }: UnitDetailPanelProps) {
+export function UnitDetailPanel({ unitId, onClose }: UnitDetailPanelProps) {
   const unit = getUnitById(unitId);
   const unitName = unit?.name || '알 수 없는 부대';
   const riskValue = unit?.risk || 0;
@@ -164,17 +163,6 @@ export function UnitDetailPanel({ unitId, onClose, onChatbotClick }: UnitDetailP
         </div>
       </div>
 
-      {/* Chatbot CTA */}
-      <div className="p-3 border-t border-border">
-        <Button
-          onClick={onChatbotClick}
-          className="w-full"
-          variant="secondary"
-          size="sm"
-        >
-          예방 대책 확인하기
-        </Button>
-      </div>
     </div>
   );
 }
