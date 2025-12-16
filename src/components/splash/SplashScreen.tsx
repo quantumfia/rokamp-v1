@@ -175,12 +175,12 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             
             {/* Click to continue text */}
             {loadingComplete ? (
-              <div className={`mt-6 flex items-center justify-center gap-2 transition-opacity duration-500 ${pulseText ? 'opacity-100' : 'opacity-50'}`}>
-                <span className="text-white/90 text-xs tracking-widest uppercase">Click to continue</span>
+              <div className={`mt-6 flex items-center justify-center gap-2 transition-opacity duration-500 ${pulseText ? 'opacity-100' : 'opacity-60'}`}>
+                <span className="text-white text-sm font-medium tracking-widest uppercase">Click to continue</span>
                 <ChevronRight className="w-4 h-4 text-primary animate-pulse" />
               </div>
             ) : (
-              <p className="mt-4 text-white/70 text-[10px] text-center tracking-widest uppercase">
+              <p className="mt-4 text-white text-xs text-center font-medium tracking-widest uppercase">
                 Initializing system...
               </p>
             )}
