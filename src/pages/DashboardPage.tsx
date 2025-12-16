@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { MapView } from '@/components/dashboard/MapView';
 import { RiskSummaryPanel } from '@/components/dashboard/RiskSummaryPanel';
 import { UnitDetailPanel } from '@/components/dashboard/UnitDetailPanel';
@@ -20,7 +20,7 @@ import {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  
   const searchContext = useSearchContext();
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,9 +46,6 @@ export default function DashboardPage() {
     setSelectedUnitId(unitId);
   };
 
-  const handleChatbotClick = () => {
-    navigate('/chatbot');
-  };
 
   return (
     <div className="h-full flex flex-col">
@@ -101,7 +98,6 @@ export default function DashboardPage() {
             <UnitDetailPanel
               unitId={selectedUnitId}
               onClose={() => setSelectedUnitId(null)}
-              onChatbotClick={handleChatbotClick}
             />
           ) : (
             <div className="h-full flex flex-col items-center justify-center p-6 text-center">
