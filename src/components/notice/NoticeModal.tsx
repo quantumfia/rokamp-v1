@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X, FileText, Download } from 'lucide-react';
 import { Checkbox as CheckboxUI } from '@/components/ui/checkbox';
 
@@ -70,6 +70,11 @@ const MOCK_NOTICES: Notice[] = [
 export function NoticeModal({ onClose }: NoticeModalProps) {
   const [hideToday, setHideToday] = useState(false);
   const [selectedNotice, setSelectedNotice] = useState<Notice>(MOCK_NOTICES[0]);
+  const contentScrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    contentScrollRef.current?.scrollTo({ top: 0 });
+  }, [selectedNotice.id]);
 
   const handleClose = () => {
     if (hideToday) {
@@ -89,9 +94,8 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/80" onClick={handleClose} />
-      
       {/* Modal - Fixed size */}
-      <div className="relative w-full max-w-3xl h-[520px] bg-[#0a0a0a] border border-[#1a1a1a] shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-3xl h-[520px] min-h-[520px] max-h-[520px] bg-[#0a0a0a] border border-[#1a1a1a] shadow-2xl overflow-hidden flex flex-col">
         {/* Header Bar */}
         <div className="flex items-center justify-between h-10 px-4 bg-[#111] border-b border-[#1a1a1a]">
           <div className="flex items-center gap-2">
@@ -113,7 +117,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
             <div className="px-3 py-2 border-b border-[#3a3a3a] shrink-0">
               <span className="text-[10px] text-gray-300 uppercase tracking-wider">목록</span>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-scroll">
               {MOCK_NOTICES.map((notice) => (
                 <button
                   key={notice.id}
@@ -148,7 +152,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
             </div>
 
             {/* Detail Content - Scrollable */}
-            <div className="flex-1 overflow-y-auto">
+            <div ref={contentScrollRef} className="flex-1 overflow-y-scroll">
               {/* YouTube Video */}
               {selectedNotice.youtubeUrl && (
                 <div className="px-5 py-3 border-b border-gray-100">
