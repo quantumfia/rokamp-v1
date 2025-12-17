@@ -113,7 +113,13 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
               설정
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-sidebar-border" />
-            <DropdownMenuItem onClick={logout} className="text-status-error hover:bg-sidebar-accent">
+            <DropdownMenuItem 
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }} 
+              className="text-status-error hover:bg-sidebar-accent cursor-pointer"
+            >
               <LogOut className="w-4 h-4 mr-2" />
               로그아웃
             </DropdownMenuItem>
