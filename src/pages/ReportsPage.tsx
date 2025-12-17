@@ -5,7 +5,7 @@ import { StatisticsReportList } from '@/components/reports/StatisticsReportList'
 import { AccidentReportList } from '@/components/reports/AccidentReportList';
 import { useAuth } from '@/contexts/AuthContext';
 import { ReportsSkeleton } from '@/components/skeletons';
-import { PageHeader, TabNavigation } from '@/components/common';
+import { PageHeader, TabNavigation, ActionButton } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
 // 사고 분류 라벨
@@ -136,7 +136,12 @@ export default function ReportsPage() {
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
         title="보고서" 
-        description="사고 보고서 및 통계 보고서 조회·작성" 
+        description="사고 보고서 및 통계 보고서 조회·작성"
+        actions={
+          !showGenerator && activeTab === 'accident' ? (
+            <ActionButton label="보고서 생성" onClick={() => setShowGenerator(true)} />
+          ) : undefined
+        }
       />
 
       {!showGenerator && (

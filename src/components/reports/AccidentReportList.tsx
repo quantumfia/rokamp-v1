@@ -7,7 +7,6 @@ import {
   Printer,
   ChevronDown,
   Search,
-  Plus,
   Pencil,
   Trash2
 } from 'lucide-react';
@@ -803,25 +802,16 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
   // 목록 뷰
   return (
     <div className="space-y-4">
-      {/* 헤더 영역 - 검색 + 새 보고서 버튼 */}
-      <div className="flex items-center justify-between">
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="보고서 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-transparent border border-border rounded text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
-          />
-        </div>
-        <button
-          onClick={() => onCreateNew?.()}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-sm hover:opacity-90 transition-opacity"
-        >
-          <Plus className="w-4 h-4" />
-          새 보고서 생성
-        </button>
+      {/* 검색 영역 */}
+      <div className="relative w-64">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="보고서 검색..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-2 bg-transparent border border-border rounded text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+        />
       </div>
 
       {/* 테이블 */}
