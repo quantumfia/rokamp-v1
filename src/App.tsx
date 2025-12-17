@@ -15,7 +15,7 @@ import UserManagementPage from "./pages/UserManagementPage";
 import SystemSettingsPage from "./pages/SystemSettingsPage";
 import NotFound from "./pages/NotFound";
 import { MainLayout } from "./components/layout/MainLayout";
-
+import { ScrollToTop } from "./components/layout/ScrollToTop";
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -60,6 +60,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
