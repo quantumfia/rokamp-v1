@@ -1,14 +1,14 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { 
   FileText, 
   Download, 
-  Eye, 
   ArrowLeft, 
   Printer,
   ChevronDown,
   Search,
   Pencil,
-  Trash2
+  Trash2,
+  Loader2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
@@ -20,6 +20,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import armyLogo from '@/assets/army-logo.png';
+import { AddModal } from '@/components/common';
+import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
+import { getUnitById } from '@/data/armyUnits';
 
 // 사고 보고서 타입
 interface AccidentReport {
@@ -238,25 +241,131 @@ const PAGE_PADDING_X = 50;
 const PAGE_PADDING_TOP = 50;
 const PAGE_PADDING_BOTTOM = 60;
 
+// 사고 유형 대분류
+const ACCIDENT_CATEGORIES = [
+  { value: 'military_discipline', label: '군기사고' },
+  { value: 'safety', label: '안전사고' },
+  { value: 'crime', label: '범죄사고' },
+  { value: 'other', label: '기타' },
+];
+
 interface AccidentReportListProps {
-  onCreateNew?: () => void;
+  showModal?: boolean;
+  onCloseModal?: () => void;
 }
 
-export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
+export function AccidentReportList({ showModal = false, onCloseModal }: AccidentReportListProps) {
   const [selectedReport, setSelectedReport] = useState<AccidentReport | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [reports, setReports] = useState<AccidentReport[]>(MOCK_ACCIDENT_REPORTS);
   const previewRef = useRef<HTMLDivElement>(null);
+  
+  // 간소화된 폼 상태
+  const [createForm, setCreateForm] = useState({
+    date: new Date().toISOString().split('T')[0],
+    time: '',
+    location: '',
+    unitId: '',
+    category: 'safety',
+    overview: '',
+  });
+
+  // 모달이 닫힐 때 폼 초기화
+  useEffect(() => {
+    if (!showModal) {
+      setCreateForm({
+        date: new Date().toISOString().split('T')[0],
+        time: '',
+        location: '',
+        unitId: '',
+        category: 'safety',
+        overview: '',
+      });
+    }
+  }, [showModal]);
 
   // 필터링된 보고서
-  const filteredReports = MOCK_ACCIDENT_REPORTS.filter(report => {
+  const filteredReports = reports.filter(report => {
     const matchesSearch = 
       report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.unit.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.id.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
+
+  // AI 보고서 생성
+  const handleGenerateReport = () => {
+    if (!createForm.overview.trim()) {
+      toast({
+        title: '입력 필요',
+        description: '사고 경위를 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    // 시뮬레이션: AI가 사고 경위를 분석하여 보고서 생성
+    setTimeout(() => {
+      const unit = getUnitById(createForm.unitId);
+      const categoryLabel = ACCIDENT_CATEGORIES.find(c => c.value === createForm.category)?.label || '기타';
+      
+      // AI가 생성한 것처럼 mock 데이터
+      const newReport: AccidentReport = {
+        id: `ACC-2024-${String(reports.length + 128).padStart(5, '0')}`,
+        title: `${categoryLabel} - ${createForm.overview.slice(0, 20)}...`,
+        unit: unit?.name || '미지정 부대',
+        date: createForm.date,
+        category: categoryLabel,
+        categoryDetail: categoryLabel,
+        location: createForm.location || '미지정',
+        status: 'reviewing',
+        severity: 'medium',
+        reporter: '홍길동',
+        reporterRank: '대위',
+        createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        overview: createForm.overview,
+        actionsTaken: '- 현장 조사 진행 중\n- 관련자 면담 예정',
+        preventionMeasures: '가. 단기 대책:\n  - 안전 점검 강화\n나. 중장기 대책:\n  - 교육 프로그램 보완',
+        content: `1. 사고 개요
+  가. 발생 일시: ${createForm.date} ${createForm.time || '시간 미상'}
+  나. 발생 장소: ${createForm.location || '미지정'}
+  다. 사고 유형: ${categoryLabel}
+
+2. 사고 경위
+${createForm.overview}
+
+3. 조치 사항
+  - 현장 조사 진행 중
+  - 관련자 면담 예정
+
+4. 재발 방지 대책
+  가. 단기 대책: 안전 점검 강화
+  나. 중장기 대책: 교육 프로그램 보완
+
+※ 본 보고서는 AI가 생성한 초안이며, 실제 내용은 담당자가 확인 후 수정하시기 바랍니다.`,
+        casualties: {
+          militaryDeaths: 0,
+          civilianDeaths: 0,
+          militaryInjuries: 0,
+          civilianInjuries: 0,
+        },
+      };
+
+      setReports(prev => [newReport, ...prev]);
+      setIsGenerating(false);
+      onCloseModal?.();
+      setSelectedReport(newReport);
+      
+      toast({
+        title: '보고서 생성 완료',
+        description: 'AI가 사고 경위를 분석하여 보고서 초안을 생성했습니다.',
+      });
+    }, 2000);
+  };
 
   // 상태 라벨
   const getStatusLabel = (status: string) => {
@@ -870,6 +979,99 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
           <p className="text-sm text-muted-foreground">조건에 맞는 보고서가 없습니다.</p>
         </div>
       )}
+
+      {/* 보고서 생성 모달 */}
+      <AddModal
+        isOpen={showModal}
+        onClose={() => onCloseModal?.()}
+        title="사고 보고서 생성"
+        description="사고 경위를 입력하면 AI가 보고서 초안을 자동 생성합니다"
+        inputTypes={[
+          { 
+            id: 'form', 
+            label: '생성 옵션', 
+            content: (
+              <div className="space-y-4">
+                {/* 발생 일시 */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-2">발생 일자 *</label>
+                    <input
+                      type="date"
+                      value={createForm.date}
+                      onChange={(e) => setCreateForm(prev => ({ ...prev, date: e.target.value }))}
+                      className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-2">발생 시간</label>
+                    <input
+                      type="time"
+                      value={createForm.time}
+                      onChange={(e) => setCreateForm(prev => ({ ...prev, time: e.target.value }))}
+                      className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {/* 발생 장소 */}
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-2">발생 장소</label>
+                  <input
+                    placeholder="예: 경기도 파주시 00부대 훈련장"
+                    value={createForm.location}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, location: e.target.value }))}
+                    className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                  />
+                </div>
+
+                {/* 보고 부대 */}
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-2">보고 부대</label>
+                  <UnitCascadeSelect
+                    value={createForm.unitId}
+                    onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
+                    placeholder="부대 선택"
+                  />
+                </div>
+
+                {/* 사고 유형 */}
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-2">사고 유형</label>
+                  <select
+                    value={createForm.category}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+                  >
+                    {ACCIDENT_CATEGORIES.map(cat => (
+                      <option key={cat.value} value={cat.value}>{cat.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 사고 경위 */}
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-2">사고 경위 *</label>
+                  <textarea
+                    placeholder="사고 상황을 간략히 설명해주세요. AI가 이를 바탕으로 상세 보고서를 생성합니다."
+                    rows={4}
+                    value={createForm.overview}
+                    onChange={(e) => setCreateForm(prev => ({ ...prev, overview: e.target.value }))}
+                    className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors resize-none"
+                  />
+                </div>
+
+                <div className="text-xs text-muted-foreground pt-2 border-t border-border">
+                  AI가 입력된 사고 경위를 분석하여 관련자 정보, 피해 현황, 조치사항 등을 자동으로 추론합니다.
+                </div>
+              </div>
+            )
+          }
+        ]}
+        onSubmit={handleGenerateReport}
+        submitLabel={isGenerating ? '생성 중...' : '보고서 생성'}
+        isSubmitDisabled={isGenerating || !createForm.overview.trim()}
+      />
     </div>
   );
 }
