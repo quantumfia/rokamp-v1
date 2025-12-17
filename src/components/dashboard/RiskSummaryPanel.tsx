@@ -23,6 +23,26 @@ const MOCK_RISK_DATA: RiskUnit[] = [
   { id: 'corps-2-div-11', name: '제11기계화보병사단', risk: 26, trend: 'stable' },
   { id: 'corps-3-div-12', name: '제12보병사단', risk: 24, trend: 'down' },
   { id: 'corps-1-div-15', name: '제15보병사단', risk: 22, trend: 'stable' },
+  { id: 'test-001', name: '제16보병사단', risk: 21, trend: 'down' },
+  { id: 'test-002', name: '제17보병사단', risk: 20, trend: 'stable' },
+  { id: 'test-003', name: '제18보병사단', risk: 19, trend: 'down' },
+  { id: 'test-004', name: '제19보병사단', risk: 18, trend: 'stable' },
+  { id: 'test-005', name: '제20보병사단', risk: 17, trend: 'down' },
+  { id: 'test-006', name: '제22보병사단', risk: 16, trend: 'stable' },
+  { id: 'test-007', name: '제23보병사단', risk: 15, trend: 'down' },
+  { id: 'test-008', name: '제25보병사단', risk: 14, trend: 'stable' },
+  { id: 'test-009', name: '제26보병사단', risk: 13, trend: 'down' },
+  { id: 'test-010', name: '제27보병사단', risk: 12, trend: 'stable' },
+  { id: 'test-011', name: '제28보병사단', risk: 11, trend: 'down' },
+  { id: 'test-012', name: '제30보병사단', risk: 10, trend: 'stable' },
+  { id: 'test-013', name: '제31보병사단', risk: 9, trend: 'down' },
+  { id: 'test-014', name: '제32보병사단', risk: 8, trend: 'stable' },
+  { id: 'test-015', name: '제33보병사단', risk: 7, trend: 'down' },
+  { id: 'test-016', name: '제35보병사단', risk: 6, trend: 'stable' },
+  { id: 'test-017', name: '제36보병사단', risk: 5, trend: 'down' },
+  { id: 'test-018', name: '제37보병사단', risk: 4, trend: 'stable' },
+  { id: 'test-019', name: '제39보병사단', risk: 3, trend: 'down' },
+  { id: 'test-020', name: '제50보병사단', risk: 2, trend: 'stable' },
 ];
 
 interface RiskSummaryPanelProps {
@@ -30,14 +50,16 @@ interface RiskSummaryPanelProps {
 }
 
 export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
-  const { user } = useAuth();
+  useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const overallRisk = 52;
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
   // 검색어로 필터링
-  const filteredUnits = MOCK_RISK_DATA.filter(unit =>
-    unit.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUnits = normalizedQuery
+    ? MOCK_RISK_DATA.filter((unit) => unit.name.toLowerCase().includes(normalizedQuery))
+    : MOCK_RISK_DATA;
 
   // 위험도에 따른 색상 반환
   const getRiskColor = (risk: number) => {
@@ -110,9 +132,7 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
             </button>
           ))}
           {filteredUnits.length === 0 && (
-            <div className="px-4 py-6 text-center text-xs text-muted-foreground">
-              검색 결과가 없습니다
-            </div>
+            <div className="px-4 py-6 text-center text-xs text-muted-foreground">검색 결과가 없습니다</div>
           )}
         </div>
       </div>

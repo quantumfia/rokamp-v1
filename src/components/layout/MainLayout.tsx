@@ -23,12 +23,13 @@ export function MainLayout() {
   const [selectedUnitFromSearch, setSelectedUnitFromSearch] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const isDashboard = location.pathname === '/dashboard';
 
   // 로그인 직후 공지사항 팝업 표시 (COM-002)
   useEffect(() => {
     const hideUntil = localStorage.getItem('hideNoticeUntil');
     const hasShownThisSession = sessionStorage.getItem('noticeShown');
-    
+
     if (!hasShownThisSession) {
       // 오늘 하루 보지 않기 체크 확인
       if (hideUntil) {
@@ -67,31 +68,32 @@ export function MainLayout() {
   return (
     <SearchContext.Provider value={{ selectedUnitFromSearch, setSelectedUnitFromSearch }}>
       <div className="min-h-screen bg-background">
-        <GNB 
-          onNotificationClick={handleNotificationClick} 
-          onSearchSelect={handleSearchSelect}
-        />
-        
-        <div className="flex">
+        <GNB onNotificationClick={handleNotificationClick} onSearchSelect={handleSearchSelect} />
+
+        <div className={isDashboard ? 'flex h-[calc(100vh-3rem)] min-h-0' : 'flex'}>
           <LNB />
-          
-          <main className="flex-1 min-w-0 min-h-[calc(100vh-3rem)] overflow-x-hidden bg-background">
+
+          <main
+            className={
+              isDashboard
+                ? 'flex-1 min-w-0 min-h-0 overflow-hidden bg-background'
+                : 'flex-1 min-w-0 min-h-[calc(100vh-3rem)] overflow-x-hidden bg-background'
+            }
+          >
             <Outlet />
           </main>
         </div>
 
         {/* 알림 패널 (COM-GNB 알림 이력) */}
         {showNotificationPanel && (
-          <NotificationPanel 
+          <NotificationPanel
             onClose={() => setShowNotificationPanel(false)}
             onShowNotice={handleShowNoticeFromHistory}
           />
         )}
 
         {/* 필수 공지사항 모달 (COM-002) */}
-        {showNotice && (
-          <NoticeModal onClose={() => setShowNotice(false)} />
-        )}
+        {showNotice && <NoticeModal onClose={() => setShowNotice(false)} />}
       </div>
     </SearchContext.Provider>
   );
