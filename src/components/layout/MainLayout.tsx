@@ -77,7 +77,7 @@ export function MainLayout() {
             className={
               isDashboard
                 ? 'flex-1 min-w-0 min-h-0 overflow-hidden bg-background'
-                : 'flex-1 min-w-0 min-h-[calc(100vh-3rem)] overflow-x-hidden bg-background'
+                : 'flex-1 min-w-0 min-h-[calc(100vh-3rem)] overflow-x-hidden overflow-y-auto bg-background animate-page-enter'
             }
           >
             <Outlet />

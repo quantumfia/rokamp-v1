@@ -93,7 +93,7 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 animate-page-enter">
       {/* 헤더 */}
       <div className="flex items-center justify-between border-b border-border pb-4">
         <div>

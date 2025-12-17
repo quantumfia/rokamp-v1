@@ -138,7 +138,7 @@ export default function ReportsPage() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 animate-page-enter">
       {/* 헤더 */}
       <div className="border-b border-border pb-4">
         <h1 className="text-lg font-semibold text-foreground">보고서</h1>

@@ -232,7 +232,7 @@ export default function ChatbotPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Header */}
       <div className="shrink-0 p-6 pb-4 border-b border-border">
         <h1 className="text-lg font-semibold text-foreground">지능형 챗봇</h1>
