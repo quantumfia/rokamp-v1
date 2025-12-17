@@ -28,8 +28,10 @@ export function MainLayout() {
   const isChatbot = location.pathname === '/chatbot';
   const isFixedHeightMain = isDashboard || isChatbot;
 
-  // 로그인 직후 공지사항 팝업 표시 (COM-002)
+  // 대시보드 페이지에서만 공지사항 팝업 표시 (COM-002)
   useEffect(() => {
+    if (!isDashboard) return;
+    
     const hideUntil = localStorage.getItem('hideNoticeUntil');
     const hasShownThisSession = sessionStorage.getItem('noticeShown');
 
@@ -44,7 +46,7 @@ export function MainLayout() {
       setShowNotice(true);
       sessionStorage.setItem('noticeShown', 'true');
     }
-  }, []);
+  }, [isDashboard]);
 
   const handleSearchSelect = (unitId: string) => {
     if (location.pathname !== '/dashboard') {
