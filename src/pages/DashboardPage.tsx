@@ -64,7 +64,7 @@ export default function DashboardPage() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Panel - Risk Summary */}
-        <div className="w-72 shrink-0 border-r border-border bg-card overflow-y-auto">
+        <div className="w-72 shrink-0 border-r border-border bg-card overflow-hidden">
           {isLoading ? <RiskSummarySkeleton /> : <RiskSummaryPanel onUnitClick={handleMarkerClick} />}
         </div>
 
