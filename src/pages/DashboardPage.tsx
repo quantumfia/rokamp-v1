@@ -107,23 +107,17 @@ export default function DashboardPage() {
             />
           )}
 
-          {/* Map overlay header */}
-          <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
-            <div className="flex items-center gap-2">
-              {/* Mobile: 부대 목록 버튼 */}
-              <Button
-                variant="secondary"
-                size="sm"
-                className="lg:hidden pointer-events-auto h-8 bg-panel-dark/90 backdrop-blur-sm border border-sidebar-border text-white hover:bg-panel-dark"
-                onClick={() => setShowLeftPanel(true)}
-              >
-                <List className="w-4 h-4 mr-1.5" />
-                부대 목록
-              </Button>
-              <div className="bg-panel-dark/90 backdrop-blur-sm rounded px-3 py-1.5 border border-sidebar-border pointer-events-auto">
-                <span className="text-xs font-medium text-white">대한민국 전도 · 전군 위험도</span>
-              </div>
-            </div>
+          {/* Map overlay header - Mobile only */}
+          <div className="absolute top-3 left-3 lg:hidden pointer-events-none z-10">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="pointer-events-auto h-8 bg-panel-dark/90 backdrop-blur-sm border border-sidebar-border text-white hover:bg-panel-dark"
+              onClick={() => setShowLeftPanel(true)}
+            >
+              <List className="w-4 h-4 mr-1.5" />
+              부대 목록
+            </Button>
           </div>
         </div>
 
