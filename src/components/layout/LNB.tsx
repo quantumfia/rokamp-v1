@@ -7,7 +7,10 @@ import {
   Settings,
   Database,
   Users,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -38,6 +41,11 @@ interface LNBProps {
 export function LNB({ isExpanded }: LNBProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   const renderMenuItem = (item: MenuItem) => {
     const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
@@ -110,8 +118,34 @@ export function LNB({ isExpanded }: LNBProps) {
         {ADMIN_MENU_ITEMS.map(renderMenuItem)}
       </nav>
 
-      {/* Footer */}
-      <div className="p-2 border-t border-sidebar-border">
+      {/* Footer with Theme Toggle */}
+      <div className="p-2 border-t border-sidebar-border space-y-2">
+        {/* Theme Toggle */}
+        {isExpanded ? (
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-150"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            <span className="text-xs font-medium">{theme === 'dark' ? '라이트 모드' : '다크 모드'}</span>
+          </button>
+        ) : (
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <button
+                onClick={toggleTheme}
+                className="w-full flex items-center justify-center h-9 rounded text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-150"
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="bg-sidebar border-sidebar-border text-sidebar-foreground">
+              <p className="text-xs">{theme === 'dark' ? '라이트 모드' : '다크 모드'}</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+        
+        {/* Version */}
         {isExpanded ? (
           <p className="text-[9px] text-sidebar-muted text-center">v1.0.0</p>
         ) : (
