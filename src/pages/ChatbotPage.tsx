@@ -54,17 +54,14 @@ export default function ChatbotPage() {
 
   const hasConversation = messages.length > 0;
 
-  // 페이지 로딩 및 resetKey 감지
   useEffect(() => {
     const timer = setTimeout(() => setIsPageLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
 
-  // LNB에서 현재 페이지 클릭 시 리셋
   useEffect(() => {
     if (location.state?.resetKey) {
       handleNewConversation();
-      // state 초기화 (뒤로가기 시 다시 리셋 방지)
       window.history.replaceState({}, document.title);
     }
   }, [location.state?.resetKey]);
@@ -137,7 +134,6 @@ export default function ChatbotPage() {
   };
 
   const getAIResponse = (question: string, sources?: string[]): { content: string; references: Array<{ title: string; source: string; url?: string }> } => {
-    // 소스 필터링 로직 (실제로는 백엔드에서 처리)
     const sourceNote = sources && sources.length > 0 
       ? `\n\n_검색 범위: ${sources.map(id => DOCUMENT_SOURCES.find(s => s.id === id)?.label).join(', ')}_`
       : '';
@@ -285,11 +281,10 @@ export default function ChatbotPage() {
       </div>
 
       {/* Content */}
-      <div className="relative flex-1 flex flex-col">
+      <div className="relative flex-1 flex flex-col min-h-0">
         {!hasConversation ? (
           /* Welcome Screen */
           <div className="flex-1 flex flex-col items-center justify-center px-4 animate-page-enter">
-            {/* Logo & Title */}
             <div className="flex flex-col items-center mb-8">
               <div className="relative mb-4">
                 <div 
@@ -305,7 +300,6 @@ export default function ChatbotPage() {
               </p>
             </div>
 
-            {/* Suggested Questions Grid */}
             <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
               {SUGGESTED_QUESTIONS.map((q, index) => {
                 const Icon = q.icon;
@@ -324,10 +318,8 @@ export default function ChatbotPage() {
               })}
             </div>
 
-            {/* Input at bottom of welcome */}
             <div className="w-full max-w-2xl space-y-3">
-              {/* Source Filter */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
@@ -340,7 +332,7 @@ export default function ChatbotPage() {
                     {DOCUMENT_SOURCES.map((source) => (
                       <DropdownMenuCheckboxItem
                         key={source.id}
-                        checked={selectedSources.includes(source.id) || (source.id === 'all' && selectedSources.includes('all'))}
+                        checked={selectedSources.includes(source.id)}
                         onCheckedChange={() => handleSourceToggle(source.id)}
                       >
                         <div>
@@ -352,7 +344,6 @@ export default function ChatbotPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* Selected source chips */}
                 {!selectedSources.includes('all') && selectedSources.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {selectedSources.map(id => {
@@ -405,33 +396,36 @@ export default function ChatbotPage() {
             </div>
           </div>
         ) : (
-          /* Conversation View */
-          <>
-            {/* Header with New Conversation Button */}
-            <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border bg-background/80 backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">대화 중</span>
-                {messages.length > 0 && (
-                  <span className="text-xs text-muted-foreground">
-                    · {Math.ceil(messages.length / 2)}개 질문
-                  </span>
-                )}
+          /* Conversation View - Fixed header/footer */
+          <div className="flex-1 flex flex-col relative min-h-0">
+            {/* Fixed Header */}
+            <div className="absolute top-0 left-0 right-0 z-10">
+              <div className="flex items-center justify-between px-4 py-3 bg-background/70 backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">대화 중</span>
+                  {messages.length > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      · {Math.ceil(messages.length / 2)}개 질문
+                    </span>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleNewConversation}
+                  className="h-8 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  새 대화
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleNewConversation}
-                className="h-8 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                새 대화
-              </Button>
+              <div className="h-4 bg-gradient-to-b from-background/50 to-transparent" />
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+            {/* Scrollable Messages */}
+            <div className="flex-1 overflow-y-auto pt-16 pb-36">
+              <div className="max-w-3xl mx-auto px-4 py-4 space-y-6">
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -453,7 +447,6 @@ export default function ChatbotPage() {
                           : 'text-foreground'
                       )}
                     >
-                      {/* User message source indicator */}
                       {message.role === 'user' && message.sources && message.sources.length > 0 && (
                         <div className="text-[10px] text-primary-foreground/70 mb-1">
                           검색: {message.sources.map(id => DOCUMENT_SOURCES.find(s => s.id === id)?.label).join(', ')}
@@ -510,84 +503,86 @@ export default function ChatbotPage() {
               </div>
             </div>
 
-            {/* Input - Conversation Mode */}
-            <div className="shrink-0 border-t border-border bg-background/80 backdrop-blur-sm">
-              <div className="max-w-3xl mx-auto px-4 py-3 space-y-2">
-                {/* Source Filter in conversation */}
-                <div className="flex items-center gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
-                        <span className="text-muted-foreground">범위:</span>
-                        <span className="font-medium max-w-[100px] truncate">{getSelectedSourceLabels()}</span>
-                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-56">
-                      {DOCUMENT_SOURCES.map((source) => (
-                        <DropdownMenuCheckboxItem
-                          key={source.id}
-                          checked={selectedSources.includes(source.id) || (source.id === 'all' && selectedSources.includes('all'))}
-                          onCheckedChange={() => handleSourceToggle(source.id)}
-                        >
-                          <div>
-                            <p className="font-medium text-sm">{source.label}</p>
-                            <p className="text-xs text-muted-foreground">{source.description}</p>
-                          </div>
-                        </DropdownMenuCheckboxItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {!selectedSources.includes('all') && selectedSources.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {selectedSources.slice(0, 3).map(id => {
-                        const source = DOCUMENT_SOURCES.find(s => s.id === id);
-                        if (!source) return null;
-                        return (
-                          <span
-                            key={id}
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] rounded"
+            {/* Fixed Input */}
+            <div className="absolute bottom-0 left-0 right-0 z-10">
+              <div className="h-6 bg-gradient-to-t from-background/80 to-transparent" />
+              <div className="bg-background/70 backdrop-blur-md px-4 pb-4 pt-2">
+                <div className="max-w-3xl mx-auto space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
+                          <span className="text-muted-foreground">범위:</span>
+                          <span className="font-medium max-w-[100px] truncate">{getSelectedSourceLabels()}</span>
+                          <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-56">
+                        {DOCUMENT_SOURCES.map((source) => (
+                          <DropdownMenuCheckboxItem
+                            key={source.id}
+                            checked={selectedSources.includes(source.id)}
+                            onCheckedChange={() => handleSourceToggle(source.id)}
                           >
-                            {source.label}
-                            <button onClick={() => handleSourceToggle(id)} className="hover:bg-primary/20 rounded p-0.5">
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </span>
-                        );
-                      })}
-                      {selectedSources.length > 3 && (
-                        <span className="text-[10px] text-muted-foreground">+{selectedSources.length - 3}</span>
-                      )}
-                    </div>
-                  )}
-                </div>
+                            <div>
+                              <p className="font-medium text-sm">{source.label}</p>
+                              <p className="text-xs text-muted-foreground">{source.description}</p>
+                            </div>
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
 
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSend();
-                  }}
-                  className="relative"
-                >
-                  <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="메시지를 입력하세요..."
-                    className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 pr-12 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/50 transition-all"
-                    disabled={isLoading}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!input.trim() || isLoading}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    {!selectedSources.includes('all') && selectedSources.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {selectedSources.slice(0, 3).map(id => {
+                          const source = DOCUMENT_SOURCES.find(s => s.id === id);
+                          if (!source) return null;
+                          return (
+                            <span
+                              key={id}
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] rounded"
+                            >
+                              {source.label}
+                              <button onClick={() => handleSourceToggle(id)} className="hover:bg-primary/20 rounded p-0.5">
+                                <X className="w-2.5 h-2.5" />
+                              </button>
+                            </span>
+                          );
+                        })}
+                        {selectedSources.length > 3 && (
+                          <span className="text-[10px] text-muted-foreground">+{selectedSources.length - 3}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSend();
+                    }}
+                    className="relative"
                   >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
+                    <input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="메시지를 입력하세요..."
+                      className="w-full bg-muted/50 border border-border/50 rounded-xl px-4 py-3 pr-12 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/70 transition-all"
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={!input.trim() || isLoading}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
