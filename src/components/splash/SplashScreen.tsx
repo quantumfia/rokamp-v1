@@ -162,8 +162,10 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
         {/* Progress bar - always visible until login form shows */}
         {!showLoginForm && (
-          <div className={`w-64 transition-all duration-500 ${loadingComplete ? 'opacity-50' : 'opacity-100'}`}>
-            <div className="h-0.5 bg-white/10 rounded-full overflow-hidden">
+          <div className="w-64 transition-all duration-500 opacity-100">
+            <div
+              className={`h-0.5 bg-white/10 rounded-full overflow-hidden transition-opacity duration-500 ${loadingComplete ? 'opacity-50' : 'opacity-100'}`}
+            >
               <div 
                 className="h-full bg-gradient-to-r from-primary/50 via-primary to-primary/50 rounded-full transition-all duration-100"
                 style={{ 
@@ -175,8 +177,10 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             
             {/* Click to continue text */}
             {loadingComplete ? (
-              <div className="mt-6 flex items-center justify-center gap-2">
-                <span className="text-white text-base font-semibold tracking-widest uppercase drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">Click to continue</span>
+              <div className="mt-6 flex items-center justify-center gap-2 opacity-100">
+                <span className="text-white text-base font-semibold tracking-widest uppercase opacity-100 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+                  Click to continue
+                </span>
                 <ChevronRight className="w-4 h-4 text-primary animate-pulse" />
               </div>
             ) : (
