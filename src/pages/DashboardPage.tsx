@@ -91,7 +91,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Panel - Unit Detail */}
-        <div className="w-80 shrink-0 border-l border-border bg-card overflow-y-auto">
+        <div className="w-80 shrink-0 border-l border-border bg-card overflow-hidden">
           {isLoading ? (
             <UnitDetailSkeleton />
           ) : selectedUnitId ? (
