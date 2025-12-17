@@ -29,23 +29,26 @@ export function MainLayout() {
   const isFixedHeightMain = isDashboard || isChatbot;
 
   // 대시보드 페이지에서만 공지사항 팝업 표시 (COM-002)
+  // - 기본: 대시보드 진입 시 항상 표시
+  // - "오늘 하루 보지 않기" 선택 시: 오늘 23:59:59까지 미표시
   useEffect(() => {
-    if (!isDashboard) return;
-    
-    const hideUntil = localStorage.getItem('hideNoticeUntil');
-    const hasShownThisSession = sessionStorage.getItem('noticeShown');
-
-    if (!hasShownThisSession) {
-      if (hideUntil) {
-        const expiry = new Date(hideUntil);
-        if (new Date() < expiry) {
-          sessionStorage.setItem('noticeShown', 'true');
-          return;
-        }
-      }
-      setShowNotice(true);
-      sessionStorage.setItem('noticeShown', 'true');
+    if (!isDashboard) {
+      setShowNotice(false);
+      return;
     }
+
+    const hideUntil = localStorage.getItem('hideNoticeUntil');
+    if (hideUntil) {
+      const expiry = new Date(hideUntil);
+      if (new Date() < expiry) {
+        setShowNotice(false);
+        return;
+      }
+      // 만료된 값은 정리
+      localStorage.removeItem('hideNoticeUntil');
+    }
+
+    setShowNotice(true);
   }, [isDashboard]);
 
   const handleSearchSelect = (unitId: string) => {
