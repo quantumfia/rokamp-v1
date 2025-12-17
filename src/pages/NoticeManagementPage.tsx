@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, Eye, Edit2, Video, Paperclip } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Trash2, Eye, Edit2, Video, Paperclip } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -14,7 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/common';
+import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { cn } from '@/lib/utils';
 
@@ -70,15 +69,9 @@ const NOTICES = [
   },
 ];
 
-// 역할에 따른 발송 대상 옵션
-const TARGET_OPTIONS = [
-  { value: 'all', label: '전체 (전군)', roleRequired: 'super_admin' },
-  { value: 'division', label: '예하 부대', roleRequired: 'admin' },
-];
-
 export default function NoticeManagementPage() {
   const isLoading = usePageLoading(800);
-  const [showForm, setShowForm] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   
   // 폼 상태
   const [noticeTitle, setNoticeTitle] = useState('');
@@ -86,6 +79,7 @@ export default function NoticeManagementPage() {
   const [noticeTarget, setNoticeTarget] = useState('all');
   const [isPopup, setIsPopup] = useState(false);
   const [videoUrl, setVideoUrl] = useState('');
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
   const handlePublishNotice = () => {
     if (!noticeTitle.trim() || !noticeContent.trim()) {
@@ -100,11 +94,17 @@ export default function NoticeManagementPage() {
       title: '공지 등록 완료',
       description: isPopup ? '로그인 시 팝업으로 표시됩니다.' : '공지사항이 등록되었습니다.',
     });
+    resetForm();
+    setShowAddModal(false);
+  };
+
+  const resetForm = () => {
     setNoticeTitle('');
     setNoticeContent('');
+    setNoticeTarget('all');
     setIsPopup(false);
     setVideoUrl('');
-    setShowForm(false);
+    setAttachedFile(null);
   };
 
   const handleDeleteNotice = (id: number) => {
@@ -123,163 +123,148 @@ export default function NoticeManagementPage() {
     );
   }
 
+  // 직접 입력 폼
+  const DirectInputForm = (
+    <div className="space-y-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="notice-title" className="text-xs text-muted-foreground">제목 *</Label>
+        <Input
+          id="notice-title"
+          placeholder="공지 제목을 입력하세요"
+          value={noticeTitle}
+          onChange={(e) => setNoticeTitle(e.target.value)}
+          className="bg-background"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="notice-content" className="text-xs text-muted-foreground">내용 *</Label>
+        <Textarea
+          id="notice-content"
+          placeholder="공지 내용을 입력하세요"
+          rows={4}
+          value={noticeContent}
+          onChange={(e) => setNoticeContent(e.target.value)}
+          className="bg-background"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">발송 대상</Label>
+          <select 
+            value={noticeTarget} 
+            onChange={(e) => setNoticeTarget(e.target.value)}
+            className="w-full h-9 px-3 text-sm bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring"
+          >
+            <option value="all">전체 (전군)</option>
+            <option value="division">예하 부대</option>
+          </select>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="video-url" className="text-xs text-muted-foreground">YouTube URL (선택)</Label>
+          <Input
+            id="video-url"
+            placeholder="https://youtu.be/..."
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            className="bg-background"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 pt-2">
+        <Checkbox 
+          id="popup" 
+          checked={isPopup}
+          onCheckedChange={(checked) => setIsPopup(checked === true)}
+        />
+        <div>
+          <Label htmlFor="popup" className="text-sm font-medium cursor-pointer">로그인 시 팝업 노출</Label>
+          <p className="text-xs text-muted-foreground">체크 시 대상자에게 강제 팝업 표시</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // 파일 업로드 폼
+  const FileUploadForm = (
+    <div className="space-y-4">
+      <FileDropZone
+        accept=".hwp,.pdf,.docx"
+        hint="HWP, PDF, DOCX 형식 · 최대 10MB"
+        maxSize="10MB"
+        onFileSelect={setAttachedFile}
+      />
+      
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">발송 대상</Label>
+        <select 
+          value={noticeTarget} 
+          onChange={(e) => setNoticeTarget(e.target.value)}
+          className="w-full h-9 px-3 text-sm bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring"
+        >
+          <option value="all">전체 (전군)</option>
+          <option value="division">예하 부대</option>
+        </select>
+      </div>
+
+      <div className="flex items-center gap-3 pt-2">
+        <Checkbox 
+          id="popup-file" 
+          checked={isPopup}
+          onCheckedChange={(checked) => setIsPopup(checked === true)}
+        />
+        <div>
+          <Label htmlFor="popup-file" className="text-sm font-medium cursor-pointer">로그인 시 팝업 노출</Label>
+          <p className="text-xs text-muted-foreground">체크 시 대상자에게 강제 팝업 표시</p>
+        </div>
+      </div>
+
+      <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border">
+        <p>• 파일 내 첫 번째 줄이 공지 제목으로 사용됩니다</p>
+        <p>• 본문 내용은 파일에서 자동 추출됩니다</p>
+      </div>
+    </div>
+  );
+
+  const inputTypes = [
+    { id: 'direct', label: '직접 입력', content: DirectInputForm },
+    { id: 'file', label: '파일 업로드', content: FileUploadForm },
+  ];
+
   return (
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
         title="공지사항 관리" 
         description="부대별 공지사항 작성 및 발송 관리"
         actions={
-          <Button 
-            variant="default" 
-            size="sm" 
-            onClick={() => setShowForm(!showForm)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            새 공지 작성
-          </Button>
+          <ActionButton label="공지 추가" onClick={() => setShowAddModal(true)} />
         }
       />
 
-      {/* 공지 작성 폼 */}
-      {showForm && (
-        <section className="border border-border rounded-lg p-5 space-y-4 bg-card">
-          <div className="flex items-center justify-between pb-3 border-b border-border">
-            <h2 className="text-sm font-semibold text-foreground">새 공지사항 작성</h2>
-            <button 
-              onClick={() => setShowForm(false)}
-              className="text-xs text-muted-foreground hover:text-foreground"
-            >
-              취소
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 좌측: 기본 정보 */}
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="notice-title" className="text-xs text-muted-foreground">제목</Label>
-                <Input
-                  id="notice-title"
-                  placeholder="공지 제목을 입력하세요"
-                  value={noticeTitle}
-                  onChange={(e) => setNoticeTitle(e.target.value)}
-                  className="bg-background"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="notice-content" className="text-xs text-muted-foreground">내용</Label>
-                <Textarea
-                  id="notice-content"
-                  placeholder="공지 내용을 입력하세요"
-                  rows={6}
-                  value={noticeContent}
-                  onChange={(e) => setNoticeContent(e.target.value)}
-                  className="bg-background"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">발송 대상</Label>
-                <select 
-                  value={noticeTarget} 
-                  onChange={(e) => setNoticeTarget(e.target.value)}
-                  className="w-full h-9 px-3 text-sm bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring"
-                >
-                  {TARGET_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-muted-foreground">
-                  * Super Admin: 전군 발송 가능 / Admin: 예하 부대만 발송 가능
-                </p>
-              </div>
-            </div>
-
-            {/* 우측: 추가 옵션 */}
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="video-url" className="text-xs text-muted-foreground">
-                  YouTube 영상 URL (선택)
-                </Label>
-                <Input
-                  id="video-url"
-                  placeholder="https://youtu.be/..."
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  className="bg-background"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">첨부파일 (선택)</Label>
-                <div className="border border-dashed border-border rounded-lg p-4 text-center">
-                  <Paperclip className="w-5 h-5 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-xs text-muted-foreground">
-                    파일을 드래그하거나 클릭하여 업로드
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 py-3 border-t border-border">
-                <Checkbox 
-                  id="popup" 
-                  checked={isPopup}
-                  onCheckedChange={(checked) => setIsPopup(checked === true)}
-                />
-                <div>
-                  <Label htmlFor="popup" className="text-sm font-medium">로그인 시 팝업 노출</Label>
-                  <p className="text-xs text-muted-foreground">체크 시 대상자에게 강제 팝업 표시</p>
-                </div>
-              </div>
-
-              <Button variant="default" className="w-full" onClick={handlePublishNotice}>
-                공지사항 등록
-              </Button>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 통계 요약 */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="py-4 text-center border-b border-border">
-          <p className="text-2xl font-semibold tabular-nums">{NOTICES.length}</p>
-          <p className="text-xs text-muted-foreground">전체 공지</p>
-        </div>
-        <div className="py-4 text-center border-b border-border">
-          <p className="text-2xl font-semibold tabular-nums">
-            {NOTICES.filter(n => n.status === 'active').length}
-          </p>
-          <p className="text-xs text-muted-foreground">활성 공지</p>
-        </div>
-        <div className="py-4 text-center border-b border-border">
-          <p className="text-2xl font-semibold tabular-nums">
-            {NOTICES.filter(n => n.isPopup).length}
-          </p>
-          <p className="text-xs text-muted-foreground">팝업 공지</p>
-        </div>
-      </div>
-
       {/* 공지 목록 */}
       <section>
-        <div className="mb-4">
-          <h2 className="text-sm font-semibold text-foreground">등록된 공지사항</h2>
-          <p className="text-xs text-muted-foreground">공지사항 목록 및 관리</p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">공지사항 목록</h2>
+            <p className="text-xs text-muted-foreground">
+              총 {NOTICES.length}건 · 활성 {NOTICES.filter(n => n.status === 'active').length}건
+            </p>
+          </div>
         </div>
 
         <Table>
           <TableHeader>
             <TableRow className="border-t border-border">
-              <TableHead className="text-xs">제목</TableHead>
-              <TableHead className="text-xs w-28">발송 대상</TableHead>
-              <TableHead className="text-xs w-20 text-center">팝업</TableHead>
-              <TableHead className="text-xs w-16 text-center">첨부</TableHead>
+              <TableHead className="text-xs min-w-[200px]">제목</TableHead>
+              <TableHead className="text-xs w-24">발송 대상</TableHead>
+              <TableHead className="text-xs w-14 text-center">팝업</TableHead>
+              <TableHead className="text-xs w-14 text-center">첨부</TableHead>
               <TableHead className="text-xs w-24">등록일</TableHead>
-              <TableHead className="text-xs w-24">작성자</TableHead>
-              <TableHead className="text-xs w-16 text-center">상태</TableHead>
+              <TableHead className="text-xs w-20">작성자</TableHead>
+              <TableHead className="text-xs w-14 text-center">상태</TableHead>
               <TableHead className="text-xs w-20 text-center">관리</TableHead>
             </TableRow>
           </TableHeader>
@@ -318,10 +303,8 @@ export default function NoticeManagementPage() {
                 </TableCell>
                 <TableCell className="text-center">
                   <span className={cn(
-                    "text-xs px-2 py-0.5 rounded",
-                    notice.status === 'active' 
-                      ? "bg-primary/10 text-primary" 
-                      : "bg-muted text-muted-foreground"
+                    "text-xs",
+                    notice.status === 'active' ? "text-foreground" : "text-muted-foreground"
                   )}>
                     {notice.status === 'active' ? '활성' : '만료'}
                   </span>
@@ -346,14 +329,29 @@ export default function NoticeManagementPage() {
             ))}
           </TableBody>
         </Table>
+
+        {/* 안내 */}
+        <div className="text-xs text-muted-foreground space-y-1 pt-4 border-t border-border mt-4">
+          <p>• <strong>전체 발송</strong>: Super Admin 권한 필요 (육군본부 담당자)</p>
+          <p>• <strong>예하 부대 발송</strong>: Admin 권한 이상 (사단급 이상)</p>
+          <p>• 팝업 공지는 대상자 로그인 시 강제 표시되며, "오늘 하루 보지 않기" 선택 가능</p>
+        </div>
       </section>
 
-      {/* 안내 */}
-      <div className="text-xs text-muted-foreground space-y-1 pt-4 border-t border-border">
-        <p>• <strong>전체 발송</strong>: Super Admin 권한 필요 (육군본부 담당자)</p>
-        <p>• <strong>예하 부대 발송</strong>: Admin 권한 이상 (사단급 이상)</p>
-        <p>• 팝업 공지는 대상자 로그인 시 강제 표시되며, "오늘 하루 보지 않기" 선택 가능</p>
-      </div>
+      {/* 공지 추가 모달 */}
+      <AddModal
+        isOpen={showAddModal}
+        onClose={() => {
+          setShowAddModal(false);
+          resetForm();
+        }}
+        title="공지사항 추가"
+        description="직접 입력 또는 파일 업로드로 공지 등록"
+        inputTypes={inputTypes}
+        onSubmit={handlePublishNotice}
+        submitLabel="등록"
+        isSubmitDisabled={!noticeTitle.trim() && !attachedFile}
+      />
     </div>
   );
 }
