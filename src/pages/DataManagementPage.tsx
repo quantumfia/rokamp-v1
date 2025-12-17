@@ -32,14 +32,6 @@ const newsData = [
   { id: 4, title: '국방부 안전관리 혁신방안 추진', source: 'YTN', date: '2024-12-10', status: 'processing' as const, embeddings: 0 },
 ];
 
-// 훈련 데이터
-const trainingData = [
-  { id: 1, unit: '제1보병사단', period: '2024년 12월 2주차', type: '주간계획', uploadedAt: '2024-12-09', status: 'completed' as const, records: 48 },
-  { id: 2, unit: '제7보병사단', period: '2024년 12월 2주차', type: '주간계획', uploadedAt: '2024-12-09', status: 'completed' as const, records: 52 },
-  { id: 3, unit: '수도기계화보병사단', period: '2024년 12월', type: '월간계획', uploadedAt: '2024-12-01', status: 'completed' as const, records: 186 },
-  { id: 4, unit: '제3보병사단', period: '2024년 12월 2주차', type: '주간계획', uploadedAt: '2024-12-14', status: 'processing' as const, records: 0 },
-];
-
 // 업로드 컴포넌트
 function CompactUploader({ label, hint }: { label: string; hint: string }) {
   return (
@@ -57,9 +49,8 @@ function CompactUploader({ label, hint }: { label: string; hint: string }) {
 }
 
 const DATA_TABS = [
-  { id: 'documents', label: '원문 관리' },
-  { id: 'news', label: '뉴스 데이터' },
-  { id: 'training', label: '훈련 정보' },
+  { id: 'documents', label: '문서 관리' },
+  { id: 'news', label: '언론 기사 관리' },
 ];
 
 export default function DataManagementPage() {
@@ -97,12 +88,12 @@ export default function DataManagementPage() {
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
         title="데이터 관리" 
-        description="학습 데이터 및 훈련 정보 관리" 
+        description="문서 및 언론 기사 학습 데이터 관리" 
       />
 
       <TabNavigation tabs={DATA_TABS} activeTab={activeTab} onChange={setActiveTab} />
 
-      {/* 원문 관리 탭 */}
+      {/* 문서 관리 탭 */}
       {activeTab === 'documents' && (
         <div className="space-y-6">
           <CompactUploader
@@ -153,7 +144,7 @@ export default function DataManagementPage() {
         </div>
       )}
 
-      {/* 뉴스 데이터 탭 (DATA-002) */}
+      {/* 언론 기사 관리 탭 */}
       {activeTab === 'news' && (
         <div className="space-y-6">
           {/* 업로드 방식 선택 */}
@@ -174,7 +165,7 @@ export default function DataManagementPage() {
             </div>
           </div>
 
-          {/* JSON 입력창 (DATA-002) */}
+          {/* JSON 입력창 */}
           {showJsonInput && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -233,57 +224,6 @@ export default function DataManagementPage() {
                     {news.status === 'completed' ? news.embeddings : '-'}
                   </div>
                   <div><StatusLabel status={news.status} /></div>
-                  <div>
-                    <button className="p-1 hover:bg-muted rounded transition-colors">
-                      <Trash2 className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 훈련 정보 탭 */}
-      {activeTab === 'training' && (
-        <div className="space-y-6">
-          <CompactUploader
-            label="훈련 계획 업로드"
-            hint="Excel 형식 (최대 10MB)"
-          />
-
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-medium text-foreground">업로드된 훈련 계획</h2>
-              <span className="text-xs text-muted-foreground">
-                총 {trainingData.length}개 파일 · {trainingData.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.records, 0)}개 레코드
-              </span>
-            </div>
-
-            {/* 테이블 헤더 */}
-            <div className="grid grid-cols-[1fr_160px_80px_120px_100px_60px_40px] gap-4 py-3 text-xs text-muted-foreground border-y border-border">
-              <div>부대</div>
-              <div>기간</div>
-              <div>유형</div>
-              <div>업로드 일자</div>
-              <div className="text-center">레코드 수</div>
-              <div>상태</div>
-              <div></div>
-            </div>
-
-            {/* 테이블 내용 */}
-            <div className="divide-y divide-border">
-              {trainingData.map((training) => (
-                <div key={training.id} className="grid grid-cols-[1fr_160px_80px_120px_100px_60px_40px] gap-4 py-3 items-center text-sm">
-                  <div className="font-medium truncate">{training.unit}</div>
-                  <div className="text-muted-foreground">{training.period}</div>
-                  <div className="text-muted-foreground">{training.type}</div>
-                  <div className="text-muted-foreground tabular-nums">{training.uploadedAt}</div>
-                  <div className="text-center text-muted-foreground">
-                    {training.status === 'completed' ? training.records : '-'}
-                  </div>
-                  <div><StatusLabel status={training.status} /></div>
                   <div>
                     <button className="p-1 hover:bg-muted rounded transition-colors">
                       <Trash2 className="w-4 h-4 text-muted-foreground" />

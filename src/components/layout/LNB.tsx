@@ -9,6 +9,7 @@ import {
   Users,
   Sun,
   Moon,
+  CalendarDays,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
@@ -30,6 +31,7 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
 
 const ADMIN_MENU_ITEMS: MenuItem[] = [
   { id: 'data', label: '데이터 관리', icon: Database, path: '/data' },
+  { id: 'schedule', label: '일정 관리', icon: CalendarDays, path: '/admin/schedule' },
   { id: 'users', label: '사용자 관리', icon: Users, path: '/admin/users' },
   { id: 'settings', label: '시스템 설정', icon: Settings, path: '/admin/settings' },
 ];

@@ -12,6 +12,7 @@ import ForecastPage from "./pages/ForecastPage";
 import ChatbotPage from "./pages/ChatbotPage";
 import ReportsPage from "./pages/ReportsPage";
 import DataManagementPage from "./pages/DataManagementPage";
+import ScheduleManagementPage from "./pages/ScheduleManagementPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import SystemSettingsPage from "./pages/SystemSettingsPage";
 import NotFound from "./pages/NotFound";
@@ -46,6 +47,7 @@ function AppRoutes() {
         <Route path="/chatbot" element={<ChatbotPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/data" element={<DataManagementPage />} />
+        <Route path="/admin/schedule" element={<ScheduleManagementPage />} />
         <Route path="/admin/users" element={<UserManagementPage />} />
         <Route path="/admin/settings" element={<SystemSettingsPage />} />
       </Route>
