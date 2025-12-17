@@ -4,11 +4,7 @@ import { ReportPreview } from '@/components/reports/ReportPreview';
 import { StatisticsReportList } from '@/components/reports/StatisticsReportList';
 import { AccidentReportList } from '@/components/reports/AccidentReportList';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  ReportFormSkeleton, 
-  ReportPreviewSkeleton, 
-  StatisticsReportListSkeleton 
-} from '@/components/skeletons';
+import { ReportsSkeleton } from '@/components/skeletons';
 import { PageHeader, TabNavigation } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
@@ -132,6 +128,10 @@ export default function ReportsPage() {
     setIsGenerating(false);
   };
 
+  if (isLoading) {
+    return <ReportsSkeleton />;
+  }
+
   return (
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
@@ -156,36 +156,27 @@ export default function ReportsPage() {
             ← 목록으로 돌아가기
           </button>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {isLoading ? (
-              <>
-                <ReportFormSkeleton />
-                <ReportPreviewSkeleton />
-              </>
-            ) : (
-              <>
-                <ReportGeneratorForm 
-                  onGenerate={handleGenerate}
-                  isGenerating={isGenerating}
-                />
-                <ReportPreview 
-                  content={generatedContent}
-                  onContentChange={setGeneratedContent}
-                  reporterInfo={reporterInfo}
-                />
-              </>
-            )}
+            <ReportGeneratorForm 
+              onGenerate={handleGenerate}
+              isGenerating={isGenerating}
+            />
+            <ReportPreview 
+              content={generatedContent}
+              onContentChange={setGeneratedContent}
+              reporterInfo={reporterInfo}
+            />
           </div>
         </div>
       )}
 
       {/* 사고 보고서 목록 탭 */}
       {!showGenerator && activeTab === 'accident' && (
-        isLoading ? <StatisticsReportListSkeleton /> : <AccidentReportList onCreateNew={() => setShowGenerator(true)} />
+        <AccidentReportList onCreateNew={() => setShowGenerator(true)} />
       )}
 
       {/* 통계 보고서 조회 탭 */}
       {!showGenerator && activeTab === 'statistics' && (
-        isLoading ? <StatisticsReportListSkeleton /> : <StatisticsReportList />
+        <StatisticsReportList />
       )}
     </div>
   );
