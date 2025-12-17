@@ -8,13 +8,14 @@ import armyLogo from '@/assets/army-logo.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
+  skipSplash?: boolean;
 }
 
-export function SplashScreen({ onComplete }: SplashScreenProps) {
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [loadingComplete, setLoadingComplete] = useState(false);
-  const [showLoginForm, setShowLoginForm] = useState(false);
-  const [showElements, setShowElements] = useState(false);
+export function SplashScreen({ onComplete, skipSplash = false }: SplashScreenProps) {
+  const [loadingProgress, setLoadingProgress] = useState(skipSplash ? 100 : 0);
+  const [loadingComplete, setLoadingComplete] = useState(skipSplash);
+  const [showLoginForm, setShowLoginForm] = useState(skipSplash);
+  const [showElements, setShowElements] = useState(skipSplash);
   const [pulseText, setPulseText] = useState(true);
   
   // Login form state
@@ -24,6 +25,9 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   const { login, isLoading } = useAuth();
 
   useEffect(() => {
+    // 스플래시 스킵 시 애니메이션 건너뛰기
+    if (skipSplash) return;
+    
     // Show elements with delay
     setTimeout(() => setShowElements(true), 300);
     
@@ -40,7 +44,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
     }, 50);
 
     return () => clearInterval(progressInterval);
-  }, []);
+  }, [skipSplash]);
 
   // Pulsing text animation
   useEffect(() => {

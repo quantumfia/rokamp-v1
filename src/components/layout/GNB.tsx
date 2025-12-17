@@ -77,7 +77,7 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/?logout=true');
   };
 
   const roleLabel = user?.role ? ROLE_LABELS[user.role] : 'Super Admin';
