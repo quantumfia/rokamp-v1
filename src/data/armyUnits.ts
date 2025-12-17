@@ -1,4 +1,37 @@
 // 대한민국 육군 부대 편제 데이터
+
+// 부대 유형 (공개 가능한 정보)
+export type UnitType = 
+  | 'HQ'          // 본부
+  | 'INFANTRY'    // 보병
+  | 'MECHANIZED'  // 기계화
+  | 'ARMOR'       // 기갑
+  | 'ARTILLERY'   // 포병
+  | 'SPECIAL'     // 특수전
+  | 'GOP'         // 일반전초 (최전방)
+  | 'TRAINING'    // 교육/훈련
+  | 'LOGISTICS'   // 군수
+  | 'AVIATION'    // 항공
+  | 'SIGNAL'      // 정보통신
+  | 'ENGINEERING' // 공병
+  | 'RESERVE';    // 동원/예비
+
+export const UNIT_TYPE_LABELS: Record<UnitType, string> = {
+  'HQ': '본부',
+  'INFANTRY': '보병',
+  'MECHANIZED': '기계화',
+  'ARMOR': '기갑',
+  'ARTILLERY': '포병',
+  'SPECIAL': '특수전',
+  'GOP': 'GOP (전방)',
+  'TRAINING': '교육훈련',
+  'LOGISTICS': '군수지원',
+  'AVIATION': '항공',
+  'SIGNAL': '정보통신',
+  'ENGINEERING': '공병',
+  'RESERVE': '동원예비',
+};
+
 export interface ArmyUnit {
   id: string;
   name: string;
@@ -8,83 +41,83 @@ export interface ArmyUnit {
   lat?: number;
   lng?: number;
   risk?: number;
-  commander?: string;
-  personnel?: number;
+  unitType?: UnitType; // 부대 유형 (공개 가능)
+  region?: string;     // 지역 (기상 연계용)
 }
 
-// 부대별 위치 및 위험도 데이터
-const UNIT_LOCATIONS: Record<string, { lat: number; lng: number; risk: number; commander?: string; personnel?: number }> = {
+// 부대별 위치 및 위험도 데이터 (민감 정보 제거: commander, personnel)
+const UNIT_LOCATIONS: Record<string, { lat: number; lng: number; risk: number; unitType?: UnitType; region?: string }> = {
   // 육군본부
-  'hq': { lat: 37.48, lng: 127.04, risk: 25, commander: '육군참모총장', personnel: 2500 },
+  'hq': { lat: 37.48, lng: 127.04, risk: 25, unitType: 'HQ', region: '경기 계룡' },
   
   // 직할부대
-  'sdc': { lat: 37.53, lng: 127.00, risk: 32, commander: '수도방위사령관', personnel: 28000 },
-  'sdc-div-52': { lat: 37.58, lng: 126.95, risk: 28, commander: '제52사단장', personnel: 8500 },
-  'sdc-div-56': { lat: 37.48, lng: 127.08, risk: 35, commander: '제56사단장', personnel: 8200 },
-  'swc': { lat: 37.45, lng: 127.12, risk: 45, commander: '특전사령관', personnel: 12000 },
-  'swc-bde-sf-1': { lat: 37.42, lng: 127.15, risk: 48, commander: '제1공수특전여단장', personnel: 1800 },
-  'swc-bde-sf-7': { lat: 37.47, lng: 127.10, risk: 52, commander: '제7공수특전여단장', personnel: 1800 },
-  'tradoc': { lat: 36.30, lng: 127.35, risk: 22, commander: '교육사령관', personnel: 45000 },
-  'tradoc-katc': { lat: 36.12, lng: 128.35, risk: 18, commander: '훈련소장', personnel: 25000 },
-  'amc': { lat: 36.95, lng: 127.15, risk: 15, commander: '군수사령관', personnel: 18000 },
-  'hrc': { lat: 37.50, lng: 127.02, risk: 12, commander: '인사사령관', personnel: 3500 },
-  'amsc': { lat: 36.85, lng: 127.25, risk: 38, commander: '미사일전략사령관', personnel: 5000 },
-  'aac': { lat: 37.15, lng: 127.08, risk: 42, commander: '항공사령관', personnel: 8000 },
-  'amfc': { lat: 36.65, lng: 127.45, risk: 20, commander: '동원전력사령관', personnel: 12000 },
-  'kma': { lat: 37.62, lng: 127.08, risk: 15, commander: '육군사관학교장', personnel: 4500 },
-  'kma3': { lat: 35.88, lng: 128.58, risk: 14, commander: '육군3사관학교장', personnel: 2200 },
+  'sdc': { lat: 37.53, lng: 127.00, risk: 32, unitType: 'INFANTRY', region: '서울' },
+  'sdc-div-52': { lat: 37.58, lng: 126.95, risk: 28, unitType: 'INFANTRY', region: '서울 서부' },
+  'sdc-div-56': { lat: 37.48, lng: 127.08, risk: 35, unitType: 'INFANTRY', region: '서울 동부' },
+  'swc': { lat: 37.45, lng: 127.12, risk: 45, unitType: 'SPECIAL', region: '경기 성남' },
+  'swc-bde-sf-1': { lat: 37.42, lng: 127.15, risk: 48, unitType: 'SPECIAL', region: '경기 성남' },
+  'swc-bde-sf-7': { lat: 37.47, lng: 127.10, risk: 52, unitType: 'SPECIAL', region: '경기 성남' },
+  'tradoc': { lat: 36.30, lng: 127.35, risk: 22, unitType: 'TRAINING', region: '충남 논산' },
+  'tradoc-katc': { lat: 36.12, lng: 128.35, risk: 18, unitType: 'TRAINING', region: '경북 영천' },
+  'amc': { lat: 36.95, lng: 127.15, risk: 15, unitType: 'LOGISTICS', region: '경기 평택' },
+  'hrc': { lat: 37.50, lng: 127.02, risk: 12, unitType: 'HQ', region: '서울' },
+  'amsc': { lat: 36.85, lng: 127.25, risk: 38, unitType: 'ARTILLERY', region: '충남' },
+  'aac': { lat: 37.15, lng: 127.08, risk: 42, unitType: 'AVIATION', region: '경기' },
+  'amfc': { lat: 36.65, lng: 127.45, risk: 20, unitType: 'RESERVE', region: '충남' },
+  'kma': { lat: 37.62, lng: 127.08, risk: 15, unitType: 'TRAINING', region: '서울 노원' },
+  'kma3': { lat: 35.88, lng: 128.58, risk: 14, unitType: 'TRAINING', region: '경북 영천' },
   
   // 지상작전사령부
-  'goc': { lat: 37.75, lng: 127.05, risk: 35, commander: '지상작전사령관', personnel: 350000 },
-  'goc-div-36': { lat: 37.65, lng: 126.92, risk: 38, commander: '제36사단장', personnel: 9500 },
-  'goc-div-55': { lat: 37.58, lng: 127.12, risk: 32, commander: '제55사단장', personnel: 9200 },
+  'goc': { lat: 37.75, lng: 127.05, risk: 35, unitType: 'HQ', region: '경기 용인' },
+  'goc-div-36': { lat: 37.65, lng: 126.92, risk: 38, unitType: 'INFANTRY', region: '경기 고양' },
+  'goc-div-55': { lat: 37.58, lng: 127.12, risk: 32, unitType: 'INFANTRY', region: '경기 남양주' },
   
   // 수도군단
-  'corps-cap': { lat: 37.68, lng: 126.88, risk: 42, commander: '수도군단장', personnel: 45000 },
-  'corps-cap-div-17': { lat: 37.72, lng: 126.85, risk: 45, commander: '제17사단장', personnel: 11000 },
-  'corps-cap-div-51': { lat: 37.65, lng: 126.90, risk: 38, commander: '제51사단장', personnel: 10500 },
+  'corps-cap': { lat: 37.68, lng: 126.88, risk: 42, unitType: 'INFANTRY', region: '경기 고양' },
+  'corps-cap-div-17': { lat: 37.72, lng: 126.85, risk: 45, unitType: 'INFANTRY', region: '경기 고양' },
+  'corps-cap-div-51': { lat: 37.65, lng: 126.90, risk: 38, unitType: 'INFANTRY', region: '경기 고양' },
   
-  // 제1군단
-  'corps-1': { lat: 37.95, lng: 127.05, risk: 55, commander: '제1군단장', personnel: 58000 },
-  'corps-1-div-1': { lat: 37.98, lng: 127.02, risk: 48, commander: '제1사단장', personnel: 12000 },
-  'corps-1-div-9': { lat: 37.92, lng: 127.08, risk: 58, commander: '제9사단장', personnel: 11500 },
-  'corps-1-div-25': { lat: 38.02, lng: 127.00, risk: 62, commander: '제25사단장', personnel: 11800 },
-  'corps-1-bde-armor-2': { lat: 37.88, lng: 127.10, risk: 52, commander: '제2기갑여단장', personnel: 3500 },
-  'corps-1-bde-armor-30': { lat: 37.95, lng: 127.15, risk: 48, commander: '제30기갑여단장', personnel: 3200 },
+  // 제1군단 (GOP 전방부대)
+  'corps-1': { lat: 37.95, lng: 127.05, risk: 55, unitType: 'GOP', region: '경기 연천' },
+  'corps-1-div-1': { lat: 37.98, lng: 127.02, risk: 48, unitType: 'GOP', region: '경기 파주' },
+  'corps-1-div-9': { lat: 37.92, lng: 127.08, risk: 58, unitType: 'GOP', region: '경기 연천' },
+  'corps-1-div-25': { lat: 38.02, lng: 127.00, risk: 62, unitType: 'GOP', region: '경기 파주' },
+  'corps-1-bde-armor-2': { lat: 37.88, lng: 127.10, risk: 52, unitType: 'ARMOR', region: '경기 포천' },
+  'corps-1-bde-armor-30': { lat: 37.95, lng: 127.15, risk: 48, unitType: 'ARMOR', region: '경기 포천' },
   
-  // 제2군단
-  'corps-2': { lat: 38.05, lng: 127.45, risk: 68, commander: '제2군단장', personnel: 42000 },
-  'corps-2-div-7': { lat: 38.10, lng: 127.48, risk: 72, commander: '제7사단장', personnel: 11200 },
-  'corps-2-div-15': { lat: 38.00, lng: 127.42, risk: 65, commander: '제15사단장', personnel: 10800 },
+  // 제2군단 (GOP 전방부대)
+  'corps-2': { lat: 38.05, lng: 127.45, risk: 68, unitType: 'GOP', region: '강원 철원' },
+  'corps-2-div-7': { lat: 38.10, lng: 127.48, risk: 72, unitType: 'GOP', region: '강원 철원' },
+  'corps-2-div-15': { lat: 38.00, lng: 127.42, risk: 65, unitType: 'GOP', region: '강원 화천' },
   
-  // 제3군단
-  'corps-3': { lat: 37.75, lng: 128.90, risk: 58, commander: '제3군단장', personnel: 55000 },
-  'corps-3-div-12': { lat: 37.80, lng: 128.85, risk: 55, commander: '제12사단장', personnel: 11500 },
-  'corps-3-div-21': { lat: 37.70, lng: 128.95, risk: 62, commander: '제21사단장', personnel: 11000 },
-  'corps-3-div-22': { lat: 37.78, lng: 129.00, risk: 58, commander: '제22사단장', personnel: 10800 },
+  // 제3군단 (동해안)
+  'corps-3': { lat: 37.75, lng: 128.90, risk: 58, unitType: 'GOP', region: '강원 고성' },
+  'corps-3-div-12': { lat: 37.80, lng: 128.85, risk: 55, unitType: 'GOP', region: '강원 고성' },
+  'corps-3-div-21': { lat: 37.70, lng: 128.95, risk: 62, unitType: 'GOP', region: '강원 양양' },
+  'corps-3-div-22': { lat: 37.78, lng: 129.00, risk: 58, unitType: 'INFANTRY', region: '강원 강릉' },
   
-  // 제5군단
-  'corps-5': { lat: 37.88, lng: 126.82, risk: 72, commander: '제5군단장', personnel: 52000 },
-  'corps-5-div-3': { lat: 37.92, lng: 126.78, risk: 75, commander: '제3사단장', personnel: 11500 },
-  'corps-5-div-5': { lat: 37.85, lng: 126.85, risk: 68, commander: '제5사단장', personnel: 11200 },
-  'corps-5-div-6': { lat: 37.90, lng: 126.88, risk: 70, commander: '제6사단장', personnel: 11000 },
+  // 제5군단 (서부전선 GOP)
+  'corps-5': { lat: 37.88, lng: 126.82, risk: 72, unitType: 'GOP', region: '경기 김포' },
+  'corps-5-div-3': { lat: 37.92, lng: 126.78, risk: 75, unitType: 'GOP', region: '인천 강화' },
+  'corps-5-div-5': { lat: 37.85, lng: 126.85, risk: 68, unitType: 'GOP', region: '경기 김포' },
+  'corps-5-div-6': { lat: 37.90, lng: 126.88, risk: 70, unitType: 'GOP', region: '경기 파주' },
   
-  // 제7군단
-  'corps-7': { lat: 36.35, lng: 127.38, risk: 35, commander: '제7군단장', personnel: 48000 },
-  'corps-7-div-mech-cap': { lat: 36.38, lng: 127.35, risk: 38, commander: '수도기계화사단장', personnel: 12500 },
-  'corps-7-div-rrd-2': { lat: 36.32, lng: 127.42, risk: 42, commander: '제2신속대응사단장', personnel: 11000 },
-  'corps-7-div-8': { lat: 36.40, lng: 127.45, risk: 32, commander: '제8기동사단장', personnel: 10500 },
-  'corps-7-div-11': { lat: 36.28, lng: 127.35, risk: 35, commander: '제11기동사단장', personnel: 10200 },
+  // 제7군단 (기계화)
+  'corps-7': { lat: 36.35, lng: 127.38, risk: 35, unitType: 'MECHANIZED', region: '충남 계룡' },
+  'corps-7-div-mech-cap': { lat: 36.38, lng: 127.35, risk: 38, unitType: 'MECHANIZED', region: '충남 계룡' },
+  'corps-7-div-rrd-2': { lat: 36.32, lng: 127.42, risk: 42, unitType: 'MECHANIZED', region: '충남 계룡' },
+  'corps-7-div-8': { lat: 36.40, lng: 127.45, risk: 32, unitType: 'MECHANIZED', region: '충남' },
+  'corps-7-div-11': { lat: 36.28, lng: 127.35, risk: 35, unitType: 'MECHANIZED', region: '충남' },
   
-  // 제2작전사령부
-  'soc-2': { lat: 35.85, lng: 128.55, risk: 28, commander: '제2작전사령관', personnel: 85000 },
-  'soc-2-div-31': { lat: 36.80, lng: 127.15, risk: 25, commander: '제31사단장', personnel: 9800 },
-  'soc-2-div-32': { lat: 36.15, lng: 127.45, risk: 28, commander: '제32사단장', personnel: 9500 },
-  'soc-2-div-35': { lat: 36.35, lng: 127.95, risk: 32, commander: '제35사단장', personnel: 9200 },
-  'soc-2-div-37': { lat: 35.15, lng: 128.95, risk: 22, commander: '제37사단장', personnel: 9000 },
-  'soc-2-div-39': { lat: 35.90, lng: 127.75, risk: 26, commander: '제39사단장', personnel: 9200 },
-  'soc-2-div-50': { lat: 35.55, lng: 129.35, risk: 24, commander: '제50사단장', personnel: 8800 },
-  'soc-2-div-53': { lat: 35.25, lng: 128.60, risk: 20, commander: '제53사단장', personnel: 8500 },
+  // 제2작전사령부 (후방)
+  'soc-2': { lat: 35.85, lng: 128.55, risk: 28, unitType: 'INFANTRY', region: '대구' },
+  'soc-2-div-31': { lat: 36.80, lng: 127.15, risk: 25, unitType: 'INFANTRY', region: '충남 천안' },
+  'soc-2-div-32': { lat: 36.15, lng: 127.45, risk: 28, unitType: 'INFANTRY', region: '충남 논산' },
+  'soc-2-div-35': { lat: 36.35, lng: 127.95, risk: 32, unitType: 'INFANTRY', region: '충북 청주' },
+  'soc-2-div-37': { lat: 35.15, lng: 128.95, risk: 22, unitType: 'INFANTRY', region: '경남 창원' },
+  'soc-2-div-39': { lat: 35.90, lng: 127.75, risk: 26, unitType: 'INFANTRY', region: '전북 전주' },
+  'soc-2-div-50': { lat: 35.55, lng: 129.35, risk: 24, unitType: 'INFANTRY', region: '경북 포항' },
+  'soc-2-div-53': { lat: 35.25, lng: 128.60, risk: 20, unitType: 'INFANTRY', region: '경남 창원' },
 };
 
 export const ARMY_UNITS: ArmyUnit[] = [
