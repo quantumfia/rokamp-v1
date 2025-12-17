@@ -21,6 +21,7 @@ export function MainLayout() {
   const [showNotice, setShowNotice] = useState(false);
   const [showNotificationPanel, setShowNotificationPanel] = useState(false);
   const [selectedUnitFromSearch, setSelectedUnitFromSearch] = useState<string | null>(null);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === '/dashboard';
@@ -31,7 +32,6 @@ export function MainLayout() {
     const hasShownThisSession = sessionStorage.getItem('noticeShown');
 
     if (!hasShownThisSession) {
-      // 오늘 하루 보지 않기 체크 확인
       if (hideUntil) {
         const expiry = new Date(hideUntil);
         if (new Date() < expiry) {
@@ -39,17 +39,14 @@ export function MainLayout() {
           return;
         }
       }
-      // 팝업 공지가 있으면 표시
       setShowNotice(true);
       sessionStorage.setItem('noticeShown', 'true');
     }
   }, []);
 
   const handleSearchSelect = (unitId: string) => {
-    // 대시보드로 이동하고 해당 부대 선택
     if (location.pathname !== '/dashboard') {
       navigate('/dashboard');
-      // 페이지 이동 후 충분한 시간 대기
       setTimeout(() => setSelectedUnitFromSearch(unitId), 500);
     } else {
       setSelectedUnitFromSearch(unitId);
@@ -65,26 +62,34 @@ export function MainLayout() {
     setShowNotice(true);
   };
 
+  const handleSidebarToggle = () => {
+    setIsSidebarExpanded((prev) => !prev);
+  };
+
   return (
     <SearchContext.Provider value={{ selectedUnitFromSearch, setSelectedUnitFromSearch }}>
       <div className="min-h-screen bg-background">
-        <GNB onNotificationClick={handleNotificationClick} onSearchSelect={handleSearchSelect} />
+        <GNB
+          onNotificationClick={handleNotificationClick}
+          onSidebarToggle={handleSidebarToggle}
+          isSidebarExpanded={isSidebarExpanded}
+        />
 
         <div className={isDashboard ? 'flex h-[calc(100vh-3rem)] min-h-0' : 'flex'}>
-          <LNB />
+          <LNB isExpanded={isSidebarExpanded} />
 
           <main
             className={
               isDashboard
                 ? 'flex-1 min-w-0 min-h-0 overflow-hidden bg-background'
-                : 'flex-1 min-w-0 min-h-[calc(100vh-3rem)] overflow-x-hidden overflow-y-auto bg-background animate-page-enter'
+                : 'flex-1 min-w-0 min-h-[calc(100vh-3rem)] overflow-x-hidden overflow-y-auto bg-background'
             }
           >
             <Outlet />
           </main>
         </div>
 
-        {/* 알림 패널 (COM-GNB 알림 이력) */}
+        {/* 알림 패널 */}
         {showNotificationPanel && (
           <NotificationPanel
             onClose={() => setShowNotificationPanel(false)}
@@ -92,7 +97,7 @@ export function MainLayout() {
           />
         )}
 
-        {/* 필수 공지사항 모달 (COM-002) */}
+        {/* 필수 공지사항 모달 */}
         {showNotice && <NoticeModal onClose={() => setShowNotice(false)} />}
       </div>
     </SearchContext.Provider>
