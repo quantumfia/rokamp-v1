@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { SystemSettingsSkeleton } from '@/components/skeletons';
-import { PageHeader, TabNavigation } from '@/components/common';
+import { PageHeader, TabNavigation, PageContainer } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
 // 감사 로그 Mock 데이터
@@ -115,7 +115,7 @@ export default function SystemSettingsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 animate-page-enter">
+    <PageContainer>
       <PageHeader 
         title="시스템 설정" 
         description="예보 모델, 공지사항, 보안 설정 관리"
@@ -618,6 +618,6 @@ export default function SystemSettingsPage() {
           </section>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

@@ -5,7 +5,7 @@ import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnit
 import { ROLE_LABELS, UserRole } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
 import { UserManagementSkeleton } from '@/components/skeletons';
-import { PageHeader } from '@/components/common';
+import { PageHeader, PageContainer } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface User {
@@ -90,7 +90,7 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 animate-page-enter">
+    <PageContainer>
       <PageHeader 
         title="사용자 관리" 
         description="시스템 사용자 계정 및 권한 관리"
@@ -270,6 +270,6 @@ export default function UserManagementPage() {
           </div>
         </>
       )}
-    </div>
+    </PageContainer>
   );
 }

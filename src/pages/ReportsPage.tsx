@@ -9,7 +9,7 @@ import {
   ReportPreviewSkeleton, 
   StatisticsReportListSkeleton 
 } from '@/components/skeletons';
-import { PageHeader, TabNavigation } from '@/components/common';
+import { PageHeader, TabNavigation, PageContainer } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
 // 사고 분류 라벨
@@ -133,7 +133,7 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 animate-page-enter">
+    <PageContainer>
       <PageHeader 
         title="보고서" 
         description="사고 보고서 및 통계 보고서 조회·작성" 
@@ -187,6 +187,6 @@ export default function ReportsPage() {
       {!showGenerator && activeTab === 'statistics' && (
         isLoading ? <StatisticsReportListSkeleton /> : <StatisticsReportList />
       )}
-    </div>
+    </PageContainer>
   );
 }

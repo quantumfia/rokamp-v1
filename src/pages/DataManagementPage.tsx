@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Upload, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DataManagementSkeleton } from '@/components/skeletons';
-import { PageHeader, TabNavigation } from '@/components/common';
+import { PageHeader, TabNavigation, PageContainer } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
 // 상태 라벨
@@ -94,7 +94,7 @@ export default function DataManagementPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 animate-page-enter">
+    <PageContainer>
       <PageHeader 
         title="데이터 관리" 
         description="학습 데이터 및 훈련 정보 관리" 
@@ -295,6 +295,6 @@ export default function DataManagementPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

@@ -9,7 +9,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PageHeader, TabNavigation } from '@/components/common';
+import { PageHeader, TabNavigation, PageContainer } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 // 월별 사고 추세 데이터
 const TREND_DATA = [
@@ -268,7 +268,7 @@ export default function ForecastPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 animate-page-enter">
+    <PageContainer>
       <PageHeader 
         title="예보 분석" 
         description="부대별 위험도 예보 및 사고 경향 분석" 
@@ -1133,6 +1133,6 @@ export default function ForecastPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }
