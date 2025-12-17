@@ -1,6 +1,6 @@
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
-// 최근 7일 위험도 추이 데이터
+// 최근 7일 예측 위험도 추이 데이터
 const riskTrendData = [
   { date: '12/08', risk: 42 },
   { date: '12/09', risk: 45 },
@@ -11,7 +11,7 @@ const riskTrendData = [
   { date: '12/14', risk: 51 },
 ];
 
-// 시간대별 위험도 데이터
+// 시간대별 예측 위험도 데이터
 const hourlyRiskData = [
   { hour: '00', risk: 15 },
   { hour: '04', risk: 12 },
@@ -25,7 +25,7 @@ const hourlyRiskData = [
   { hour: '22', risk: 18 },
 ];
 
-// 요일별 위험도 패턴
+// 요일별 예측 위험 패턴
 const weeklyPatternData = [
   { day: '월', risk: 52 },
   { day: '화', risk: 68 },
@@ -36,20 +36,12 @@ const weeklyPatternData = [
   { day: '일', risk: 18 },
 ];
 
-// 훈련 유형별 위험도
-const trainingTypeData = [
-  { type: '사격', risk: 78 },
-  { type: '행군', risk: 65 },
-  { type: '전술', risk: 58 },
-  { type: '체력', risk: 32 },
-];
-
-// 사고 유형별 분포 데이터
-const accidentTypeData = [
-  { name: '훈련', value: 35, color: 'hsl(0, 72%, 51%)' },
-  { name: '안전', value: 28, color: 'hsl(38, 92%, 50%)' },
-  { name: '장비', value: 20, color: 'hsl(210, 75%, 55%)' },
-  { name: '기타', value: 17, color: 'hsl(220, 10%, 50%)' },
+// 예측 위험 요인 분포 데이터
+const riskFactorData = [
+  { name: '훈련 관련', value: 35, color: 'hsl(0, 72%, 51%)' },
+  { name: '안전 수칙', value: 28, color: 'hsl(38, 92%, 50%)' },
+  { name: '장비/시설', value: 20, color: 'hsl(210, 75%, 55%)' },
+  { name: '환경/기상', value: 17, color: 'hsl(220, 10%, 50%)' },
 ];
 
 const chartTooltipStyle = {
@@ -63,9 +55,9 @@ const chartTooltipStyle = {
 export function TrendCharts() {
   return (
     <div className="p-3 grid grid-cols-2 lg:grid-cols-4 gap-3">
-      {/* 위험도 추이 그래프 */}
+      {/* 예측 위험도 추이 그래프 */}
       <div className="bg-card rounded border border-border p-3">
-        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">위험도 추이 (7일)</h4>
+        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">예측 위험도 추이 (7일)</h4>
         <div className="h-24">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={riskTrendData}>
@@ -90,7 +82,7 @@ export function TrendCharts() {
               />
               <Tooltip 
                 contentStyle={chartTooltipStyle}
-                formatter={(value: number) => [`${value}%`, '위험도']}
+                formatter={(value: number) => [`${value}%`, '예측 위험도']}
               />
               <Area 
                 type="monotone" 
@@ -104,9 +96,9 @@ export function TrendCharts() {
         </div>
       </div>
 
-      {/* 시간대별 위험도 */}
+      {/* 시간대별 예측 위험도 */}
       <div className="bg-card rounded border border-border p-3">
-        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">시간대별 위험도</h4>
+        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">시간대별 예측 위험도</h4>
         <div className="h-24">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={hourlyRiskData}>
@@ -125,7 +117,7 @@ export function TrendCharts() {
               />
               <Tooltip 
                 contentStyle={chartTooltipStyle}
-                formatter={(value: number) => [`${value}%`, '위험도']}
+                formatter={(value: number) => [`${value}%`, '예측 위험도']}
                 labelFormatter={(label) => `${label}시`}
               />
               <Line 
@@ -140,9 +132,9 @@ export function TrendCharts() {
         </div>
       </div>
 
-      {/* 요일별 패턴 */}
+      {/* 요일별 예측 패턴 */}
       <div className="bg-card rounded border border-border p-3">
-        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">요일별 패턴</h4>
+        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">요일별 예측 위험도</h4>
         <div className="h-24">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weeklyPatternData}>
@@ -161,7 +153,7 @@ export function TrendCharts() {
               />
               <Tooltip 
                 contentStyle={chartTooltipStyle}
-                formatter={(value: number) => [`${value}%`, '위험도']}
+                formatter={(value: number) => [`${value}%`, '예측 위험도']}
               />
               <Bar 
                 dataKey="risk" 
@@ -173,15 +165,15 @@ export function TrendCharts() {
         </div>
       </div>
 
-      {/* 사고 유형별 분포 */}
+      {/* 예측 위험 요인 분포 */}
       <div className="bg-card rounded border border-border p-3">
-        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">사고 유형 분포</h4>
+        <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">예측 위험 요인 분포</h4>
         <div className="h-24 flex items-center">
           <div className="w-1/2 h-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={accidentTypeData}
+                  data={riskFactorData}
                   cx="50%"
                   cy="50%"
                   innerRadius={18}
@@ -189,7 +181,7 @@ export function TrendCharts() {
                   paddingAngle={2}
                   dataKey="value"
                 >
-                  {accidentTypeData.map((entry, index) => (
+                  {riskFactorData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -201,7 +193,7 @@ export function TrendCharts() {
             </ResponsiveContainer>
           </div>
           <div className="w-1/2 space-y-1">
-            {accidentTypeData.map((item, index) => (
+            {riskFactorData.map((item, index) => (
               <div key={index} className="flex items-center justify-between text-[10px]">
                 <div className="flex items-center gap-1.5">
                   <div 
