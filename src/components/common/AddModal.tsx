@@ -39,13 +39,13 @@ export function AddModal({
     <>
       {/* Backdrop - 통일된 배경 처리 */}
       <div 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50" 
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200]" 
         onClick={onClose} 
       />
       
       {/* Modal */}
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg">
-        <div className="bg-card border border-border rounded-lg shadow-2xl overflow-hidden">
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[201] w-full max-w-lg max-h-[calc(100vh-4rem)]">
+        <div className="bg-card border border-border rounded-lg shadow-2xl overflow-hidden flex flex-col h-[520px] max-h-[calc(100vh-4rem)]">
           {/* Header */}
           <div className="flex items-start justify-between p-5 border-b border-border">
             <div>
@@ -106,7 +106,7 @@ export function AddModal({
           )}
 
           {/* Content - Fixed Height */}
-          <div className="p-5 min-h-[280px]">
+          <div className="p-5 flex-1 min-h-0 overflow-y-auto">
             {currentContent}
           </div>
 
