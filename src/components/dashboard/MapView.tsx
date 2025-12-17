@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { ARMY_UNITS } from '@/data/armyUnits';
+import { Home } from 'lucide-react';
 
 interface MapViewProps {
   className?: string;
@@ -72,6 +73,11 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<Map<string, L.Marker>>(new Map());
   const { user } = useAuth();
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  // 기본 뷰 설정
+  const DEFAULT_CENTER: [number, number] = [37.5, 127.0];
+  const DEFAULT_ZOOM = 8;
 
   // 선택된 부대로 맵 이동 + 팝업 표시
   useEffect(() => {
@@ -97,17 +103,14 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
     }
   }, [selectedUnitId]);
 
-  // 항상 전군 보기 (HQ 뷰)
-  const getViewConfig = () => {
-    return { 
-      units: ALL_UNITS, 
-      center: [37.5, 127.0] as [number, number], 
-      zoom: 8,
-      title: '대한민국 전도' 
-    };
+  // 기본 뷰로 리셋
+  const resetToDefaultView = () => {
+    if (mapRef.current) {
+      mapRef.current.flyTo(DEFAULT_CENTER, DEFAULT_ZOOM, {
+        duration: 0.5,
+      });
+    }
   };
-
-  const viewConfig = getViewConfig();
 
   const getRiskColor = (risk: number) => {
     if (risk < 25) return '#22c55e';
@@ -122,8 +125,8 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
 
     // Create map instance
     mapRef.current = L.map(mapContainerRef.current, {
-      center: viewConfig.center,
-      zoom: viewConfig.zoom,
+      center: DEFAULT_CENTER,
+      zoom: DEFAULT_ZOOM,
       zoomControl: true,
       attributionControl: false,
     });
@@ -133,22 +136,29 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
       maxZoom: 19,
     }).addTo(mapRef.current);
 
+    // 줌 변경 감지
+    mapRef.current.on('zoomend', () => {
+      const currentZoom = mapRef.current?.getZoom() || DEFAULT_ZOOM;
+      setIsZoomed(currentZoom !== DEFAULT_ZOOM);
+    });
+
+    mapRef.current.on('moveend', () => {
+      const currentZoom = mapRef.current?.getZoom() || DEFAULT_ZOOM;
+      const currentCenter = mapRef.current?.getCenter();
+      const isDefaultPosition = 
+        currentZoom === DEFAULT_ZOOM && 
+        currentCenter && 
+        Math.abs(currentCenter.lat - DEFAULT_CENTER[0]) < 0.1 && 
+        Math.abs(currentCenter.lng - DEFAULT_CENTER[1]) < 0.1;
+      setIsZoomed(!isDefaultPosition);
+    });
+
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, []);
-
-
-  // Update view - 역할 변경 시 뷰 업데이트 제거 (항상 전군 보기)
-  useEffect(() => {
-    if (mapRef.current) {
-      mapRef.current.flyTo(viewConfig.center, viewConfig.zoom, {
-        duration: 1.5,
-      });
-    }
   }, []);
 
   // Add/update markers - 전체 부대 마커 표시
@@ -250,6 +260,17 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
     <div className={cn('relative overflow-hidden', className)}>
       <div ref={mapContainerRef} className="w-full h-full" style={{ background: 'hsl(220, 13%, 8%)' }} />
       
+      {/* Reset View Button */}
+      {isZoomed && (
+        <button
+          onClick={resetToDefaultView}
+          className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 px-2.5 py-1.5 bg-panel-dark/90 backdrop-blur-sm border border-sidebar-border rounded text-xs text-white hover:bg-panel-dark transition-colors"
+        >
+          <Home className="w-3.5 h-3.5" />
+          전체 보기
+        </button>
+      )}
+
       {/* Map Legend */}
       <div className="absolute bottom-3 left-3 floating-panel p-2.5 z-[1000]">
         <p className="text-[10px] font-medium text-panel-dark-foreground mb-1.5 uppercase tracking-wider">위험도</p>
@@ -268,8 +289,6 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
           </div>
         </div>
       </div>
-
-
       <style>{`
         .leaflet-container {
           background: hsl(220, 13%, 8%) !important;
