@@ -2,41 +2,60 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function ChatbotSkeleton() {
   return (
-    <div className="h-full flex flex-col">
-      {/* Header Skeleton */}
-      <div className="shrink-0 p-6 pb-4 border-b border-border">
-        <Skeleton className="h-6 w-32 mb-2" />
-        <Skeleton className="h-4 w-64" />
+    <div className="h-full flex flex-col bg-background relative overflow-hidden">
+      {/* Background effect placeholder */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div 
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-[0.03]"
+          style={{
+            background: 'radial-gradient(ellipse at center, hsl(var(--primary)) 0%, transparent 70%)',
+          }}
+        />
       </div>
 
-      {/* Messages Skeleton */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* AI Initial Message */}
-        <div className="flex gap-3">
-          <Skeleton className="w-6 h-6 rounded-sm flex-shrink-0" />
-          <div className="max-w-[70%] space-y-2">
-            <Skeleton className="h-4 w-80" />
+      {/* Welcome Screen Skeleton */}
+      <div className="relative flex-1 flex flex-col items-center justify-center px-4">
+        {/* Logo & Title */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative mb-4">
+            <Skeleton className="w-16 h-16 rounded-full" />
+          </div>
+          <Skeleton className="h-7 w-48 mb-2" />
+          <div className="flex flex-col items-center gap-1">
             <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-4 w-56" />
           </div>
         </div>
-      </div>
 
-      {/* Suggested Questions Skeleton */}
-      <div className="px-4 pb-3">
-        <Skeleton className="h-3 w-16 mb-2" />
-        <div className="flex flex-wrap gap-2">
-          <Skeleton className="h-8 w-40 rounded" />
-          <Skeleton className="h-8 w-44 rounded" />
-          <Skeleton className="h-8 w-36 rounded" />
-          <Skeleton className="h-8 w-48 rounded" />
+        {/* Suggested Questions Grid */}
+        <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="flex items-start gap-3 p-4 border border-border rounded-lg"
+            >
+              <Skeleton className="w-5 h-5 mt-0.5 rounded" />
+              <Skeleton className="h-4 flex-1" />
+            </div>
+          ))}
         </div>
-      </div>
 
-      {/* Input Skeleton */}
-      <div className="p-4 border-t border-border">
-        <div className="flex gap-2">
-          <Skeleton className="flex-1 h-10 rounded" />
-          <Skeleton className="w-10 h-10 rounded" />
+        {/* Search Scope & Input */}
+        <div className="w-full max-w-2xl space-y-3">
+          {/* Search scope button */}
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-8 w-36 rounded-md" />
+          </div>
+
+          {/* Input field */}
+          <div className="relative">
+            <Skeleton className="w-full h-12 rounded-xl" />
+          </div>
+
+          {/* Disclaimer text */}
+          <div className="flex justify-center">
+            <Skeleton className="h-3 w-72" />
+          </div>
         </div>
       </div>
     </div>
