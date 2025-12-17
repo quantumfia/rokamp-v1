@@ -143,42 +143,27 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="gap-2 h-auto py-1.5 px-2 text-sidebar-foreground hover:bg-sidebar-accent"
+                className="gap-1.5 h-auto py-1.5 px-2.5 text-sidebar-foreground hover:bg-sidebar-accent"
               >
-                <div className="w-7 h-7 rounded-full bg-sidebar-accent flex items-center justify-center border border-sidebar-border">
-                  <span className="text-xs font-medium text-sidebar-primary">
-                    {userName.charAt(0)}
-                  </span>
-                </div>
-                <div className="hidden md:flex flex-col items-start">
-                  <span className="text-xs font-medium text-sidebar-foreground leading-tight">
-                    {userRank} {userName}
-                  </span>
-                  <span className="text-[10px] text-sidebar-muted leading-tight">
-                    {userUnit}
-                  </span>
-                </div>
+                <User className="w-4 h-4 text-sidebar-muted" />
+                <span className="hidden md:inline text-xs font-medium text-sidebar-foreground">
+                  {userRank} {userName}
+                </span>
                 <ChevronDown className="w-3 h-3 text-sidebar-muted" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52 bg-sidebar border-sidebar-border">
+            <DropdownMenuContent align="end" className="w-56 bg-sidebar border-sidebar-border">
               {/* User Info Header */}
-              <div className="px-3 py-2.5 border-b border-sidebar-border">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-full bg-sidebar-accent flex items-center justify-center border border-sidebar-border">
-                    <span className="text-sm font-medium text-sidebar-primary">
-                      {userName.charAt(0)}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-sidebar-foreground truncate">
-                      {userRank} {userName}
-                    </p>
-                    <p className="text-[11px] text-sidebar-muted truncate">
-                      {userUnit} · {roleLabel}
-                    </p>
-                  </div>
-                </div>
+              <div className="px-3 py-3 border-b border-sidebar-border">
+                <p className="text-sm font-medium text-sidebar-foreground">
+                  {userRank} {userName}
+                </p>
+                <p className="text-xs text-sidebar-muted mt-0.5">
+                  {userUnit}
+                </p>
+                <p className="text-[11px] text-sidebar-primary mt-1">
+                  {roleLabel}
+                </p>
               </div>
               
               {/* Menu Items */}
