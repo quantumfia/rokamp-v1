@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUnitById, getUnitFullName, LEVEL_LABELS, getChildUnits, UNIT_TYPE_LABELS } from '@/data/armyUnits';
 
@@ -16,6 +16,7 @@ interface RiskFactor {
 interface UnitDetailPanelProps {
   unitId: string;
   onClose: () => void;
+  showBackButton?: boolean;
 }
 
 const MOCK_TRAININGS: Training[] = [
@@ -30,7 +31,7 @@ const MOCK_RISK_FACTORS: RiskFactor[] = [
   { id: '3', description: '사격장 결빙으로 인한 미끄러짐 주의' },
 ];
 
-export function UnitDetailPanel({ unitId, onClose }: UnitDetailPanelProps) {
+export function UnitDetailPanel({ unitId, onClose, showBackButton = false }: UnitDetailPanelProps) {
   const unit = getUnitById(unitId);
   const unitName = unit?.name || '알 수 없는 부대';
   const riskValue = unit?.risk || 0;
@@ -51,13 +52,22 @@ export function UnitDetailPanel({ unitId, onClose }: UnitDetailPanelProps) {
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">{unitName}</h3>
-          <p className="text-[10px] text-muted-foreground">{levelLabel}</p>
+        <div className="flex items-center gap-2">
+          {showBackButton && (
+            <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          )}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">{unitName}</h3>
+            <p className="text-[10px] text-muted-foreground">{levelLabel}</p>
+          </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
-          <X className="w-4 h-4" />
-        </Button>
+        {!showBackButton && (
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7">
+            <X className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto">
