@@ -90,8 +90,8 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/80" onClick={handleClose} />
       
-      {/* Modal */}
-      <div className="relative w-full max-w-3xl bg-[#0a0a0a] border border-[#1a1a1a] shadow-2xl overflow-hidden">
+      {/* Modal - Fixed size */}
+      <div className="relative w-full max-w-3xl h-[520px] bg-[#0a0a0a] border border-[#1a1a1a] shadow-2xl overflow-hidden flex flex-col">
         {/* Header Bar */}
         <div className="flex items-center justify-between h-10 px-4 bg-[#111] border-b border-[#1a1a1a]">
           <div className="flex items-center gap-2">
@@ -107,13 +107,13 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
           </button>
         </div>
 
-        <div className="flex">
+        <div className="flex flex-1 min-h-0">
           {/* Left: Notice List */}
-          <div className="w-48 border-r border-[#3a3a3a] bg-[#2a2a2a]">
-            <div className="px-3 py-2 border-b border-[#3a3a3a]">
+          <div className="w-48 border-r border-[#3a3a3a] bg-[#2a2a2a] flex flex-col">
+            <div className="px-3 py-2 border-b border-[#3a3a3a] shrink-0">
               <span className="text-[10px] text-gray-300 uppercase tracking-wider">목록</span>
             </div>
-            <div className="max-h-[400px] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               {MOCK_NOTICES.map((notice) => (
                 <button
                   key={notice.id}
@@ -132,7 +132,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
           </div>
 
           {/* Right: Notice Detail */}
-          <div className="flex-1 flex flex-col bg-white max-h-[450px]">
+          <div className="flex-1 flex flex-col bg-white min-h-0">
             {/* Detail Header */}
             <div className="px-5 py-3 border-b border-gray-200 shrink-0">
               <div className="flex items-center gap-3 mb-1">
