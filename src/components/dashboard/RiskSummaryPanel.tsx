@@ -94,13 +94,13 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
       </div>
 
       {/* Units List */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-4 py-2 bg-muted/30 border-b border-border sticky top-0">
+      <div className="flex-1 min-h-0">
+        <div className="px-4 py-2 bg-muted/30 border-b border-border">
           <p className="text-[10px] text-muted-foreground">
             전체 부대 ({filteredUnits.length})
           </p>
         </div>
-        <div className="divide-y divide-border/50">
+        <div className="h-[320px] overflow-y-auto divide-y divide-border/50">
           {filteredUnits.map((unit) => (
             <button
               key={unit.id}
