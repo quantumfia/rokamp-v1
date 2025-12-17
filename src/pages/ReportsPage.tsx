@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ReportGeneratorForm, ReportFormData } from '@/components/reports/ReportGeneratorForm';
 import { ReportPreview } from '@/components/reports/ReportPreview';
 import { StatisticsReportList } from '@/components/reports/StatisticsReportList';
@@ -9,7 +9,8 @@ import {
   ReportPreviewSkeleton, 
   StatisticsReportListSkeleton 
 } from '@/components/skeletons';
-
+import { PageHeader, TabNavigation } from '@/components/common';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 // 사고 분류 라벨
 const CATEGORY_LABELS: Record<string, string> = {
@@ -97,20 +98,19 @@ ${data.actionsTaken || '  (조치 사항 기록 필요)'}
 `;
 };
 
+const TABS = [
+  { id: 'accident', label: '사고 보고서' },
+  { id: 'statistics', label: '통계 보고서' },
+];
+
 export default function ReportsPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('accident');
   const [showGenerator, setShowGenerator] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = usePageLoading(1000);
   const [reporterInfo, setReporterInfo] = useState<{ name: string; rank: string } | undefined>();
-
-  // 초기 로딩 시뮬레이션
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Super Admin 권한: 모든 기능 표시
   const isHQ = true;
@@ -132,36 +132,15 @@ export default function ReportsPage() {
     setIsGenerating(false);
   };
 
-  const tabs = [
-    { id: 'accident', label: '사고 보고서' },
-    { id: 'statistics', label: '통계 보고서' },
-  ];
-
   return (
     <div className="p-6 space-y-6 animate-page-enter">
-      {/* 헤더 */}
-      <div className="border-b border-border pb-4">
-        <h1 className="text-lg font-semibold text-foreground">보고서</h1>
-        <p className="text-sm text-muted-foreground mt-1">사고 보고서 및 통계 보고서 조회·작성</p>
-      </div>
+      <PageHeader 
+        title="보고서" 
+        description="사고 보고서 및 통계 보고서 조회·작성" 
+      />
 
-      {/* 탭 네비게이션 */}
       {!showGenerator && (
-        <div className="flex gap-6 border-b border-border">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`pb-3 text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'text-foreground border-b-2 border-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <TabNavigation tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
       )}
 
       {/* 사고 보고서 작성 폼 */}

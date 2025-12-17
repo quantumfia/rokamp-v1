@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { ForecastSkeleton } from '@/components/skeletons';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
@@ -9,6 +9,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PageHeader, TabNavigation } from '@/components/common';
+import { usePageLoading } from '@/hooks/usePageLoading';
 // 월별 사고 추세 데이터
 const TREND_DATA = [
   { month: '7월', current: 12, previous: 15 },
@@ -101,9 +103,15 @@ const TARGET_OPTIONS = ['전 장병', '간부', '운전병', '병사', '부사�
 const STATUS_OPTIONS = ['complete', 'warning', 'overdue'] as const;
 const TRAINING_STATUS_OPTIONS = ['complete', 'inprogress'] as const;
 
+const FORECAST_TABS = [
+  { id: 'weekly', label: '주간 예보' },
+  { id: 'trends', label: '경향 분석' },
+  { id: 'prevention', label: '예방 활동' },
+];
+
 export default function ForecastPage() {
   const [activeTab, setActiveTab] = useState('weekly');
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = usePageLoading(1000);
   const [selectedUnitId, setSelectedUnitId] = useState<string>('');
   
   // 체크리스트 상태
@@ -255,43 +263,18 @@ export default function ForecastPage() {
     setEditingTraining(newItem);
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
   if (isLoading) {
     return <ForecastSkeleton />;
   }
 
   return (
     <div className="p-6 space-y-6 animate-page-enter">
-      {/* 헤더 */}
-      <div className="border-b border-border pb-4">
-        <h1 className="text-lg font-semibold text-foreground">예보 분석</h1>
-        <p className="text-sm text-muted-foreground mt-1">부대별 위험도 예보 및 사고 경향 분석</p>
-      </div>
+      <PageHeader 
+        title="예보 분석" 
+        description="부대별 위험도 예보 및 사고 경향 분석" 
+      />
 
-      {/* 탭 네비게이션 */}
-      <div className="flex gap-6 border-b border-border">
-        {[
-          { id: 'weekly', label: '주간 예보' },
-          { id: 'trends', label: '경향 분석' },
-          { id: 'prevention', label: '예방 활동' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`pb-3 text-sm font-medium transition-colors ${
-              activeTab === tab.id
-                ? 'text-foreground border-b-2 border-foreground'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <TabNavigation tabs={FORECAST_TABS} activeTab={activeTab} onChange={setActiveTab} />
 
       {/* 주간 예보 탭 */}
       {activeTab === 'weekly' && (

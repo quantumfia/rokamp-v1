@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Upload, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DataManagementSkeleton } from '@/components/skeletons';
+import { PageHeader, TabNavigation } from '@/components/common';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 // 상태 라벨
 function StatusLabel({ status }: { status: 'completed' | 'processing' | 'failed' }) {
@@ -54,16 +56,17 @@ function CompactUploader({ label, hint }: { label: string; hint: string }) {
   );
 }
 
+const DATA_TABS = [
+  { id: 'documents', label: '원문 관리' },
+  { id: 'news', label: '뉴스 데이터' },
+  { id: 'training', label: '훈련 정보' },
+];
+
 export default function DataManagementPage() {
   const [activeTab, setActiveTab] = useState('documents');
   const [showJsonInput, setShowJsonInput] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const isLoading = usePageLoading(1000);
 
   const handleJsonUpload = () => {
     try {
@@ -92,32 +95,12 @@ export default function DataManagementPage() {
 
   return (
     <div className="p-6 space-y-6 animate-page-enter">
-      {/* 헤더 */}
-      <div className="border-b border-border pb-4">
-        <h1 className="text-lg font-semibold text-foreground">데이터 관리</h1>
-        <p className="text-sm text-muted-foreground mt-1">학습 데이터 및 훈련 정보 관리</p>
-      </div>
+      <PageHeader 
+        title="데이터 관리" 
+        description="학습 데이터 및 훈련 정보 관리" 
+      />
 
-      {/* 탭 네비게이션 */}
-      <div className="flex gap-6 border-b border-border">
-        {[
-          { id: 'documents', label: '원문 관리' },
-          { id: 'news', label: '뉴스 데이터' },
-          { id: 'training', label: '훈련 정보' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`pb-3 text-sm font-medium transition-colors ${
-              activeTab === tab.id
-                ? 'text-foreground border-b-2 border-foreground'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <TabNavigation tabs={DATA_TABS} activeTab={activeTab} onChange={setActiveTab} />
 
       {/* 원문 관리 탭 */}
       {activeTab === 'documents' && (

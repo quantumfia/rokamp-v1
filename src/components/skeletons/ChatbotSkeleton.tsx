@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function ChatbotSkeleton() {
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Header Skeleton */}
       <div className="shrink-0 p-6 pb-4 border-b border-border">
         <Skeleton className="h-6 w-32 mb-2" />

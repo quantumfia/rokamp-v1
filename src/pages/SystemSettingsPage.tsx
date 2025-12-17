@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Bell, Shield, Sliders, Save, Search, Download, Users, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -17,6 +17,8 @@ import {
 } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { SystemSettingsSkeleton } from '@/components/skeletons';
+import { PageHeader, TabNavigation } from '@/components/common';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 // 감사 로그 Mock 데이터
 const AUDIT_LOGS = [
@@ -48,7 +50,7 @@ export default function SystemSettingsPage() {
   const [activeTab, setActiveTab] = useState('model');
   const [riskThreshold, setRiskThreshold] = useState([50]);
   const [frequencyWeight, setFrequencyWeight] = useState([60]);
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = usePageLoading(1000);
   
   // 공지사항 상태
   const [noticeTitle, setNoticeTitle] = useState('');
@@ -60,11 +62,6 @@ export default function SystemSettingsPage() {
   const [logSearchQuery, setLogSearchQuery] = useState('');
   const [logDateFrom, setLogDateFrom] = useState('');
   const [logDateTo, setLogDateTo] = useState('');
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleSaveSettings = () => {
     toast({
@@ -119,40 +116,18 @@ export default function SystemSettingsPage() {
 
   return (
     <div className="p-6 space-y-6 animate-page-enter">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <div>
-          <h1 className="text-lg font-semibold text-foreground">시스템 설정</h1>
-          <p className="text-sm text-muted-foreground mt-1">예보 모델, 공지사항, 보안 설정 관리</p>
-        </div>
-        <Button variant="outline" size="sm" onClick={handleSaveSettings}>
-          <Save className="w-4 h-4 mr-2" />
-          변경사항 저장
-        </Button>
-      </div>
+      <PageHeader 
+        title="시스템 설정" 
+        description="예보 모델, 공지사항, 보안 설정 관리"
+        actions={
+          <Button variant="outline" size="sm" onClick={handleSaveSettings}>
+            <Save className="w-4 h-4 mr-2" />
+            변경사항 저장
+          </Button>
+        }
+      />
 
-      {/* Tabs */}
-      <div className="border-b border-border">
-        <div className="flex gap-0">
-          {TABS.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-foreground text-foreground'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <TabNavigation tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 
       {/* 예보 설정 탭 */}
       {activeTab === 'model' && (

@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, Upload, Download, MoreHorizontal } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
 import { ROLE_LABELS, UserRole } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
 import { UserManagementSkeleton } from '@/components/skeletons';
+import { PageHeader } from '@/components/common';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface User {
   id: string;
@@ -33,12 +35,7 @@ export default function UserManagementPage() {
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const isLoading = usePageLoading(1000);
 
   const getRoleLabel = (role: string) => {
     return ROLE_LABELS[role as UserRole] ?? role;
@@ -94,26 +91,25 @@ export default function UserManagementPage() {
 
   return (
     <div className="p-6 space-y-6 animate-page-enter">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between border-b border-border pb-4">
-        <div>
-          <h1 className="text-lg font-semibold text-foreground">사용자 관리</h1>
-          <p className="text-sm text-muted-foreground mt-1">시스템 사용자 계정 및 권한 관리</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowBulkUpload(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-border rounded hover:bg-muted/50 transition-colors"
-          >
-            <Upload className="w-4 h-4" />
-            일괄 등록
-          </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background rounded hover:opacity-80 transition-opacity">
-            <Plus className="w-4 h-4" />
-            사용자 등록
-          </button>
-        </div>
-      </div>
+      <PageHeader 
+        title="사용자 관리" 
+        description="시스템 사용자 계정 및 권한 관리"
+        actions={
+          <>
+            <button
+              onClick={() => setShowBulkUpload(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-border rounded hover:bg-muted/50 transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              일괄 등록
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-foreground text-background rounded hover:opacity-80 transition-opacity">
+              <Plus className="w-4 h-4" />
+              사용자 등록
+            </button>
+          </>
+        }
+      />
 
       {/* 통계 요약 */}
       <div className="grid grid-cols-3 gap-6">
