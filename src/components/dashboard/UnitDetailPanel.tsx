@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getUnitById, getUnitFullName, LEVEL_LABELS, getChildUnits } from '@/data/armyUnits';
+import { getUnitById, getUnitFullName, LEVEL_LABELS, getChildUnits, UNIT_TYPE_LABELS } from '@/data/armyUnits';
 
 interface Training {
   id: string;
@@ -34,8 +34,8 @@ export function UnitDetailPanel({ unitId, onClose }: UnitDetailPanelProps) {
   const unit = getUnitById(unitId);
   const unitName = unit?.name || '알 수 없는 부대';
   const riskValue = unit?.risk || 0;
-  const commander = unit?.commander || '정보 없음';
-  const personnel = unit?.personnel || 0;
+  const unitType = unit?.unitType ? UNIT_TYPE_LABELS[unit.unitType] : '일반';
+  const region = unit?.region || '정보 없음';
   const levelLabel = unit ? LEVEL_LABELS[unit.level] : '';
   const fullPath = getUnitFullName(unitId);
   const childUnits = getChildUnits(unitId).filter(u => u.lat !== undefined);
@@ -73,17 +73,17 @@ export function UnitDetailPanel({ unitId, onClose }: UnitDetailPanelProps) {
           <p className={`text-4xl font-bold tabular-nums ${getRiskColor(riskValue)}`}>{riskValue}%</p>
         </div>
 
-        {/* Unit Info */}
+        {/* Unit Info - 부대 유형과 지역 (민감 정보 제거) */}
         <div className="px-4 py-3 border-b border-border">
           <p className="text-[10px] text-muted-foreground mb-2">부대 정보</p>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-[10px] text-muted-foreground">지휘관</p>
-              <p className="text-sm font-medium text-foreground">{commander}</p>
+              <p className="text-[10px] text-muted-foreground">부대 유형</p>
+              <p className="text-sm font-medium text-foreground">{unitType}</p>
             </div>
             <div>
-              <p className="text-[10px] text-muted-foreground">병력</p>
-              <p className="text-sm font-medium text-foreground">{personnel.toLocaleString()}명</p>
+              <p className="text-[10px] text-muted-foreground">지역</p>
+              <p className="text-sm font-medium text-foreground">{region}</p>
             </div>
           </div>
         </div>

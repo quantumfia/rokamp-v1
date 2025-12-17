@@ -3,7 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { ARMY_UNITS } from '@/data/armyUnits';
+import { ARMY_UNITS, UNIT_TYPE_LABELS } from '@/data/armyUnits';
 import { Home } from 'lucide-react';
 
 interface MapViewProps {
@@ -212,17 +212,17 @@ export function MapView({ className, onMarkerClick, selectedUnitId }: MapViewPro
             <span style="font-size: 12px; font-weight: 600; color: ${getRiskColor(unit.risk!)};">${unit.risk}% (${riskLevel})</span>
           </div>
           
-          ${unit.commander ? `
+          ${unit.unitType ? `
           <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-            <span style="font-size: 11px; color: hsl(0, 0%, 60%);">지휘관</span>
-            <span style="font-size: 11px; color: hsl(0, 0%, 85%);">${unit.commander}</span>
+            <span style="font-size: 11px; color: hsl(0, 0%, 60%);">부대 유형</span>
+            <span style="font-size: 11px; color: hsl(0, 0%, 85%);">${UNIT_TYPE_LABELS[unit.unitType]}</span>
           </div>
           ` : ''}
           
-          ${unit.personnel ? `
+          ${unit.region ? `
           <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span style="font-size: 11px; color: hsl(0, 0%, 60%);">병력</span>
-            <span style="font-size: 11px; color: hsl(0, 0%, 85%);">${unit.personnel.toLocaleString()}명</span>
+            <span style="font-size: 11px; color: hsl(0, 0%, 60%);">지역</span>
+            <span style="font-size: 11px; color: hsl(0, 0%, 85%);">${unit.region}</span>
           </div>
           ` : ''}
           
