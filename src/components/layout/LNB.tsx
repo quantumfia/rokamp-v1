@@ -42,21 +42,13 @@ export function LNB({ isExpanded }: LNBProps) {
     const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
     const Icon = item.icon;
 
-    const handleClick = (e: React.MouseEvent) => {
-      // 현재 페이지와 동일하면 네비게이션 방지
-      if (isActive) {
-        e.preventDefault();
-      }
-    };
-
     const linkContent = (
       <NavLink
         to={item.path}
-        onClick={handleClick}
         className={cn(
           'flex items-center gap-2.5 h-9 px-2.5 rounded transition-all duration-150 group relative',
           isActive
-            ? 'bg-sidebar-accent text-sidebar-primary cursor-default'
+            ? 'bg-sidebar-accent text-sidebar-primary'
             : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent'
         )}
       >
