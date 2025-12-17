@@ -1,5 +1,7 @@
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, TrendingDown, Search } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Input } from '@/components/ui/input';
 
 interface RiskUnit {
   id: string;
@@ -14,6 +16,9 @@ const MOCK_RISK_DATA: RiskUnit[] = [
   { id: 'corps-3-div-21', name: '제21보병사단', risk: 55, trend: 'stable' },
   { id: 'corps-1-div-1', name: '제1보병사단', risk: 48, trend: 'down' },
   { id: 'corps-2-div-7', name: '제7보병사단', risk: 42, trend: 'down' },
+  { id: 'corps-1-div-2', name: '제2보병사단', risk: 38, trend: 'stable' },
+  { id: 'corps-2-div-3', name: '제3보병사단', risk: 35, trend: 'down' },
+  { id: 'corps-3-div-5', name: '제5보병사단', risk: 32, trend: 'stable' },
 ];
 
 interface RiskSummaryPanelProps {
@@ -22,7 +27,13 @@ interface RiskSummaryPanelProps {
 
 export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
   const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
   const overallRisk = 52;
+
+  // 검색어로 필터링
+  const filteredUnits = MOCK_RISK_DATA.filter(unit =>
+    unit.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // 위험도에 따른 색상 반환
   const getRiskColor = (risk: number) => {
@@ -61,13 +72,24 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
         </div>
       </div>
 
-      {/* High Risk Units List */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
-        <div className="px-4 py-2 bg-muted/30 border-b border-border sticky top-0">
-          <p className="text-[10px] text-muted-foreground">주의 필요 부대 TOP 5</p>
+      {/* Search Input */}
+      <div className="px-3 py-2 border-b border-border sticky top-0 bg-background z-10">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="부대명 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 h-7 text-xs bg-muted/30 border-border"
+          />
         </div>
+      </div>
+
+      {/* Unit List */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="divide-y divide-border/50">
-          {MOCK_RISK_DATA.map((unit) => (
+          {filteredUnits.map((unit) => (
             <button
               key={unit.id}
               onClick={() => onUnitClick?.(unit.id)}
@@ -83,6 +105,11 @@ export function RiskSummaryPanel({ onUnitClick }: RiskSummaryPanelProps) {
               </div>
             </button>
           ))}
+          {filteredUnits.length === 0 && (
+            <div className="px-4 py-6 text-center text-xs text-muted-foreground">
+              검색 결과가 없습니다
+            </div>
+          )}
         </div>
       </div>
     </div>
