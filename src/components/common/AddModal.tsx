@@ -1,4 +1,5 @@
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,11 +32,19 @@ export function AddModal({
 }: AddModalProps) {
   const [selectedType, setSelectedType] = useState(inputTypes[0]?.id);
 
+  // Reset selected type when modal opens
+  useEffect(() => {
+    if (isOpen && inputTypes.length > 0) {
+      setSelectedType(inputTypes[0].id);
+    }
+  }, [isOpen, inputTypes]);
+
   if (!isOpen) return null;
 
   const currentContent = inputTypes.find(t => t.id === selectedType)?.content;
 
-  return (
+  // Portal로 body에 직접 렌더링하여 z-index 문제 해결
+  return createPortal(
     <>
       {/* Backdrop - 통일된 배경 처리 */}
       <div 
@@ -133,6 +142,7 @@ export function AddModal({
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
