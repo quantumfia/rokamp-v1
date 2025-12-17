@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { Download, ArrowLeft, Eye, ChevronDown, Plus, Loader2, Calendar as CalendarIcon, Printer, Trash2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Download, ArrowLeft, Eye, ChevronDown, Loader2, Calendar as CalendarIcon, Printer, Trash2, Search } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import armyLogo from '@/assets/army-logo.png';
+import { AddModal } from '@/components/common';
 
 interface StatReport {
   id: string;
@@ -173,7 +174,12 @@ const generateTrendData = (type: 'weekly' | 'monthly' | 'quarterly' | 'custom') 
   }
 };
 
-export function StatisticsReportList() {
+interface StatisticsReportListProps {
+  showModal?: boolean;
+  onCloseModal?: () => void;
+}
+
+export function StatisticsReportList({ showModal = false, onCloseModal }: StatisticsReportListProps) {
   const [filterType, setFilterType] = useState<string>('all');
   const [filterTarget, setFilterTarget] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -182,7 +188,6 @@ export function StatisticsReportList() {
   const previewRef = useRef<HTMLDivElement>(null);
   
   // 보고서 생성 관련 상태
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [reports, setReports] = useState<StatReport[]>(MOCK_STAT_REPORTS);
@@ -196,6 +201,22 @@ export function StatisticsReportList() {
     unitId: '',
     rankType: 'all' as 'all' | 'enlisted' | 'nco' | 'officer',
   });
+
+  // 모달이 닫힐 때 폼 초기화
+  useEffect(() => {
+    if (!showModal) {
+      setCreateForm({
+        reportType: 'weekly',
+        periodType: 'preset',
+        presetPeriod: 'previous',
+        customStartDate: undefined,
+        customEndDate: undefined,
+        analysisTarget: 'unit',
+        unitId: '',
+        rankType: 'all',
+      });
+    }
+  }, [showModal]);
 
   // 기간 계산 함수
   const calculatePeriod = (reportType: 'weekly' | 'monthly' | 'quarterly', periodType: 'current' | 'previous') => {
@@ -384,7 +405,7 @@ export function StatisticsReportList() {
 
       setReports(prev => [newReport, ...prev]);
       setIsGenerating(false);
-      setShowCreateForm(false);
+      onCloseModal?.();
       setSelectedReport(newReport);
       
       toast({
@@ -1103,228 +1124,195 @@ export function StatisticsReportList() {
 
   // 이제 상세보기와 미리보기가 합쳐짐 (위에서 처리)
 
-  return (
+  // 모달 폼 컨텐츠
+  const StatReportFormContent = (
     <div className="space-y-4">
-      {/* 헤더 영역 */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-4">
-          <input 
-            placeholder="보고서 검색..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-64 bg-transparent border border-border rounded px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
-          />
+      {/* Row 1: 분석 대상 + 보고서 유형 + 기간 선택 */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* 분석 대상 */}
+        <div>
+          <label className="block text-xs text-muted-foreground mb-2">분석 대상</label>
           <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="w-32 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+            value={createForm.analysisTarget}
+            onChange={(e) => setCreateForm(prev => ({ ...prev, analysisTarget: e.target.value as 'unit' | 'rank' }))}
+            className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
           >
-            <option value="all">전체</option>
-            <option value="weekly">주간</option>
-            <option value="monthly">월간</option>
-          </select>
-          <select
-            value={filterTarget}
-            onChange={(e) => setFilterTarget(e.target.value)}
-            className="w-32 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-          >
-            <option value="all">대상: 전체</option>
             <option value="unit">부대별</option>
             <option value="rank">계급별</option>
           </select>
         </div>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded text-sm hover:opacity-90 transition-opacity"
-        >
-          <Plus className="w-4 h-4" />
-          새 보고서 생성
-        </button>
+
+        {/* 보고서 유형 */}
+        <div>
+          <label className="block text-xs text-muted-foreground mb-2">보고서 유형</label>
+          <select
+            value={createForm.reportType}
+            onChange={(e) => setCreateForm(prev => ({ ...prev, reportType: e.target.value as 'weekly' | 'monthly' | 'quarterly' }))}
+            className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+          >
+            <option value="weekly">주간</option>
+            <option value="monthly">월간</option>
+            <option value="quarterly">분기</option>
+          </select>
+        </div>
       </div>
 
-      {/* 보고서 생성 폼 */}
-      {showCreateForm && (
-        <div className="border border-border rounded-lg p-6 bg-card">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-sm font-semibold">통계 보고서 자동 생성</h3>
-            <button
-              onClick={() => setShowCreateForm(false)}
-              className="text-muted-foreground hover:text-foreground text-sm"
+      {/* Row 2: 기간 유형 + 프리셋/커스텀 */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs text-muted-foreground mb-2">기간 선택</label>
+          <select
+            value={createForm.periodType}
+            onChange={(e) => setCreateForm(prev => ({ ...prev, periodType: e.target.value as 'preset' | 'custom' }))}
+            className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+          >
+            <option value="preset">프리셋</option>
+            <option value="custom">직접 입력</option>
+          </select>
+        </div>
+
+        {createForm.periodType === 'preset' ? (
+          <div>
+            <label className="block text-xs text-muted-foreground mb-2">기간</label>
+            <select
+              value={createForm.presetPeriod}
+              onChange={(e) => setCreateForm(prev => ({ ...prev, presetPeriod: e.target.value as 'current' | 'previous' }))}
+              className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
             >
-              취소
-            </button>
+              <option value="current">
+                {createForm.reportType === 'weekly' ? '이번 주' : createForm.reportType === 'monthly' ? '이번 달' : '이번 분기'}
+              </option>
+              <option value="previous">
+                {createForm.reportType === 'weekly' ? '지난 주' : createForm.reportType === 'monthly' ? '지난 달' : '지난 분기'}
+              </option>
+            </select>
           </div>
+        ) : (
+          <div className="col-span-1" />
+        )}
+      </div>
 
-          {/* Row 1: 분석 대상 + 보고서 유형 + 기간 선택 */}
-          <div className="flex gap-4 mb-4">
-            {/* 분석 대상 */}
-            <div className="w-32">
-              <label className="block text-xs text-muted-foreground mb-2">분석 대상</label>
-              <select
-                value={createForm.analysisTarget}
-                onChange={(e) => setCreateForm(prev => ({ ...prev, analysisTarget: e.target.value as 'unit' | 'rank' }))}
-                className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-              >
-                <option value="unit">부대별</option>
-                <option value="rank">계급별</option>
-              </select>
-            </div>
-
-            {/* 보고서 유형 */}
-            <div className="w-28">
-              <label className="block text-xs text-muted-foreground mb-2">보고서 유형</label>
-              <select
-                value={createForm.reportType}
-                onChange={(e) => setCreateForm(prev => ({ ...prev, reportType: e.target.value as 'weekly' | 'monthly' | 'quarterly' }))}
-                className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-              >
-                <option value="weekly">주간</option>
-                <option value="monthly">월간</option>
-                <option value="quarterly">분기</option>
-              </select>
-            </div>
-
-            {/* 기간 유형 */}
-            <div className="w-32">
-              <label className="block text-xs text-muted-foreground mb-2">기간 선택</label>
-              <select
-                value={createForm.periodType}
-                onChange={(e) => setCreateForm(prev => ({ ...prev, periodType: e.target.value as 'preset' | 'custom' }))}
-                className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-              >
-                <option value="preset">프리셋</option>
-                <option value="custom">직접 입력</option>
-              </select>
-            </div>
-
-            {/* 프리셋 기간 or 커스텀 날짜 */}
-            {createForm.periodType === 'preset' ? (
-              <div className="w-32">
-                <label className="block text-xs text-muted-foreground mb-2">기간</label>
-                <select
-                  value={createForm.presetPeriod}
-                  onChange={(e) => setCreateForm(prev => ({ ...prev, presetPeriod: e.target.value as 'current' | 'previous' }))}
-                  className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+      {/* 커스텀 날짜 선택 */}
+      {createForm.periodType === 'custom' && (
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs text-muted-foreground mb-2">시작일</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={cn(
+                    "w-full flex items-center gap-2 bg-background border border-border rounded px-3 py-2 text-sm text-left focus:outline-none focus:border-foreground transition-colors",
+                    !createForm.customStartDate && "text-muted-foreground"
+                  )}
                 >
-                  <option value="current">
-                    {createForm.reportType === 'weekly' ? '이번 주' : createForm.reportType === 'monthly' ? '이번 달' : '이번 분기'}
-                  </option>
-                  <option value="previous">
-                    {createForm.reportType === 'weekly' ? '지난 주' : createForm.reportType === 'monthly' ? '지난 달' : '지난 분기'}
-                  </option>
-                </select>
-              </div>
-            ) : (
-              <>
-                <div className="w-36">
-                  <label className="block text-xs text-muted-foreground mb-2">시작일</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        className={cn(
-                          "w-full flex items-center gap-2 bg-background border border-border rounded px-3 py-2 text-sm text-left focus:outline-none focus:border-foreground transition-colors",
-                          !createForm.customStartDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="w-4 h-4" />
-                        {createForm.customStartDate ? format(createForm.customStartDate, 'yyyy.MM.dd') : '선택'}
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-card border-border z-50" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={createForm.customStartDate}
-                        onSelect={(date) => setCreateForm(prev => ({ ...prev, customStartDate: date }))}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="w-36">
-                  <label className="block text-xs text-muted-foreground mb-2">종료일</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        className={cn(
-                          "w-full flex items-center gap-2 bg-background border border-border rounded px-3 py-2 text-sm text-left focus:outline-none focus:border-foreground transition-colors",
-                          !createForm.customEndDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="w-4 h-4" />
-                        {createForm.customEndDate ? format(createForm.customEndDate, 'yyyy.MM.dd') : '선택'}
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-card border-border z-50" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={createForm.customEndDate}
-                        onSelect={(date) => setCreateForm(prev => ({ ...prev, customEndDate: date }))}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Row 2: 부대 선택 (분석 대상이 부대인 경우) 또는 계급 선택 (분석 대상이 계급인 경우) */}
-          {createForm.analysisTarget === 'unit' ? (
-            <div className="mb-4">
-              <label className="block text-xs text-muted-foreground mb-2">분석 대상 부대</label>
-              <UnitCascadeSelect
-                value={createForm.unitId}
-                onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
-                placeholder="부대 선택"
-              />
-            </div>
-          ) : (
-            <div className="mb-4">
-              <label className="block text-xs text-muted-foreground mb-2">분석 대상 계급</label>
-              <select
-                value={createForm.rankType}
-                onChange={(e) => setCreateForm(prev => ({ ...prev, rankType: e.target.value as 'all' | 'enlisted' | 'nco' | 'officer' }))}
-                className="w-64 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-              >
-                <option value="all">전체 계급</option>
-                <option value="enlisted">병사 (이병~병장)</option>
-                <option value="nco">부사관 (하사~원사)</option>
-                <option value="officer">장교 (소위~대장)</option>
-              </select>
-            </div>
-          )}
-
-          {/* 선택된 기간 표시 */}
-          <div className="text-xs text-muted-foreground mb-4">
-            분석 기간: <span className="text-foreground font-medium">{getSelectedPeriodLabel()}</span>
-          </div>
-
-          <div className="pt-4 border-t border-border flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              선택한 조건으로 사고 데이터를 자동 집계하여 보고서를 생성합니다.
-            </p>
-            <button
-              onClick={handleGenerateReport}
-              disabled={isGenerating || (createForm.analysisTarget === 'unit' && !createForm.unitId)}
-              className="flex items-center gap-2 px-6 py-2 bg-foreground text-background rounded text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  생성 중...
-                </>
-              ) : (
-                <>
                   <CalendarIcon className="w-4 h-4" />
-                  보고서 생성
-                </>
-              )}
-            </button>
+                  {createForm.customStartDate ? format(createForm.customStartDate, 'yyyy.MM.dd') : '선택'}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-card border-border z-[300]" align="start">
+                <Calendar
+                  mode="single"
+                  selected={createForm.customStartDate}
+                  onSelect={(date) => setCreateForm(prev => ({ ...prev, customStartDate: date }))}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div>
+            <label className="block text-xs text-muted-foreground mb-2">종료일</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={cn(
+                    "w-full flex items-center gap-2 bg-background border border-border rounded px-3 py-2 text-sm text-left focus:outline-none focus:border-foreground transition-colors",
+                    !createForm.customEndDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="w-4 h-4" />
+                  {createForm.customEndDate ? format(createForm.customEndDate, 'yyyy.MM.dd') : '선택'}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-card border-border z-[300]" align="start">
+                <Calendar
+                  mode="single"
+                  selected={createForm.customEndDate}
+                  onSelect={(date) => setCreateForm(prev => ({ ...prev, customEndDate: date }))}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       )}
+
+      {/* 부대 선택 또는 계급 선택 */}
+      {createForm.analysisTarget === 'unit' ? (
+        <div>
+          <label className="block text-xs text-muted-foreground mb-2">분석 대상 부대</label>
+          <UnitCascadeSelect
+            value={createForm.unitId}
+            onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
+            placeholder="부대 선택"
+          />
+        </div>
+      ) : (
+        <div>
+          <label className="block text-xs text-muted-foreground mb-2">분석 대상 계급</label>
+          <select
+            value={createForm.rankType}
+            onChange={(e) => setCreateForm(prev => ({ ...prev, rankType: e.target.value as 'all' | 'enlisted' | 'nco' | 'officer' }))}
+            className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+          >
+            <option value="all">전체 계급</option>
+            <option value="enlisted">병사 (이병~병장)</option>
+            <option value="nco">부사관 (하사~원사)</option>
+            <option value="officer">장교 (소위~대장)</option>
+          </select>
+        </div>
+      )}
+
+      {/* 선택된 기간 표시 */}
+      <div className="text-xs text-muted-foreground pt-2 border-t border-border">
+        분석 기간: <span className="text-foreground font-medium">{getSelectedPeriodLabel()}</span>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* 검색/필터 영역 */}
+      <div className="flex items-center gap-4">
+        <div className="relative w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input 
+            placeholder="보고서 검색..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-transparent border border-border rounded text-sm placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+          />
+        </div>
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="w-32 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+        >
+          <option value="all">전체</option>
+          <option value="weekly">주간</option>
+          <option value="monthly">월간</option>
+        </select>
+        <select
+          value={filterTarget}
+          onChange={(e) => setFilterTarget(e.target.value)}
+          className="w-32 bg-background border border-border rounded px-3 py-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+        >
+          <option value="all">대상: 전체</option>
+          <option value="unit">부대별</option>
+          <option value="rank">계급별</option>
+        </select>
+      </div>
 
       {/* Reports Table */}
       <div>
@@ -1378,6 +1366,20 @@ export function StatisticsReportList() {
           <p className="text-sm text-muted-foreground">조건에 맞는 보고서가 없습니다.</p>
         </div>
       )}
+
+      {/* 보고서 생성 모달 */}
+      <AddModal
+        isOpen={showModal}
+        onClose={() => onCloseModal?.()}
+        title="통계 보고서 생성"
+        description="조건을 선택하면 사고 데이터를 자동 집계하여 보고서를 생성합니다"
+        inputTypes={[
+          { id: 'form', label: '생성 옵션', content: StatReportFormContent }
+        ]}
+        onSubmit={handleGenerateReport}
+        submitLabel={isGenerating ? '생성 중...' : '보고서 생성'}
+        isSubmitDisabled={isGenerating || (createForm.analysisTarget === 'unit' && !createForm.unitId)}
+      />
     </div>
   );
 }

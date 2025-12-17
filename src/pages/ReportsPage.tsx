@@ -103,6 +103,7 @@ export default function ReportsPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('accident');
   const [showGenerator, setShowGenerator] = useState(false);
+  const [showStatModal, setShowStatModal] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const isLoading = usePageLoading(1000);
@@ -138,8 +139,12 @@ export default function ReportsPage() {
         title="보고서" 
         description="사고 보고서 및 통계 보고서 조회·작성"
         actions={
-          !showGenerator && activeTab === 'accident' ? (
-            <ActionButton label="보고서 생성" onClick={() => setShowGenerator(true)} />
+          !showGenerator ? (
+            activeTab === 'accident' ? (
+              <ActionButton label="보고서 생성" onClick={() => setShowGenerator(true)} />
+            ) : (
+              <ActionButton label="보고서 생성" onClick={() => setShowStatModal(true)} />
+            )
           ) : undefined
         }
       />
@@ -181,7 +186,10 @@ export default function ReportsPage() {
 
       {/* 통계 보고서 조회 탭 */}
       {!showGenerator && activeTab === 'statistics' && (
-        <StatisticsReportList />
+        <StatisticsReportList 
+          showModal={showStatModal}
+          onCloseModal={() => setShowStatModal(false)}
+        />
       )}
     </div>
   );
