@@ -32,8 +32,9 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
 const ADMIN_MENU_ITEMS: MenuItem[] = [
   { id: 'data', label: '데이터 관리', icon: Database, path: '/data' },
   { id: 'schedule', label: '일정 관리', icon: CalendarDays, path: '/admin/schedule' },
+  { id: 'notice', label: '공지사항 관리', icon: FileText, path: '/admin/notice' },
   { id: 'users', label: '사용자 관리', icon: Users, path: '/admin/users' },
-  { id: 'settings', label: '시스템 설정', icon: Settings, path: '/admin/settings' },
+  { id: 'settings', label: '보안/감사', icon: Settings, path: '/admin/settings' },
 ];
 
 interface LNBProps {
