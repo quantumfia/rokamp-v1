@@ -109,7 +109,7 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
               <img src={armyLogo} alt="육군본부" className="w-7 h-7 object-contain" />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-sm font-semibold text-sidebar-foreground tracking-tight">ROKA-MP</h1>
+              <h1 className="text-sm font-bold text-sidebar-foreground tracking-wider font-display">ROKA-MP</h1>
             </div>
           </button>
 
