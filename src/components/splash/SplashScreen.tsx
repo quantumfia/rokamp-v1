@@ -144,7 +144,7 @@ export function SplashScreen({ onComplete, skipSplash = false }: SplashScreenPro
 
         {/* Title */}
         <h1 
-          className={`text-4xl md:text-5xl font-bold text-white tracking-[0.4em] mb-3 font-mono transition-all duration-500 ${showLoginForm ? 'text-3xl' : ''}`}
+          className={`text-4xl md:text-5xl font-bold text-white tracking-[0.3em] mb-3 font-display transition-all duration-500 ${showLoginForm ? 'text-3xl' : ''}`}
           style={{
             textShadow: '0 0 40px hsl(210, 75%, 50%, 0.5)',
           }}
