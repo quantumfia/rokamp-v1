@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Settings2 } from 'lucide-react';
+import { Trash2, Settings2, FileText, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DataManagementSkeleton } from '@/components/skeletons';
 import { PageHeader, TabNavigation, ActionButton, AddModal, FileDropZone } from '@/components/common';
@@ -41,15 +41,16 @@ interface Document {
   uploadedAt: string;
   status: 'completed' | 'processing' | 'failed';
   chunks: number;
+  fileName: string; // 원본 파일명
 }
 
 // 문서 데이터
 const initialDocumentData: Document[] = [
-  { id: 1, name: '육군 안전관리 규정 v2.3', type: 'PDF', size: '2.4MB', uploadedAt: '2024-12-10 14:30', status: 'completed', chunks: 128 },
-  { id: 2, name: '동절기 안전수칙 매뉴얼', type: 'HWP', size: '1.8MB', uploadedAt: '2024-12-08 09:15', status: 'completed', chunks: 85 },
-  { id: 3, name: '차량 운행 및 정비 매뉴얼', type: 'PDF', size: '5.2MB', uploadedAt: '2024-12-14 11:00', status: 'processing', chunks: 0 },
-  { id: 4, name: '사격훈련 안전수칙', type: 'PDF', size: '3.1MB', uploadedAt: '2024-12-07 16:45', status: 'completed', chunks: 156 },
-  { id: 5, name: '야간훈련 지침서', type: 'HWP', size: '1.2MB', uploadedAt: '2024-12-05 10:20', status: 'completed', chunks: 62 },
+  { id: 1, name: '육군 안전관리 규정 v2.3', type: 'PDF', size: '2.4MB', uploadedAt: '2024-12-10 14:30', status: 'completed', chunks: 128, fileName: '육군_안전관리_규정_v2.3.pdf' },
+  { id: 2, name: '동절기 안전수칙 매뉴얼', type: 'HWP', size: '1.8MB', uploadedAt: '2024-12-08 09:15', status: 'completed', chunks: 85, fileName: '동절기_안전수칙_매뉴얼.hwp' },
+  { id: 3, name: '차량 운행 및 정비 매뉴얼', type: 'PDF', size: '5.2MB', uploadedAt: '2024-12-14 11:00', status: 'processing', chunks: 0, fileName: '차량_운행_및_정비_매뉴얼.pdf' },
+  { id: 4, name: '사격훈련 안전수칙', type: 'PDF', size: '3.1MB', uploadedAt: '2024-12-07 16:45', status: 'completed', chunks: 156, fileName: '사격훈련_안전수칙.pdf' },
+  { id: 5, name: '야간훈련 지침서', type: 'HWP', size: '1.2MB', uploadedAt: '2024-12-05 10:20', status: 'completed', chunks: 62, fileName: '야간훈련_지침서.hwp' },
 ];
 
 // 뉴스 데이터
@@ -525,6 +526,37 @@ export default function DataManagementPage() {
           </DialogHeader>
           
           <div className="space-y-4 py-4">
+            {/* 업로드된 파일 */}
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">업로드된 파일</label>
+              <div className="flex items-center justify-between p-3 bg-muted/50 border border-border rounded-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{selectedDocument?.fileName}</p>
+                    <p className="text-xs text-muted-foreground">{selectedDocument?.type} · {selectedDocument?.size}</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    toast({
+                      title: '다운로드 시작',
+                      description: `${selectedDocument?.fileName} 파일을 다운로드합니다.`,
+                    });
+                    // 실제 구현 시 여기서 파일 다운로드 로직 추가
+                  }}
+                  className="gap-1.5"
+                >
+                  <Download className="w-4 h-4" />
+                  다운로드
+                </Button>
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs text-muted-foreground mb-1.5">문서명</label>
               {isEditMode ? (
