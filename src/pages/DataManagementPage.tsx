@@ -32,13 +32,24 @@ function StatusLabel({ status }: { status: 'completed' | 'processing' | 'failed'
   return <span className="text-sm text-muted-foreground">{labels[status]}</span>;
 }
 
+// 문서 인터페이스
+interface Document {
+  id: number;
+  name: string;
+  type: string;
+  size: string;
+  uploadedAt: string;
+  status: 'completed' | 'processing' | 'failed';
+  chunks: number;
+}
+
 // 문서 데이터
-const documentData = [
-  { id: 1, name: '육군 안전관리 규정 v2.3', type: 'PDF', size: '2.4MB', uploadedAt: '2024-12-10 14:30', status: 'completed' as const, chunks: 128 },
-  { id: 2, name: '동절기 안전수칙 매뉴얼', type: 'HWP', size: '1.8MB', uploadedAt: '2024-12-08 09:15', status: 'completed' as const, chunks: 85 },
-  { id: 3, name: '차량 운행 및 정비 매뉴얼', type: 'PDF', size: '5.2MB', uploadedAt: '2024-12-14 11:00', status: 'processing' as const, chunks: 0 },
-  { id: 4, name: '사격훈련 안전수칙', type: 'PDF', size: '3.1MB', uploadedAt: '2024-12-07 16:45', status: 'completed' as const, chunks: 156 },
-  { id: 5, name: '야간훈련 지침서', type: 'HWP', size: '1.2MB', uploadedAt: '2024-12-05 10:20', status: 'completed' as const, chunks: 62 },
+const initialDocumentData: Document[] = [
+  { id: 1, name: '육군 안전관리 규정 v2.3', type: 'PDF', size: '2.4MB', uploadedAt: '2024-12-10 14:30', status: 'completed', chunks: 128 },
+  { id: 2, name: '동절기 안전수칙 매뉴얼', type: 'HWP', size: '1.8MB', uploadedAt: '2024-12-08 09:15', status: 'completed', chunks: 85 },
+  { id: 3, name: '차량 운행 및 정비 매뉴얼', type: 'PDF', size: '5.2MB', uploadedAt: '2024-12-14 11:00', status: 'processing', chunks: 0 },
+  { id: 4, name: '사격훈련 안전수칙', type: 'PDF', size: '3.1MB', uploadedAt: '2024-12-07 16:45', status: 'completed', chunks: 156 },
+  { id: 5, name: '야간훈련 지침서', type: 'HWP', size: '1.2MB', uploadedAt: '2024-12-05 10:20', status: 'completed', chunks: 62 },
 ];
 
 // 뉴스 데이터
@@ -252,6 +263,11 @@ export default function DataManagementPage() {
   const [activeTab, setActiveTab] = useState('documents');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showChunkSettings, setShowChunkSettings] = useState(false);
+  const [showDocDetailModal, setShowDocDetailModal] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [editDocName, setEditDocName] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [documents, setDocuments] = useState<Document[]>(initialDocumentData);
   const [jsonInput, setJsonInput] = useState('');
   const [documentName, setDocumentName] = useState('');
   const [chunkSettings, setChunkSettings] = useState<ChunkSettings>({
@@ -260,6 +276,32 @@ export default function DataManagementPage() {
     embeddingModel: 'text-embedding-3-small',
   });
   const isLoading = usePageLoading(1000);
+
+  const handleDocumentClick = (doc: Document) => {
+    setSelectedDocument(doc);
+    setEditDocName(doc.name);
+    setIsEditMode(false);
+    setShowDocDetailModal(true);
+  };
+
+  const handleSaveDocName = () => {
+    if (!editDocName.trim()) {
+      toast({
+        title: '입력 오류',
+        description: '문서명을 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setDocuments(documents.map(d => 
+      d.id === selectedDocument?.id ? { ...d, name: editDocName } : d
+    ));
+    toast({
+      title: '수정 완료',
+      description: '문서명이 수정되었습니다.',
+    });
+    setIsEditMode(false);
+  };
 
   const handleDocumentUpload = () => {
     if (!documentName.trim()) {
@@ -367,7 +409,7 @@ export default function DataManagementPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium text-foreground">학습 현황</h2>
             <span className="text-xs text-muted-foreground">
-              총 {documentData.length}개 문서 · {documentData.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.chunks, 0)}개 청크
+              총 {documents.length}개 문서 · {documents.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.chunks, 0)}개 청크
             </span>
           </div>
 
@@ -384,8 +426,12 @@ export default function DataManagementPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {documentData.map((doc) => (
-                <TableRow key={doc.id}>
+              {documents.map((doc) => (
+                <TableRow 
+                  key={doc.id} 
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleDocumentClick(doc)}
+                >
                   <TableCell className="text-sm font-medium">{doc.name}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{doc.type}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{doc.size}</TableCell>
@@ -395,7 +441,10 @@ export default function DataManagementPage() {
                   </TableCell>
                   <TableCell><StatusLabel status={doc.status} /></TableCell>
                   <TableCell>
-                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                    <button 
+                      className="p-1 hover:bg-muted rounded transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Trash2 className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </TableCell>
@@ -467,6 +516,79 @@ export default function DataManagementPage() {
         settings={chunkSettings}
         onSave={setChunkSettings}
       />
+
+      {/* 문서 상세 모달 */}
+      <Dialog open={showDocDetailModal} onOpenChange={(open) => { setShowDocDetailModal(open); if (!open) setIsEditMode(false); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{isEditMode ? '문서 수정' : '문서 상세'}</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">문서명</label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editDocName}
+                  onChange={(e) => setEditDocName(e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                />
+              ) : (
+                <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">{selectedDocument?.name}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">형식</label>
+                <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">{selectedDocument?.type}</p>
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">크기</label>
+                <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">{selectedDocument?.size}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">업로드 일시</label>
+                <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">{selectedDocument?.uploadedAt}</p>
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">청크 수</label>
+                <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">
+                  {selectedDocument?.status === 'completed' ? selectedDocument.chunks : '-'}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">상태</label>
+              <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">
+                {selectedDocument?.status === 'completed' ? '완료' : selectedDocument?.status === 'processing' ? '처리중' : '실패'}
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex gap-2">
+            {isEditMode ? (
+              <>
+                <Button variant="outline" onClick={() => { setIsEditMode(false); setEditDocName(selectedDocument?.name || ''); }}>
+                  취소
+                </Button>
+                <Button onClick={handleSaveDocName}>
+                  저장
+                </Button>
+              </>
+            ) : (
+              <Button onClick={() => setIsEditMode(true)}>
+                수정
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
