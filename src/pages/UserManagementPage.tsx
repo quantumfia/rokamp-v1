@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, MoreHorizontal } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
 import { ROLE_LABELS, UserRole } from '@/types/auth';
@@ -15,6 +15,24 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 interface User {
   id: string;
@@ -22,24 +40,32 @@ interface User {
   name: string;
   rank: string;
   unitId: string;
+  password: string;
   role: string;
   status: 'active' | 'inactive';
 }
 
 const MOCK_USERS: User[] = [
-  { id: '1', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', role: 'ROLE_HQ', status: 'active' },
-  { id: '2', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'div-1', role: 'ROLE_DIV', status: 'active' },
-  { id: '3', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'div-3', role: 'ROLE_DIV', status: 'active' },
-  { id: '4', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'bn-1-1', role: 'ROLE_BN', status: 'active' },
-  { id: '5', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'bn-1-2', role: 'ROLE_BN', status: 'inactive' },
-  { id: '6', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', role: 'ROLE_DIV', status: 'active' },
-  { id: '7', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'reg-11', role: 'ROLE_BN', status: 'active' },
-  { id: '8', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'bde-sf-1', role: 'ROLE_BN', status: 'active' },
-  { id: '9', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', role: 'ROLE_HQ', status: 'active' },
+  { id: '1', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', password: '********', role: 'ROLE_HQ', status: 'active' },
+  { id: '2', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'div-1', password: '********', role: 'ROLE_DIV', status: 'active' },
+  { id: '3', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'div-3', password: '********', role: 'ROLE_DIV', status: 'active' },
+  { id: '4', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'bn-1-1', password: '********', role: 'ROLE_BN', status: 'active' },
+  { id: '5', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'bn-1-2', password: '********', role: 'ROLE_BN', status: 'inactive' },
+  { id: '6', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', password: '********', role: 'ROLE_DIV', status: 'active' },
+  { id: '7', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'reg-11', password: '********', role: 'ROLE_BN', status: 'active' },
+  { id: '8', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'bde-sf-1', password: '********', role: 'ROLE_BN', status: 'active' },
+  { id: '9', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', password: '********', role: 'ROLE_HQ', status: 'active' },
+];
+
+const RANKS = ['대장', '중장', '소장', '준장', '대령', '중령', '소령'];
+const ROLES = [
+  { value: 'ROLE_HQ', label: '본부 관리자' },
+  { value: 'ROLE_DIV', label: '사단급 관리자' },
+  { value: 'ROLE_BN', label: '대대급 관리자' },
 ];
 
 // 개별 등록 폼
-function UserForm() {
+function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Partial<User>) => void }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
@@ -48,6 +74,8 @@ function UserForm() {
           <input
             type="text"
             placeholder="00-000000"
+            value={form.militaryId || ''}
+            onChange={(e) => onChange({ ...form, militaryId: e.target.value })}
             className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
           />
         </div>
@@ -56,6 +84,8 @@ function UserForm() {
           <input
             type="text"
             placeholder="홍길동"
+            value={form.name || ''}
+            onChange={(e) => onChange({ ...form, name: e.target.value })}
             className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
           />
         </div>
@@ -63,15 +93,15 @@ function UserForm() {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-muted-foreground mb-1.5">계급 *</label>
-          <select className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors">
+          <select 
+            value={form.rank || ''}
+            onChange={(e) => onChange({ ...form, rank: e.target.value })}
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+          >
             <option value="">선택</option>
-            <option value="대장">대장</option>
-            <option value="중장">중장</option>
-            <option value="소장">소장</option>
-            <option value="준장">준장</option>
-            <option value="대령">대령</option>
-            <option value="중령">중령</option>
-            <option value="소령">소령</option>
+            {RANKS.map(rank => (
+              <option key={rank} value={rank}>{rank}</option>
+            ))}
           </select>
         </div>
         <div>
@@ -79,12 +109,24 @@ function UserForm() {
           <input
             type="text"
             placeholder="부대 코드"
+            value={form.unitId || ''}
+            onChange={(e) => onChange({ ...form, unitId: e.target.value })}
             className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
           />
         </div>
       </div>
+      <div>
+        <label className="block text-xs text-muted-foreground mb-1.5">비밀번호 *</label>
+        <input
+          type="password"
+          placeholder="초기 비밀번호 입력"
+          value={form.password || ''}
+          onChange={(e) => onChange({ ...form, password: e.target.value })}
+          className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+        />
+      </div>
       <div className="text-[11px] text-muted-foreground pt-2">
-        • 초기 비밀번호는 군번+생년월일 형식으로 자동 생성됩니다.
+        • 비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다.
       </div>
     </div>
   );
@@ -107,7 +149,7 @@ function BulkUploadForm({ onDownloadTemplate }: { onDownloadTemplate: () => void
         템플릿 다운로드
       </button>
       <div className="text-[11px] text-muted-foreground space-y-0.5">
-        <p>• 필수 필드: 군번, 이름, 계급, 소속부대코드</p>
+        <p>• 필수 필드: 군번, 이름, 계급, 소속부대코드, 비밀번호</p>
         <p>• 소속 부대 코드에 따라 접근 권한 자동 설정</p>
       </div>
     </div>
@@ -118,7 +160,13 @@ export default function UserManagementPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showActionMenu, setShowActionMenu] = useState<string | null>(null);
+  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState<Partial<User>>({});
+  const [newUserForm, setNewUserForm] = useState<Partial<User>>({});
   const isLoading = usePageLoading(1000);
 
   const getRoleLabel = (role: string) => {
@@ -126,6 +174,28 @@ export default function UserManagementPage() {
   };
 
   const handleSubmit = () => {
+    if (!newUserForm.militaryId || !newUserForm.name || !newUserForm.rank || !newUserForm.unitId || !newUserForm.password) {
+      toast({
+        title: '입력 오류',
+        description: '모든 필수 항목을 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    const newUser: User = {
+      id: Date.now().toString(),
+      militaryId: newUserForm.militaryId,
+      name: newUserForm.name,
+      rank: newUserForm.rank,
+      unitId: newUserForm.unitId,
+      password: newUserForm.password,
+      role: 'ROLE_BN',
+      status: 'active',
+    };
+    
+    setUsers([...users, newUser]);
+    setNewUserForm({});
     toast({
       title: '등록 완료',
       description: '사용자가 등록되었습니다.',
@@ -134,11 +204,11 @@ export default function UserManagementPage() {
   };
 
   const handleDownloadTemplate = () => {
-    const headers = ['군번', '이름', '계급', '소속부대코드', '권한', '상태'];
+    const headers = ['군번', '이름', '계급', '소속부대코드', '비밀번호', '권한', '상태'];
     const exampleRows = [
-      ['18-702341', '김철수', '대령', 'hq', 'ROLE_HQ', '활성'],
-      ['17-681542', '이영희', '준장', 'div-1', 'ROLE_DIV', '활성'],
-      ['19-723185', '박민호', '대령', 'div-3', 'ROLE_DIV', '비활성'],
+      ['18-702341', '김철수', '대령', 'hq', 'Password123!', 'ROLE_HQ', '활성'],
+      ['17-681542', '이영희', '준장', 'div-1', 'Password123!', 'ROLE_DIV', '활성'],
+      ['19-723185', '박민호', '대령', 'div-3', 'Password123!', 'ROLE_DIV', '비활성'],
     ];
 
     // BOM 추가 (한글 깨짐 방지)
@@ -164,15 +234,55 @@ export default function UserManagementPage() {
     });
   };
 
-  const handleResetPassword = (userName: string) => {
-    toast({
-      title: '비밀번호 초기화',
-      description: `${userName}님의 비밀번호가 초기화되었습니다.`,
-    });
-    setShowActionMenu(null);
+  const handleUserClick = (user: User) => {
+    setSelectedUser(user);
+    setEditForm({ ...user });
+    setShowDetailModal(true);
   };
 
-  const filteredUsers = MOCK_USERS.filter((user) => {
+  const handleSaveUser = () => {
+    if (!editForm.militaryId || !editForm.name || !editForm.rank || !editForm.unitId) {
+      toast({
+        title: '입력 오류',
+        description: '모든 필수 항목을 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUsers(users.map(u => 
+      u.id === selectedUser?.id 
+        ? { ...u, ...editForm } as User
+        : u
+    ));
+    
+    toast({
+      title: '수정 완료',
+      description: '사용자 정보가 수정되었습니다.',
+    });
+    setShowDetailModal(false);
+    setSelectedUser(null);
+  };
+
+  const handleDeleteClick = (user: User, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setUserToDelete(user);
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (userToDelete) {
+      setUsers(users.filter(u => u.id !== userToDelete.id));
+      toast({
+        title: '삭제 완료',
+        description: `${userToDelete.name}님이 삭제되었습니다.`,
+      });
+      setShowDeleteDialog(false);
+      setUserToDelete(null);
+    }
+  };
+
+  const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.includes(searchQuery) ||
       user.militaryId.includes(searchQuery) ||
@@ -206,15 +316,15 @@ export default function UserManagementPage() {
       <div className="grid grid-cols-3 gap-6">
         <div>
           <p className="text-xs text-muted-foreground">전체 사용자</p>
-          <p className="text-2xl font-semibold text-foreground mt-1">156</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">{users.length}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">활성 계정</p>
-          <p className="text-2xl font-semibold text-foreground mt-1">148</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">{users.filter(u => u.status === 'active').length}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">소속 부대</p>
-          <p className="text-2xl font-semibold text-foreground mt-1">24</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">{new Set(users.map(u => u.unitId)).size}</p>
         </div>
       </div>
 
@@ -242,7 +352,7 @@ export default function UserManagementPage() {
         />
       </div>
 
-      {/* 테이블 */}
+      {/* 테이블 - 간소화 */}
       <Table>
         <TableHeader>
           <TableRow>
@@ -250,59 +360,30 @@ export default function UserManagementPage() {
             <TableHead className="text-xs w-20">이름</TableHead>
             <TableHead className="text-xs w-16">계급</TableHead>
             <TableHead className="text-xs">소속 부대</TableHead>
-            <TableHead className="text-xs w-24">권한</TableHead>
-            <TableHead className="text-xs w-16">상태</TableHead>
             <TableHead className="text-xs w-12"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredUsers.map((user) => (
-            <TableRow key={user.id}>
+            <TableRow 
+              key={user.id} 
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => handleUserClick(user)}
+            >
               <TableCell className="font-mono text-xs">{user.militaryId}</TableCell>
               <TableCell className="text-sm font-medium">{user.name}</TableCell>
               <TableCell className="text-sm text-muted-foreground">{user.rank}</TableCell>
               <TableCell className="text-xs text-muted-foreground truncate max-w-[300px]" title={getUnitFullName(user.unitId)}>
                 {getUnitFullName(user.unitId)}
               </TableCell>
-              <TableCell className="text-sm text-muted-foreground">{getRoleLabel(user.role)}</TableCell>
-              <TableCell className="text-sm text-muted-foreground">
-                {user.status === 'active' ? '활성' : '비활성'}
-              </TableCell>
-              <TableCell className="relative">
+              <TableCell>
                 <button 
-                  onClick={() => setShowActionMenu(showActionMenu === user.id ? null : user.id)}
-                  className="p-1 hover:bg-muted rounded transition-colors"
+                  onClick={(e) => handleDeleteClick(user, e)}
+                  className="p-1.5 hover:bg-destructive/10 rounded transition-colors group"
+                  title="삭제"
                 >
-                  <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                  <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive" />
                 </button>
-                {showActionMenu === user.id && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setShowActionMenu(null)}
-                    />
-                    <div className="absolute right-0 top-8 z-50 w-40 bg-popover border border-border rounded-md shadow-lg py-1">
-                      <button 
-                        className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
-                        onClick={() => setShowActionMenu(null)}
-                      >
-                        권한 변경
-                      </button>
-                      <button 
-                        className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
-                        onClick={() => handleResetPassword(user.name)}
-                      >
-                        비밀번호 초기화
-                      </button>
-                      <button 
-                        className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
-                        onClick={() => setShowActionMenu(null)}
-                      >
-                        계정 비활성화
-                      </button>
-                    </div>
-                  </>
-                )}
               </TableCell>
             </TableRow>
           ))}
@@ -312,16 +393,136 @@ export default function UserManagementPage() {
       {/* 사용자 추가 모달 */}
       <AddModal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => { setShowAddModal(false); setNewUserForm({}); }}
         title="사용자 추가"
         description="개별 등록 또는 엑셀 파일로 일괄 등록"
         inputTypes={[
-          { id: 'single', label: '개별 등록', content: <UserForm /> },
+          { id: 'single', label: '개별 등록', content: <UserForm form={newUserForm} onChange={setNewUserForm} /> },
           { id: 'bulk', label: '일괄 등록', content: <BulkUploadForm onDownloadTemplate={handleDownloadTemplate} /> },
         ]}
         onSubmit={handleSubmit}
         submitLabel="등록"
       />
+
+      {/* 사용자 상세/수정 모달 */}
+      <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>사용자 상세 정보</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">군번</label>
+                <input
+                  type="text"
+                  value={editForm.militaryId || ''}
+                  onChange={(e) => setEditForm({ ...editForm, militaryId: e.target.value })}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">이름</label>
+                <input
+                  type="text"
+                  value={editForm.name || ''}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">계급</label>
+                <select 
+                  value={editForm.rank || ''}
+                  onChange={(e) => setEditForm({ ...editForm, rank: e.target.value })}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                >
+                  {RANKS.map(rank => (
+                    <option key={rank} value={rank}>{rank}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">소속 부대</label>
+                <input
+                  type="text"
+                  value={editForm.unitId || ''}
+                  onChange={(e) => setEditForm({ ...editForm, unitId: e.target.value })}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">비밀번호</label>
+              <input
+                type="password"
+                placeholder="변경 시 입력 (미입력시 유지)"
+                value={editForm.password === '********' ? '' : editForm.password || ''}
+                onChange={(e) => setEditForm({ ...editForm, password: e.target.value || '********' })}
+                className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">권한</label>
+                <select 
+                  value={editForm.role || ''}
+                  onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                >
+                  {ROLES.map(role => (
+                    <option key={role.value} value={role.value}>{role.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">상태</label>
+                <select 
+                  value={editForm.status || ''}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value as 'active' | 'inactive' })}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                >
+                  <option value="active">활성</option>
+                  <option value="inactive">비활성</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDetailModal(false)}>
+              취소
+            </Button>
+            <Button onClick={handleSaveUser}>
+              저장
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>사용자 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              {userToDelete?.name}님을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
