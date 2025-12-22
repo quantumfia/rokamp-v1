@@ -63,7 +63,8 @@ export default function SystemSettingsPage() {
   const filteredLogs = AUDIT_LOGS.filter((log) =>
     log.userName.includes(logSearchQuery) || 
     log.visitorId.includes(logSearchQuery) ||
-    log.action.includes(logSearchQuery)
+    log.action.includes(logSearchQuery) ||
+    log.ip.includes(logSearchQuery)
   );
 
   if (isLoading) {
@@ -139,7 +140,7 @@ export default function SystemSettingsPage() {
           <div className="flex-1 max-w-sm relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="군번 또는 이름 검색..."
+              placeholder="군번, 이름 또는 IP 주소 검색..."
               className="pl-9 bg-background"
               value={logSearchQuery}
               onChange={(e) => setLogSearchQuery(e.target.value)}
