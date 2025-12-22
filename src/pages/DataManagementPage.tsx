@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Settings2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DataManagementSkeleton } from '@/components/skeletons';
 import { PageHeader, TabNavigation, ActionButton, AddModal, FileDropZone } from '@/components/common';
@@ -12,6 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 
 // 상태 라벨
 function StatusLabel({ status }: { status: 'completed' | 'processing' | 'failed' }) {
@@ -40,10 +49,33 @@ const newsData = [
   { id: 4, title: '국방부 안전관리 혁신방안 추진', source: 'YTN', date: '2024-12-10', status: 'processing' as const, embeddings: 0 },
 ];
 
+// 청크 설정 인터페이스
+interface ChunkSettings {
+  chunkSize: number;
+  overlapPercent: number;
+  embeddingModel: string;
+}
+
 // 문서 업로드 폼
-function DocumentUploadForm() {
+function DocumentUploadForm({ 
+  documentName, 
+  onDocumentNameChange 
+}: { 
+  documentName: string; 
+  onDocumentNameChange: (name: string) => void;
+}) {
   return (
     <div className="space-y-4">
+      <div>
+        <label className="block text-xs text-muted-foreground mb-1.5">문서명 *</label>
+        <input
+          type="text"
+          value={documentName}
+          onChange={(e) => onDocumentNameChange(e.target.value)}
+          placeholder="문서명을 입력하세요"
+          className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+        />
+      </div>
       <FileDropZone
         accept=".pdf,.hwp,.docx"
         hint="문서 파일을 드래그하거나 클릭하여 업로드"
@@ -93,6 +125,124 @@ function NewsTextInputForm({ value, onChange }: { value: string; onChange: (v: s
   );
 }
 
+// 청크 설정 모달
+function ChunkSettingsModal({
+  isOpen,
+  onClose,
+  settings,
+  onSave,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  settings: ChunkSettings;
+  onSave: (settings: ChunkSettings) => void;
+}) {
+  const [localSettings, setLocalSettings] = useState<ChunkSettings>(settings);
+
+  const handleSave = () => {
+    onSave(localSettings);
+    onClose();
+    toast({
+      title: '설정 저장 완료',
+      description: '청크 설정이 저장되었습니다.',
+    });
+  };
+
+  const CHUNK_SIZE_OPTIONS = [256, 512, 1024, 2048, 4096];
+  const EMBEDDING_MODELS = [
+    { value: 'text-embedding-3-small', label: 'OpenAI text-embedding-3-small' },
+    { value: 'text-embedding-3-large', label: 'OpenAI text-embedding-3-large' },
+    { value: 'text-embedding-ada-002', label: 'OpenAI text-embedding-ada-002' },
+  ];
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>청크 설정</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6 py-4">
+          {/* 청크 크기 */}
+          <div>
+            <label className="block text-sm font-medium mb-3">청크 크기 (토큰)</label>
+            <div className="flex gap-2 flex-wrap">
+              {CHUNK_SIZE_OPTIONS.map((size) => (
+                <button
+                  key={size}
+                  onClick={() => setLocalSettings({ ...localSettings, chunkSize: size })}
+                  className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
+                    localSettings.chunkSize === size
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-background border-border hover:bg-muted'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              청크가 클수록 문맥을 더 많이 포함하지만 검색 정확도가 낮아질 수 있습니다.
+            </p>
+          </div>
+
+          {/* 오버랩 비율 */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-medium">오버랩 비율</label>
+              <span className="text-sm font-mono text-muted-foreground">{localSettings.overlapPercent}%</span>
+            </div>
+            <Slider
+              value={[localSettings.overlapPercent]}
+              onValueChange={(value) => setLocalSettings({ ...localSettings, overlapPercent: value[0] })}
+              min={0}
+              max={50}
+              step={5}
+              className="w-full"
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              청크 간 중복되는 텍스트 비율입니다. 높을수록 문맥 연결이 좋아지지만 저장 공간이 증가합니다.
+            </p>
+          </div>
+
+          {/* 임베딩 모델 */}
+          <div>
+            <label className="block text-sm font-medium mb-2">임베딩 모델</label>
+            <select
+              value={localSettings.embeddingModel}
+              onChange={(e) => setLocalSettings({ ...localSettings, embeddingModel: e.target.value })}
+              className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+            >
+              {EMBEDDING_MODELS.map((model) => (
+                <option key={model.value} value={model.value}>
+                  {model.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 현재 설정 요약 */}
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <p className="text-xs font-medium text-foreground mb-1">현재 설정 요약</p>
+            <p className="text-xs text-muted-foreground">
+              {localSettings.chunkSize} 토큰 단위로 분할, {localSettings.overlapPercent}% 오버랩
+            </p>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            취소
+          </Button>
+          <Button onClick={handleSave}>
+            저장
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 const DATA_TABS = [
   { id: 'documents', label: '문서 관리' },
   { id: 'news', label: '언론 기사 관리' },
@@ -101,15 +251,31 @@ const DATA_TABS = [
 export default function DataManagementPage() {
   const [activeTab, setActiveTab] = useState('documents');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showChunkSettings, setShowChunkSettings] = useState(false);
   const [jsonInput, setJsonInput] = useState('');
+  const [documentName, setDocumentName] = useState('');
+  const [chunkSettings, setChunkSettings] = useState<ChunkSettings>({
+    chunkSize: 1024,
+    overlapPercent: 20,
+    embeddingModel: 'text-embedding-3-small',
+  });
   const isLoading = usePageLoading(1000);
 
   const handleDocumentUpload = () => {
+    if (!documentName.trim()) {
+      toast({
+        title: '입력 오류',
+        description: '문서명을 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
     toast({
       title: '업로드 완료',
-      description: '문서가 업로드되었습니다. 임베딩 처리가 시작됩니다.',
+      description: `"${documentName}" 문서가 업로드되었습니다. 임베딩 처리가 시작됩니다.`,
     });
     setShowAddModal(false);
+    setDocumentName('');
   };
 
   const handleNewsUpload = () => {
@@ -151,7 +317,11 @@ export default function DataManagementPage() {
         title: '문서 추가',
         description: '학습용 문서를 업로드합니다',
         inputTypes: [
-          { id: 'file', label: '파일 업로드', content: <DocumentUploadForm /> },
+          { 
+            id: 'file', 
+            label: '파일 업로드', 
+            content: <DocumentUploadForm documentName={documentName} onDocumentNameChange={setDocumentName} /> 
+          },
         ],
         onSubmit: handleDocumentUpload,
       }
@@ -171,10 +341,21 @@ export default function DataManagementPage() {
         title="데이터 관리" 
         description="문서 및 언론 기사 학습 데이터 관리"
         actions={
-          <ActionButton 
-            label={activeTab === 'documents' ? '문서 추가' : '기사 추가'} 
-            onClick={() => setShowAddModal(true)} 
-          />
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowChunkSettings(true)}
+              className="gap-1.5"
+            >
+              <Settings2 className="w-4 h-4" />
+              청크 설정
+            </Button>
+            <ActionButton 
+              label={activeTab === 'documents' ? '문서 추가' : '기사 추가'} 
+              onClick={() => setShowAddModal(true)} 
+            />
+          </div>
         }
       />
 
@@ -274,8 +455,17 @@ export default function DataManagementPage() {
         onClose={() => {
           setShowAddModal(false);
           setJsonInput('');
+          setDocumentName('');
         }}
         {...modalConfig}
+      />
+
+      {/* 청크 설정 모달 */}
+      <ChunkSettingsModal
+        isOpen={showChunkSettings}
+        onClose={() => setShowChunkSettings(false)}
+        settings={chunkSettings}
+        onSave={setChunkSettings}
       />
     </div>
   );
