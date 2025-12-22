@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { ForecastSkeleton } from '@/components/skeletons';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
-import { getUnitById, hasChildren } from '@/data/armyUnits';
+import { hasChildren } from '@/data/armyUnits';
 import { PageHeader, TabNavigation } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { GNB } from './GNB';
 import { LNB } from './LNB';
 import { NoticeModal } from '../notice/NoticeModal';
@@ -22,7 +22,6 @@ export function MainLayout() {
   const [showNotificationPanel, setShowNotificationPanel] = useState(false);
   const [selectedUnitFromSearch, setSelectedUnitFromSearch] = useState<string | null>(null);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === '/dashboard';
   const isChatbot = location.pathname === '/chatbot';
@@ -50,15 +49,6 @@ export function MainLayout() {
 
     setShowNotice(true);
   }, [isDashboard]);
-
-  const handleSearchSelect = (unitId: string) => {
-    if (location.pathname !== '/dashboard') {
-      navigate('/dashboard');
-      setTimeout(() => setSelectedUnitFromSearch(unitId), 500);
-    } else {
-      setSelectedUnitFromSearch(unitId);
-    }
-  };
 
   const handleNotificationClick = () => {
     setShowNotificationPanel(!showNotificationPanel);
