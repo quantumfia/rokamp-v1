@@ -310,9 +310,35 @@ export default function ScheduleManagementPage() {
   };
 
   const handleDownloadTemplate = () => {
+    // CSV 템플릿 헤더 및 예시 데이터
+    const headers = ['훈련명', '부대', '날짜', '훈련유형', '시작시간', '종료시간', '장소', '참여인원'];
+    const exampleRows = [
+      ['K-2 소총 영점사격', '제1보병사단 1연대', '2024-12-20', '사격', '09:00', '12:00', '종합사격장', '120'],
+      ['기초체력단련', '제7보병사단 신병교육대', '2024-12-21', '체력', '06:00', '08:00', '연병장', '200'],
+      ['야간 기동훈련', '제3보병사단 기갑대대', '2024-12-22', '기동', '20:00', '24:00', '훈련장 A구역', '80'],
+    ];
+
+    // BOM 추가 (한글 깨짐 방지)
+    const BOM = '\uFEFF';
+    const csvContent = BOM + [
+      headers.join(','),
+      ...exampleRows.map(row => row.join(','))
+    ].join('\n');
+
+    // Blob 생성 및 다운로드
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '일정_일괄등록_템플릿.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: '템플릿 다운로드',
-      description: '일정 일괄 등록 템플릿이 다운로드됩니다.',
+      title: '템플릿 다운로드 완료',
+      description: 'CSV 파일을 확인해주세요. 훈련유형: 사격, 기동, 전술, 체력, 교육, 점검',
     });
   };
 
