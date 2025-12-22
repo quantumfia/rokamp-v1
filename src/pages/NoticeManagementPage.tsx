@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Eye, Edit2, Video, Paperclip, Upload, X } from 'lucide-react';
+import { Trash2, Video, Paperclip, Upload, X, Edit2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -348,12 +348,15 @@ export default function NoticeManagementPage() {
               <TableHead className="text-xs w-24">등록일</TableHead>
               <TableHead className="text-xs w-20">작성자</TableHead>
               <TableHead className="text-xs w-14 text-center">상태</TableHead>
-              <TableHead className="text-xs w-20 text-center">관리</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {NOTICES.map((notice) => (
-              <TableRow key={notice.id}>
+              <TableRow 
+                key={notice.id} 
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleOpenModal('view', notice)}
+              >
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <span className="text-sm">{notice.title}</span>
@@ -384,28 +387,6 @@ export default function NoticeManagementPage() {
                     {notice.status === 'active' ? '활성' : '만료'}
                   </span>
                 </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-center gap-1">
-                    <button 
-                      className="p-1 hover:bg-muted rounded transition-colors"
-                      onClick={() => handleOpenModal('view', notice)}
-                    >
-                      <Eye className="w-3.5 h-3.5 text-muted-foreground" />
-                    </button>
-                    <button 
-                      className="p-1 hover:bg-muted rounded transition-colors"
-                      onClick={() => handleOpenModal('edit', notice)}
-                    >
-                      <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
-                    </button>
-                    <button 
-                      className="p-1 hover:bg-muted rounded transition-colors"
-                      onClick={() => handleDeleteNotice(notice.id)}
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
-                    </button>
-                  </div>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -428,6 +409,31 @@ export default function NoticeManagementPage() {
         onSubmit={handleSubmit}
         submitLabel={modalConfig.submitLabel}
         isSubmitDisabled={!isViewMode && (!noticeTitle.trim() || !noticeContent.trim())}
+        footerActions={
+          isViewMode && selectedNotice ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setModalMode('edit');
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium border border-border rounded-md hover:bg-muted transition-colors"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+                수정
+              </button>
+              <button
+                onClick={() => {
+                  handleDeleteNotice(selectedNotice.id);
+                  handleCloseModal();
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-destructive border border-destructive/30 rounded-md hover:bg-destructive/10 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                삭제
+              </button>
+            </div>
+          ) : undefined
+        }
       />
     </div>
   );

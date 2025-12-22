@@ -18,6 +18,7 @@ interface AddModalProps {
   onSubmit?: () => void;
   submitLabel?: string;
   isSubmitDisabled?: boolean;
+  footerActions?: ReactNode;
 }
 
 export function AddModal({
@@ -29,6 +30,7 @@ export function AddModal({
   onSubmit,
   submitLabel = '추가',
   isSubmitDisabled = false,
+  footerActions,
 }: AddModalProps) {
   const [selectedType, setSelectedType] = useState(inputTypes[0]?.id);
 
@@ -120,25 +122,30 @@ export function AddModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-border bg-muted/30">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-xs font-medium border border-border rounded-md hover:bg-muted transition-colors"
-            >
-              취소
-            </button>
-            <button
-              onClick={onSubmit}
-              disabled={isSubmitDisabled}
-              className={cn(
-                'px-4 py-2 text-xs font-medium rounded-md transition-colors',
-                isSubmitDisabled
-                  ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
-              )}
-            >
-              {submitLabel}
-            </button>
+          <div className="flex items-center justify-between px-5 py-4 border-t border-border bg-muted/30">
+            <div className="flex items-center gap-2">
+              {footerActions}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-xs font-medium border border-border rounded-md hover:bg-muted transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={onSubmit}
+                disabled={isSubmitDisabled}
+                className={cn(
+                  'px-4 py-2 text-xs font-medium rounded-md transition-colors',
+                  isSubmitDisabled
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                )}
+              >
+                {submitLabel}
+              </button>
+            </div>
           </div>
         </div>
       </div>
