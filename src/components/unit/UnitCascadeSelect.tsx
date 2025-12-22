@@ -14,13 +14,15 @@ interface UnitCascadeSelectProps {
   onChange: (unitId: string) => void;
   placeholder?: string;
   showFullPath?: boolean;
+  spanFullWidth?: boolean;
 }
 
 export function UnitCascadeSelect({ 
   value, 
   onChange, 
   placeholder = '부대 선택',
-  showFullPath = true 
+  showFullPath = true,
+  spanFullWidth = false
 }: UnitCascadeSelectProps) {
   const [selections, setSelections] = useState<string[]>([]);
   
@@ -88,7 +90,7 @@ export function UnitCascadeSelect({
   const subLevels = Array.from({ length: Math.max(0, visibleLevels - 1) }).map((_, idx) => idx + 1);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {/* 첫 번째 레벨: 육군본부/전체 선택 */}
       <Select
         value={firstLevelValue}
@@ -107,9 +109,12 @@ export function UnitCascadeSelect({
         </SelectContent>
       </Select>
 
-      {/* 하위 레벨: 군단, 사단 등 */}
+      {/* 하위 레벨: 군단, 사단 등 - spanFullWidth 적용 시 왼쪽으로 확장 */}
       {subLevels.length > 0 && selections.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto">
+        <div 
+          className="flex items-center gap-2 overflow-x-auto"
+          style={spanFullWidth ? { marginLeft: 'calc(-100% - 12px)', width: 'calc(200% + 12px)' } : {}}
+        >
           {subLevels.map((level) => {
             const options = getLevelOptions(level);
             const currentValue = selections[level] || '';
@@ -118,7 +123,7 @@ export function UnitCascadeSelect({
             if (options.length === 0) return null;
             
             return (
-              <div key={level} className="flex items-center gap-1">
+              <div key={level} className="flex items-center gap-1 flex-shrink-0">
                 {level > 1 && (
                   <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 )}
@@ -126,7 +131,7 @@ export function UnitCascadeSelect({
                   value={currentValue}
                   onValueChange={(val) => handleSelect(level, val)}
                 >
-                  <SelectTrigger className="w-36">
+                  <SelectTrigger className="w-32 min-w-[128px]">
                     <SelectValue placeholder="선택..." />
                   </SelectTrigger>
                   <SelectContent className="max-h-60 z-[300]">
@@ -144,7 +149,10 @@ export function UnitCascadeSelect({
       )}
       
       {showFullPath && selections.length > 0 && (
-        <p className="text-xs text-muted-foreground">
+        <p 
+          className="text-xs text-muted-foreground"
+          style={spanFullWidth ? { marginLeft: 'calc(-100% - 12px)' } : {}}
+        >
           {getDisplayPath()}
         </p>
       )}

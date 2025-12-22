@@ -92,6 +92,7 @@ function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Pa
           />
         </div>
       </div>
+      {/* 계급 + 소속부대 첫번째 선택 */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-muted-foreground mb-1.5">계급 *</label>
@@ -113,6 +114,7 @@ function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Pa
             onChange={(value) => onChange({ ...form, unitId: value })}
             placeholder="부대 선택"
             showFullPath={true}
+            spanFullWidth={true}
           />
         </div>
       </div>
