@@ -54,6 +54,9 @@ const MOCK_USERS: User[] = [
   { id: '7', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'reg-11', password: '********', role: 'ROLE_USER', status: 'active' },
   { id: '8', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'bde-sf-1', password: '********', role: 'ROLE_USER', status: 'active' },
   { id: '9', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
+  { id: '10', militaryId: '19-745821', name: '송준혁', rank: '소령', unitId: 'bn-1-3', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '11', militaryId: '20-768432', name: '윤서연', rank: '중령', unitId: 'div-2', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '12', militaryId: '21-791543', name: '장민석', rank: '소령', unitId: 'reg-21', password: '********', role: 'ROLE_USER', status: 'inactive' },
 ];
 
 const RANKS = ['대장', '중장', '소장', '준장', '대령', '중령', '소령'];
