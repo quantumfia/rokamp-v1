@@ -17,12 +17,28 @@ import { usePageLoading } from '@/hooks/usePageLoading';
 import { cn } from '@/lib/utils';
 
 // 공지사항 Mock 데이터
-const NOTICES = [
+interface Notice {
+  id: number;
+  title: string;
+  content: string;
+  target: string;
+  targetLabel: string;
+  videoUrl: string;
+  hasVideo: boolean;
+  hasAttachment: boolean;
+  createdAt: string;
+  author: string;
+  status: string;
+}
+
+const NOTICES: Notice[] = [
   { 
     id: 1, 
     title: '동절기 안전수칙 강화 안내', 
+    content: '동절기 안전수칙을 강화하오니 각 부대에서는 철저히 준수하시기 바랍니다.\n\n1. 난방기구 사용 시 화재 예방\n2. 결빙 구역 미끄럼 주의\n3. 저체온증 예방 조치',
     target: 'all', 
     targetLabel: '전체',
+    videoUrl: 'https://youtu.be/example1',
     hasVideo: true,
     hasAttachment: true,
     createdAt: '2024-12-13', 
@@ -32,8 +48,10 @@ const NOTICES = [
   { 
     id: 2, 
     title: '시스템 정기점검 안내 (12/20)', 
+    content: '시스템 정기점검이 예정되어 있습니다.\n\n점검일시: 2024년 12월 20일 02:00 ~ 06:00\n점검내용: 서버 업데이트 및 보안 패치',
     target: 'all', 
     targetLabel: '전체',
+    videoUrl: '',
     hasVideo: false,
     hasAttachment: false,
     createdAt: '2024-12-10', 
@@ -43,8 +61,10 @@ const NOTICES = [
   { 
     id: 3, 
     title: '야외훈련 간 사고예방 1분 안전학습', 
+    content: '야외훈련 시 안전사고 예방을 위한 1분 안전학습 자료입니다.\n\n첨부된 영상과 문서를 참고하여 훈련 전 교육을 실시하시기 바랍니다.',
     target: 'division', 
     targetLabel: '제32보병사단',
+    videoUrl: 'https://youtu.be/example2',
     hasVideo: true,
     hasAttachment: true,
     createdAt: '2024-12-08', 
@@ -54,8 +74,10 @@ const NOTICES = [
   { 
     id: 4, 
     title: '12월 안전사고 예방 캠페인', 
+    content: '12월 안전사고 예방 캠페인을 실시합니다.\n\n기간: 2024년 12월 1일 ~ 31일\n주제: 겨울철 안전사고 ZERO 달성',
     target: 'all', 
     targetLabel: '전체',
+    videoUrl: '',
     hasVideo: false,
     hasAttachment: true,
     createdAt: '2024-12-05', 
@@ -64,9 +86,13 @@ const NOTICES = [
   },
 ];
 
+type ModalMode = 'create' | 'view' | 'edit';
+
 export default function NoticeManagementPage() {
   const isLoading = usePageLoading(800);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState<ModalMode>('create');
+  const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
   
   // 폼 상태
   const [noticeTitle, setNoticeTitle] = useState('');
@@ -75,7 +101,33 @@ export default function NoticeManagementPage() {
   const [videoUrl, setVideoUrl] = useState('');
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
-  const handlePublishNotice = () => {
+  const handleOpenModal = (mode: ModalMode, notice?: Notice) => {
+    setModalMode(mode);
+    if (notice && (mode === 'view' || mode === 'edit')) {
+      setSelectedNotice(notice);
+      setNoticeTitle(notice.title);
+      setNoticeContent(notice.content);
+      setNoticeTarget(notice.target);
+      setVideoUrl(notice.videoUrl);
+      setAttachedFile(null);
+    } else {
+      resetForm();
+    }
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedNotice(null);
+    resetForm();
+  };
+
+  const handleSubmit = () => {
+    if (modalMode === 'view') {
+      handleCloseModal();
+      return;
+    }
+
     if (!noticeTitle.trim() || !noticeContent.trim()) {
       toast({
         title: '입력 오류',
@@ -84,12 +136,19 @@ export default function NoticeManagementPage() {
       });
       return;
     }
-    toast({
-      title: '공지 등록 완료',
-      description: '공지사항이 등록되었습니다. 대상자 로그인 시 팝업으로 표시됩니다.',
-    });
-    resetForm();
-    setShowAddModal(false);
+
+    if (modalMode === 'create') {
+      toast({
+        title: '공지 등록 완료',
+        description: '공지사항이 등록되었습니다. 대상자 로그인 시 팝업으로 표시됩니다.',
+      });
+    } else if (modalMode === 'edit') {
+      toast({
+        title: '공지 수정 완료',
+        description: '공지사항이 수정되었습니다.',
+      });
+    }
+    handleCloseModal();
   };
 
   const resetForm = () => {
@@ -120,6 +179,31 @@ export default function NoticeManagementPage() {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
+  const getModalConfig = () => {
+    switch (modalMode) {
+      case 'view':
+        return {
+          title: '공지사항 상세보기',
+          description: '공지 내용 확인',
+          submitLabel: '확인',
+        };
+      case 'edit':
+        return {
+          title: '공지사항 수정',
+          description: '공지 내용 수정',
+          submitLabel: '저장',
+        };
+      default:
+        return {
+          title: '공지사항 추가',
+          description: '공지 내용 입력 및 첨부파일 추가',
+          submitLabel: '등록',
+        };
+    }
+  };
+
+  const isViewMode = modalMode === 'view';
+
   if (isLoading) {
     return (
       <div className="p-6 space-y-6 animate-page-enter">
@@ -129,22 +213,23 @@ export default function NoticeManagementPage() {
     );
   }
 
-  // 직접 입력 폼
+  // 폼 (view 모드일 때는 disabled)
   const NoticeForm = (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="notice-title" className="text-xs text-muted-foreground">제목 *</Label>
+        <Label htmlFor="notice-title" className="text-xs text-muted-foreground">제목 {!isViewMode && '*'}</Label>
         <Input
           id="notice-title"
           placeholder="공지 제목을 입력하세요"
           value={noticeTitle}
           onChange={(e) => setNoticeTitle(e.target.value)}
           className="bg-background"
+          disabled={isViewMode}
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="notice-content" className="text-xs text-muted-foreground">내용 *</Label>
+        <Label htmlFor="notice-content" className="text-xs text-muted-foreground">내용 {!isViewMode && '*'}</Label>
         <Textarea
           id="notice-content"
           placeholder="공지 내용을 입력하세요"
@@ -152,6 +237,7 @@ export default function NoticeManagementPage() {
           value={noticeContent}
           onChange={(e) => setNoticeContent(e.target.value)}
           className="bg-background"
+          disabled={isViewMode}
         />
       </div>
 
@@ -160,7 +246,8 @@ export default function NoticeManagementPage() {
         <select 
           value={noticeTarget} 
           onChange={(e) => setNoticeTarget(e.target.value)}
-          className="w-full h-9 px-3 text-sm bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring"
+          className="w-full h-9 px-3 text-sm bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isViewMode}
         >
           <option value="all">전체 (전군)</option>
           <option value="division">예하 부대</option>
@@ -175,40 +262,53 @@ export default function NoticeManagementPage() {
           value={videoUrl}
           onChange={(e) => setVideoUrl(e.target.value)}
           className="bg-background"
+          disabled={isViewMode}
         />
       </div>
 
-      <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">첨부파일 (선택)</Label>
-        {!attachedFile ? (
-          <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-border rounded cursor-pointer hover:border-muted-foreground transition-colors">
-            <Upload className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">파일 선택</span>
-            <input
-              type="file"
-              accept=".hwp,.pdf,.docx,.xlsx,.pptx"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </label>
-        ) : (
-          <div className="flex items-center justify-between px-3 py-2 border border-border rounded">
-            <div className="flex items-center gap-2 min-w-0">
-              <Paperclip className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <span className="text-sm truncate">{attachedFile.name}</span>
-              <span className="text-xs text-muted-foreground flex-shrink-0">
-                ({formatFileSize(attachedFile.size)})
-              </span>
+      {!isViewMode && (
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">첨부파일 (선택)</Label>
+          {!attachedFile ? (
+            <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-border rounded cursor-pointer hover:border-muted-foreground transition-colors">
+              <Upload className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">파일 선택</span>
+              <input
+                type="file"
+                accept=".hwp,.pdf,.docx,.xlsx,.pptx"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </label>
+          ) : (
+            <div className="flex items-center justify-between px-3 py-2 border border-border rounded">
+              <div className="flex items-center gap-2 min-w-0">
+                <Paperclip className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm truncate">{attachedFile.name}</span>
+                <span className="text-xs text-muted-foreground flex-shrink-0">
+                  ({formatFileSize(attachedFile.size)})
+                </span>
+              </div>
+              <button 
+                onClick={() => setAttachedFile(null)}
+                className="p-1 hover:bg-muted rounded transition-colors"
+              >
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
             </div>
-            <button 
-              onClick={() => setAttachedFile(null)}
-              className="p-1 hover:bg-muted rounded transition-colors"
-            >
-              <X className="w-3.5 h-3.5 text-muted-foreground" />
-            </button>
+          )}
+        </div>
+      )}
+
+      {isViewMode && selectedNotice?.hasAttachment && (
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">첨부파일</Label>
+          <div className="flex items-center gap-2 px-3 py-2 border border-border rounded">
+            <Paperclip className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-sm">첨부파일이 있습니다</span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 
@@ -216,13 +316,15 @@ export default function NoticeManagementPage() {
     { id: 'direct', label: '직접 입력', content: NoticeForm },
   ];
 
+  const modalConfig = getModalConfig();
+
   return (
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
         title="공지사항 관리" 
         description="부대별 공지사항 작성 및 발송 관리"
         actions={
-          <ActionButton label="공지 추가" onClick={() => setShowAddModal(true)} />
+          <ActionButton label="공지 추가" onClick={() => handleOpenModal('create')} />
         }
       />
 
@@ -284,10 +386,16 @@ export default function NoticeManagementPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-center gap-1">
-                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                    <button 
+                      className="p-1 hover:bg-muted rounded transition-colors"
+                      onClick={() => handleOpenModal('view', notice)}
+                    >
                       <Eye className="w-3.5 h-3.5 text-muted-foreground" />
                     </button>
-                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                    <button 
+                      className="p-1 hover:bg-muted rounded transition-colors"
+                      onClick={() => handleOpenModal('edit', notice)}
+                    >
                       <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
                     </button>
                     <button 
@@ -310,19 +418,16 @@ export default function NoticeManagementPage() {
         </div>
       </section>
 
-      {/* 공지 추가 모달 */}
+      {/* 공지 모달 (생성/상세보기/수정) */}
       <AddModal
-        isOpen={showAddModal}
-        onClose={() => {
-          setShowAddModal(false);
-          resetForm();
-        }}
-        title="공지사항 추가"
-        description="공지 내용 입력 및 첨부파일 추가"
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        title={modalConfig.title}
+        description={modalConfig.description}
         inputTypes={inputTypes}
-        onSubmit={handlePublishNotice}
-        submitLabel="등록"
-        isSubmitDisabled={!noticeTitle.trim() || !noticeContent.trim()}
+        onSubmit={handleSubmit}
+        submitLabel={modalConfig.submitLabel}
+        isSubmitDisabled={!isViewMode && (!noticeTitle.trim() || !noticeContent.trim())}
       />
     </div>
   );
