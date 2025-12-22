@@ -22,12 +22,6 @@ import { ScrollToTop } from "./components/layout/ScrollToTop";
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  // 테스트를 위해 인증 검사 임시 비활성화
-  // const { isAuthenticated } = useAuth();
-  // if (!isAuthenticated) {
-  //   return <Navigate to="/login" replace />;
-  // }
-  
   return <>{children}</>;
 }
 
