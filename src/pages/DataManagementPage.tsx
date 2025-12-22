@@ -80,9 +80,9 @@ interface NewsArticle {
 
 // 뉴스 데이터
 const initialNewsData: NewsArticle[] = [
-  { id: 1, title: '군 안전사고 예방 종합대책 발표', source: '국방일보', date: '2024-12-13', status: 'completed', embeddings: 45, inputType: 'file', content: '국방부가 오늘 군 안전사고 예방을 위한 종합대책을 발표했다. 이번 대책에는 훈련장 안전시설 점검 강화, 안전교육 의무화, 사고 발생 시 신속대응 체계 구축 등이 포함되어 있다.', fileName: '군_안전사고_예방.pdf', fileType: 'PDF', fileSize: '1.2MB' },
-  { id: 2, title: '동절기 한파 대비 안전수칙 강화', source: '연합뉴스', date: '2024-12-12', status: 'completed', embeddings: 32, inputType: 'json', content: '기상청이 올겨울 한파가 평년보다 강할 것으로 예상됨에 따라 군에서는 동절기 안전수칙을 대폭 강화한다고 밝혔다. 특히 야간 경계근무자의 방한장비 지급과 난방시설 점검이 중점적으로 이뤄질 예정이다.' },
-  { id: 3, title: '육군 훈련장 안전점검 결과 보고', source: '국방일보', date: '2024-12-11', status: 'completed', embeddings: 28, inputType: 'json', content: '육군본부는 전국 주요 훈련장에 대한 안전점검 결과를 발표했다. 점검 결과 대부분의 훈련장이 안전기준을 충족하고 있으나, 일부 시설에 대해서는 보수가 필요한 것으로 나타났다.' },
+  { id: 1, title: '군 안전사고 예방 종합대책 발표', source: '국방일보', date: '2024-12-13', status: 'completed', embeddings: 45, inputType: 'file', fileName: '군_안전사고_예방_종합대책.pdf', fileType: 'PDF', fileSize: '1.2MB' },
+  { id: 2, title: '동절기 한파 대비 안전수칙 강화', source: '연합뉴스', date: '2024-12-12', status: 'completed', embeddings: 32, inputType: 'json', content: JSON.stringify([{ Title: '동절기 한파 대비 안전수칙 강화', Content: '기상청이 올겨울 한파가 평년보다 강할 것으로 예상됨에 따라 군에서는 동절기 안전수칙을 대폭 강화한다고 밝혔다. 특히 야간 경계근무자의 방한장비 지급과 난방시설 점검이 중점적으로 이뤄질 예정이다.', Date: '2024-12-12', Source: '연합뉴스' }], null, 2) },
+  { id: 3, title: '육군 훈련장 안전점검 결과 보고', source: '국방일보', date: '2024-12-11', status: 'completed', embeddings: 28, inputType: 'json', content: JSON.stringify([{ Title: '육군 훈련장 안전점검 결과 보고', Content: '육군본부는 전국 주요 훈련장에 대한 안전점검 결과를 발표했다. 점검 결과 대부분의 훈련장이 안전기준을 충족하고 있으나, 일부 시설에 대해서는 보수가 필요한 것으로 나타났다.', Date: '2024-12-11', Source: '국방일보' }], null, 2) },
   { id: 4, title: '국방부 안전관리 혁신방안 추진', source: 'YTN', date: '2024-12-10', status: 'processing', embeddings: 0, inputType: 'file', fileName: '국방부_안전관리_혁신.pdf', fileType: 'PDF', fileSize: '0.8MB' },
 ];
 
