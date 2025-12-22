@@ -80,39 +80,68 @@ export function UnitCascadeSelect({
       .join(' > ');
   };
 
+  // 첫 번째 레벨 옵션 (육군본부/전체)
+  const firstLevelOptions = getLevelOptions(0);
+  const firstLevelValue = selections[0] || '';
+
+  // 하위 레벨들 (군단, 사단 등)
+  const subLevels = Array.from({ length: Math.max(0, visibleLevels - 1) }).map((_, idx) => idx + 1);
+
   return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-        {Array.from({ length: visibleLevels }).map((_, level) => {
-          const options = getLevelOptions(level);
-          const currentValue = selections[level] || '';
-          
-          // 옵션이 없으면 표시하지 않음
-          if (options.length === 0 && level > 0) return null;
-          
-          return (
-            <Select
-              key={level}
-              value={currentValue}
-              onValueChange={(val) => handleSelect(level, val)}
-            >
-              <SelectTrigger className="w-full min-w-0">
-                <SelectValue placeholder={level === 0 ? placeholder : '선택...'} />
-              </SelectTrigger>
-              <SelectContent className="max-h-60 z-[300]">
-                {level === 0 && (
-                  <SelectItem value="all">전체 부대</SelectItem>
+    <div className="space-y-3">
+      {/* 첫 번째 레벨: 육군본부/전체 선택 */}
+      <Select
+        value={firstLevelValue}
+        onValueChange={(val) => handleSelect(0, val)}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className="max-h-60 z-[300]">
+          <SelectItem value="all">전체 부대</SelectItem>
+          {firstLevelOptions.map((unit) => (
+            <SelectItem key={unit.id} value={unit.id}>
+              {unit.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* 하위 레벨: 군단, 사단 등 */}
+      {subLevels.length > 0 && selections.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {subLevels.map((level) => {
+            const options = getLevelOptions(level);
+            const currentValue = selections[level] || '';
+            
+            // 옵션이 없으면 표시하지 않음
+            if (options.length === 0) return null;
+            
+            return (
+              <div key={level} className="flex items-center gap-1">
+                {level > 1 && (
+                  <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 )}
-                {options.map((unit) => (
-                  <SelectItem key={unit.id} value={unit.id}>
-                    {unit.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          );
-        })}
-      </div>
+                <Select
+                  value={currentValue}
+                  onValueChange={(val) => handleSelect(level, val)}
+                >
+                  <SelectTrigger className="w-36">
+                    <SelectValue placeholder="선택..." />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60 z-[300]">
+                    {options.map((unit) => (
+                      <SelectItem key={unit.id} value={unit.id}>
+                        {unit.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            );
+          })}
+        </div>
+      )}
       
       {showFullPath && selections.length > 0 && (
         <p className="text-xs text-muted-foreground">
