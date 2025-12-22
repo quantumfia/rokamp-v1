@@ -11,6 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { PageHeader, ActionButton, AddModal } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
@@ -100,6 +110,10 @@ export default function NoticeManagementPage() {
   const [noticeTarget, setNoticeTarget] = useState('all');
   const [videoUrl, setVideoUrl] = useState('');
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  
+  // 삭제 확인 다이얼로그 상태
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [noticeToDelete, setNoticeToDelete] = useState<Notice | null>(null);
 
   const handleOpenModal = (mode: ModalMode, notice?: Notice) => {
     setModalMode(mode);
@@ -166,11 +180,21 @@ export default function NoticeManagementPage() {
     }
   };
 
-  const handleDeleteNotice = (id: number) => {
-    toast({
-      title: '공지 삭제',
-      description: '공지사항이 삭제되었습니다.',
-    });
+  const handleDeleteClick = (notice: Notice) => {
+    setNoticeToDelete(notice);
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (noticeToDelete) {
+      toast({
+        title: '공지 삭제',
+        description: '공지사항이 삭제되었습니다.',
+      });
+      setNoticeToDelete(null);
+    }
+    setShowDeleteDialog(false);
+    handleCloseModal();
   };
 
   const formatFileSize = (bytes: number) => {
@@ -423,8 +447,7 @@ export default function NoticeManagementPage() {
               </button>
               <button
                 onClick={() => {
-                  handleDeleteNotice(selectedNotice.id);
-                  handleCloseModal();
+                  handleDeleteClick(selectedNotice);
                 }}
                 className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-destructive border border-destructive/30 rounded-md hover:bg-destructive/10 transition-colors"
               >
@@ -435,6 +458,28 @@ export default function NoticeManagementPage() {
           ) : undefined
         }
       />
+
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>공지사항 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{noticeToDelete?.title}" 공지사항을 삭제하시겠습니까?<br />
+              삭제된 공지사항은 복구할 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
