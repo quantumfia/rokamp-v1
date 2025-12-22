@@ -106,12 +106,11 @@ function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Pa
         </div>
         <div>
           <label className="block text-xs text-muted-foreground mb-1.5">소속 부대 *</label>
-          <input
-            type="text"
-            placeholder="부대 코드"
+          <UnitCascadeSelect
             value={form.unitId || ''}
-            onChange={(e) => onChange({ ...form, unitId: e.target.value })}
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+            onChange={(value) => onChange({ ...form, unitId: value })}
+            placeholder="부대 선택"
+            showFullPath={true}
           />
         </div>
       </div>
@@ -448,11 +447,11 @@ export default function UserManagementPage() {
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">소속 부대</label>
-                <input
-                  type="text"
+                <UnitCascadeSelect
                   value={editForm.unitId || ''}
-                  onChange={(e) => setEditForm({ ...editForm, unitId: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                  onChange={(value) => setEditForm({ ...editForm, unitId: value })}
+                  placeholder="부대 선택"
+                  showFullPath={true}
                 />
               </div>
             </div>
