@@ -134,11 +134,11 @@ export default function UserManagementPage() {
   };
 
   const handleDownloadTemplate = () => {
-    const headers = ['군번', '이름', '계급', '소속부대코드'];
+    const headers = ['군번', '이름', '계급', '소속부대코드', '권한', '상태'];
     const exampleRows = [
-      ['18-702341', '김철수', '대령', 'hq'],
-      ['17-681542', '이영희', '준장', 'div-1'],
-      ['19-723185', '박민호', '대령', 'div-3'],
+      ['18-702341', '김철수', '대령', 'hq', 'ROLE_HQ', '활성'],
+      ['17-681542', '이영희', '준장', 'div-1', 'ROLE_DIV', '활성'],
+      ['19-723185', '박민호', '대령', 'div-3', 'ROLE_DIV', '비활성'],
     ];
 
     // BOM 추가 (한글 깨짐 방지)
