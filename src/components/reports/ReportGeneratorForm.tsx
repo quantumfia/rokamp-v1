@@ -76,6 +76,8 @@ interface PersonInvolved {
 interface ReportGeneratorFormProps {
   onGenerate: (data: ReportFormData) => void;
   isGenerating: boolean;
+  isEditMode?: boolean;
+  initialData?: ReportFormData;
 }
 
 export interface ReportFormData {
@@ -184,8 +186,8 @@ const getDefaultFormData = (): ReportFormData => {
 
 const generatePersonId = () => Math.random().toString(36).substr(2, 9);
 
-export function ReportGeneratorForm({ onGenerate, isGenerating }: ReportGeneratorFormProps) {
-  const [formData, setFormData] = useState<ReportFormData>(getDefaultFormData());
+export function ReportGeneratorForm({ onGenerate, isGenerating, isEditMode = false, initialData }: ReportGeneratorFormProps) {
+  const [formData, setFormData] = useState<ReportFormData>(initialData || getDefaultFormData());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -678,7 +680,7 @@ export function ReportGeneratorForm({ onGenerate, isGenerating }: ReportGenerato
           disabled={!isFormValid || isGenerating}
           className="w-full py-2.5 bg-foreground text-background rounded text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-40"
         >
-          {isGenerating ? '생성 중...' : 'AI 보고서 초안 생성'}
+          {isGenerating ? '생성 중...' : (isEditMode ? '저장 후 AI 보고서 초안 생성' : 'AI 보고서 초안 생성')}
         </button>
       </form>
     </div>
