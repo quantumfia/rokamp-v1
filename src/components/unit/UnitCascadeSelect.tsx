@@ -114,7 +114,7 @@ export function UnitCascadeSelect({
       {/* 하위 레벨: 군단, 사단 등 - spanFullWidth 적용 시 왼쪽으로 확장 */}
       {showSubLevels && subLevels.length > 0 && selections.length > 0 && (
         <div 
-          className="flex items-center gap-2 overflow-x-auto"
+          className={spanFullWidth ? "flex items-center gap-2 overflow-x-auto" : "flex flex-wrap items-center gap-2"}
           style={spanFullWidth ? { marginLeft: 'calc(-100% - 12px)', width: 'calc(200% + 12px)' } : {}}
         >
           {subLevels.map((level) => {
