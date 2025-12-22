@@ -7,7 +7,7 @@ import { StatusHeader } from '@/components/dashboard/StatusHeader';
 import { TrendChartsVertical } from '@/components/dashboard/TrendChartsVertical';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
-import { X, List, BarChart3 } from 'lucide-react';
+import { X, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {

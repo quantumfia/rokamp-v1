@@ -16,7 +16,6 @@ export function SplashScreen({ onComplete, skipSplash = false }: SplashScreenPro
   const [loadingComplete, setLoadingComplete] = useState(skipSplash);
   const [showLoginForm, setShowLoginForm] = useState(skipSplash);
   const [showElements, setShowElements] = useState(skipSplash);
-  const [pulseText, setPulseText] = useState(true);
   
   // Login form state
   const [militaryId, setMilitaryId] = useState('');
@@ -46,15 +45,6 @@ export function SplashScreen({ onComplete, skipSplash = false }: SplashScreenPro
     return () => clearInterval(progressInterval);
   }, [skipSplash]);
 
-  // Pulsing text animation
-  useEffect(() => {
-    if (loadingComplete && !showLoginForm) {
-      const pulseInterval = setInterval(() => {
-        setPulseText(prev => !prev);
-      }, 1000);
-      return () => clearInterval(pulseInterval);
-    }
-  }, [loadingComplete, showLoginForm]);
 
   const handleClick = useCallback(() => {
     if (loadingComplete && !showLoginForm) {
