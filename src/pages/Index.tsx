@@ -1,18 +1,31 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { SplashScreen } from '@/components/splash/SplashScreen';
 
 const Index = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   
-  // 로그아웃 시 스플래시 스킵하고 바로 로그인 폼 표시
-  const skipSplash = searchParams.get('logout') === 'true';
+  // /login 경로면 바로 로그인 폼 표시
+  const isLoginPage = location.pathname === '/login';
+  // 로그아웃 시에도 스플래시 스킵
+  const skipSplash = isLoginPage || searchParams.get('logout') === 'true';
 
   const handleComplete = () => {
     navigate('/dashboard');
   };
 
-  return <SplashScreen onComplete={handleComplete} skipSplash={skipSplash} />;
+  const handleClickToContinue = () => {
+    navigate('/login');
+  };
+
+  return (
+    <SplashScreen 
+      onComplete={handleComplete} 
+      skipSplash={skipSplash}
+      onClickToContinue={isLoginPage ? undefined : handleClickToContinue}
+    />
+  );
 };
 
 export default Index;

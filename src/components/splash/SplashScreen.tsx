@@ -9,9 +9,10 @@ import armyLogo from '@/assets/army-logo.png';
 interface SplashScreenProps {
   onComplete: () => void;
   skipSplash?: boolean;
+  onClickToContinue?: () => void;
 }
 
-export function SplashScreen({ onComplete, skipSplash = false }: SplashScreenProps) {
+export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue }: SplashScreenProps) {
   const [loadingProgress, setLoadingProgress] = useState(skipSplash ? 100 : 0);
   const [loadingComplete, setLoadingComplete] = useState(skipSplash);
   const [showLoginForm, setShowLoginForm] = useState(skipSplash);
@@ -48,9 +49,14 @@ export function SplashScreen({ onComplete, skipSplash = false }: SplashScreenPro
 
   const handleClick = useCallback(() => {
     if (loadingComplete && !showLoginForm) {
-      setShowLoginForm(true);
+      // onClickToContinue가 있으면 /login으로 이동, 없으면 로그인 폼 표시
+      if (onClickToContinue) {
+        onClickToContinue();
+      } else {
+        setShowLoginForm(true);
+      }
     }
-  }, [loadingComplete, showLoginForm]);
+  }, [loadingComplete, showLoginForm, onClickToContinue]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
