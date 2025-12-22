@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Settings2, FileText, Download } from 'lucide-react';
+import { Settings2, FileText, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DataManagementSkeleton } from '@/components/skeletons';
 import { PageHeader, TabNavigation, ActionButton, AddModal, FileDropZone } from '@/components/common';
@@ -19,6 +19,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 
@@ -316,6 +326,8 @@ export default function DataManagementPage() {
   const [showChunkSettings, setShowChunkSettings] = useState(false);
   const [showDocDetailModal, setShowDocDetailModal] = useState(false);
   const [showNewsDetailModal, setShowNewsDetailModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteType, setDeleteType] = useState<'document' | 'news'>('document');
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [selectedNews, setSelectedNews] = useState<NewsArticle | null>(null);
   const [editDocName, setEditDocName] = useState('');
@@ -383,6 +395,35 @@ export default function DataManagementPage() {
       description: '기사 제목이 수정되었습니다.',
     });
     setIsEditMode(false);
+  };
+
+  const handleDeleteDocument = () => {
+    setDeleteType('document');
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteNews = () => {
+    setDeleteType('news');
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteType === 'document' && selectedDocument) {
+      setDocuments(documents.filter(d => d.id !== selectedDocument.id));
+      toast({
+        title: '삭제 완료',
+        description: '문서가 삭제되었습니다.',
+      });
+      setShowDocDetailModal(false);
+    } else if (deleteType === 'news' && selectedNews) {
+      setNewsArticles(newsArticles.filter(n => n.id !== selectedNews.id));
+      toast({
+        title: '삭제 완료',
+        description: '기사가 삭제되었습니다.',
+      });
+      setShowNewsDetailModal(false);
+    }
+    setShowDeleteConfirm(false);
   };
 
   const handleDocumentUpload = () => {
@@ -513,7 +554,6 @@ export default function DataManagementPage() {
                 <TableHead className="text-xs w-36">업로드 일시</TableHead>
                 <TableHead className="text-xs w-20 text-center">청크 수</TableHead>
                 <TableHead className="text-xs w-16">상태</TableHead>
-                <TableHead className="text-xs w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -531,14 +571,6 @@ export default function DataManagementPage() {
                     {doc.status === 'completed' ? doc.chunks : '-'}
                   </TableCell>
                   <TableCell><StatusLabel status={doc.status} /></TableCell>
-                  <TableCell>
-                    <button 
-                      className="p-1 hover:bg-muted rounded transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Trash2 className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -564,7 +596,6 @@ export default function DataManagementPage() {
                 <TableHead className="text-xs w-24">날짜</TableHead>
                 <TableHead className="text-xs w-20 text-center">임베딩 수</TableHead>
                 <TableHead className="text-xs w-16">상태</TableHead>
-                <TableHead className="text-xs w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -581,14 +612,6 @@ export default function DataManagementPage() {
                     {news.status === 'completed' ? news.embeddings : '-'}
                   </TableCell>
                   <TableCell><StatusLabel status={news.status} /></TableCell>
-                  <TableCell>
-                    <button 
-                      className="p-1 hover:bg-muted rounded transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Trash2 className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -701,21 +724,26 @@ export default function DataManagementPage() {
             </div>
           </div>
 
-          <DialogFooter className="flex gap-2">
-            {isEditMode ? (
-              <>
-                <Button variant="outline" onClick={() => { setIsEditMode(false); setEditDocName(selectedDocument?.name || ''); }}>
-                  취소
+          <DialogFooter className="flex justify-between">
+            <Button variant="destructive" onClick={handleDeleteDocument}>
+              삭제
+            </Button>
+            <div className="flex gap-2">
+              {isEditMode ? (
+                <>
+                  <Button variant="outline" onClick={() => { setIsEditMode(false); setEditDocName(selectedDocument?.name || ''); }}>
+                    취소
+                  </Button>
+                  <Button onClick={handleSaveDocName}>
+                    저장
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={() => setIsEditMode(true)}>
+                  수정
                 </Button>
-                <Button onClick={handleSaveDocName}>
-                  저장
-                </Button>
-              </>
-            ) : (
-              <Button onClick={() => setIsEditMode(true)}>
-                수정
-              </Button>
-            )}
+              )}
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -808,24 +836,50 @@ export default function DataManagementPage() {
             </div>
           </div>
 
-          <DialogFooter className="flex gap-2">
-            {isEditMode ? (
-              <>
-                <Button variant="outline" onClick={() => { setIsEditMode(false); setEditNewsTitle(selectedNews?.title || ''); }}>
-                  취소
+          <DialogFooter className="flex justify-between">
+            <Button variant="destructive" onClick={handleDeleteNews}>
+              삭제
+            </Button>
+            <div className="flex gap-2">
+              {isEditMode ? (
+                <>
+                  <Button variant="outline" onClick={() => { setIsEditMode(false); setEditNewsTitle(selectedNews?.title || ''); }}>
+                    취소
+                  </Button>
+                  <Button onClick={handleSaveNewsTitle}>
+                    저장
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={() => setIsEditMode(true)}>
+                  수정
                 </Button>
-                <Button onClick={handleSaveNewsTitle}>
-                  저장
-                </Button>
-              </>
-            ) : (
-              <Button onClick={() => setIsEditMode(true)}>
-                수정
-              </Button>
-            )}
+              )}
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 삭제 확인 다이얼로그 */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteType === 'document' 
+                ? `"${selectedDocument?.name}" 문서를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`
+                : `"${selectedNews?.title}" 기사를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
