@@ -256,7 +256,7 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
 
       {/* Version info */}
       <div className="absolute bottom-6 right-6 font-mono text-[10px] text-white/20">
-        v2.1.0 | Build 2024.12
+        v1.0.0 | Build 2025.12
       </div>
 
       {/* Bottom scan line effect */}
