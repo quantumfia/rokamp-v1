@@ -108,6 +108,8 @@ export default function ReportsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const isLoading = usePageLoading(1000);
   const [reporterInfo, setReporterInfo] = useState<{ name: string; rank: string } | undefined>();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editFormData, setEditFormData] = useState<ReportFormData | undefined>();
 
   // Super Admin 권한: 모든 기능 표시
   const isHQ = true;
@@ -141,7 +143,11 @@ export default function ReportsPage() {
         actions={
           !showGenerator ? (
             activeTab === 'accident' ? (
-              <ActionButton label="보고서 생성" onClick={() => setShowGenerator(true)} />
+              <ActionButton label="보고서 생성" onClick={() => {
+                setIsEditMode(false);
+                setEditFormData(undefined);
+                setShowGenerator(true);
+              }} />
             ) : (
               <ActionButton label="보고서 생성" onClick={() => setShowStatModal(true)} />
             )
@@ -160,6 +166,8 @@ export default function ReportsPage() {
             onClick={() => {
               setShowGenerator(false);
               setGeneratedContent('');
+              setIsEditMode(false);
+              setEditFormData(undefined);
             }}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
@@ -169,6 +177,8 @@ export default function ReportsPage() {
             <ReportGeneratorForm 
               onGenerate={handleGenerate}
               isGenerating={isGenerating}
+              isEditMode={isEditMode}
+              initialData={editFormData}
             />
             <ReportPreview 
               content={generatedContent}
@@ -181,7 +191,19 @@ export default function ReportsPage() {
 
       {/* 사고 보고서 목록 탭 */}
       {!showGenerator && activeTab === 'accident' && (
-        <AccidentReportList onCreateNew={() => setShowGenerator(true)} />
+        <AccidentReportList 
+          onCreateNew={() => {
+            setIsEditMode(false);
+            setEditFormData(undefined);
+            setShowGenerator(true);
+          }} 
+          onEdit={(formData) => {
+            setIsEditMode(true);
+            setEditFormData(formData);
+            setShowGenerator(true);
+            setGeneratedContent('');
+          }}
+        />
       )}
 
       {/* 통계 보고서 조회 탭 */}

@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import armyLogo from '@/assets/army-logo.png';
+import { ReportFormData } from '@/components/reports/ReportGeneratorForm';
 
 // 사고 보고서 타입
 interface AccidentReport {
@@ -240,9 +241,41 @@ const PAGE_PADDING_BOTTOM = 60;
 
 interface AccidentReportListProps {
   onCreateNew?: () => void;
+  onEdit?: (formData: ReportFormData) => void;
 }
 
-export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
+// AccidentReport를 ReportFormData로 변환하는 함수
+const convertToFormData = (report: AccidentReport): ReportFormData => {
+  return {
+    date: report.date,
+    time: report.createdAt.split(' ')[1] || '',
+    location: report.location,
+    locationDetail: 'inside',
+    specificPlace: '',
+    categoryMajor: report.category === '안전사고' ? 'safety' : report.category === '군기사고' ? 'military_discipline' : report.category === '범죄사고' ? 'crime' : 'other',
+    categoryMiddle: report.categoryDetail === '차량사고' ? 'vehicle' : report.categoryDetail === '훈련사고' ? 'training' : report.categoryDetail === '폭행사고' ? 'assault' : '',
+    categoryMinor: '',
+    overview: report.overview,
+    cause: '',
+    keywords: '',
+    personsInvolved: [],
+    militaryDeaths: report.casualties.militaryDeaths,
+    civilianDeaths: report.casualties.civilianDeaths,
+    militaryInjuries: report.casualties.militaryInjuries,
+    civilianInjuries: report.casualties.civilianInjuries,
+    militaryDamage: '',
+    civilianDamage: '',
+    alcoholInvolved: false,
+    crimeTool: '',
+    workType: '',
+    reporter: report.reporter,
+    reporterRank: report.reporterRank,
+    reporterContact: '',
+    actionsTaken: report.actionsTaken,
+  };
+};
+
+export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListProps) {
   const [selectedReport, setSelectedReport] = useState<AccidentReport | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -510,7 +543,14 @@ export function AccidentReportList({ onCreateNew }: AccidentReportListProps) {
           </button>
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => toast({ title: '수정', description: '수정 기능은 추후 구현 예정입니다.' })}
+              onClick={() => {
+                if (onEdit && selectedReport) {
+                  const formData = convertToFormData(selectedReport);
+                  onEdit(formData);
+                } else {
+                  toast({ title: '수정', description: '수정 기능은 추후 구현 예정입니다.' });
+                }
+              }}
               className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors"
             >
               <Pencil className="w-4 h-4" />
