@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Download, Globe, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Search, Download, Globe, Plus, Pencil, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -78,6 +78,10 @@ export default function SystemSettingsPage() {
   const [logSearchQuery, setLogSearchQuery] = useState('');
   const [logDateFrom, setLogDateFrom] = useState('');
   const [logDateTo, setLogDateTo] = useState('');
+  
+  // 페이지네이션
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleExportLogs = () => {
     toast({
@@ -171,6 +175,17 @@ export default function SystemSettingsPage() {
     log.action.includes(logSearchQuery) ||
     log.ip.includes(logSearchQuery)
   );
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedLogs = filteredLogs.slice(startIndex, endIndex);
+
+  const handleLogSearchChange = (value: string) => {
+    setLogSearchQuery(value);
+    setCurrentPage(1);
+  };
 
   if (isLoading) {
     return <SystemSettingsSkeleton />;
@@ -278,7 +293,7 @@ export default function SystemSettingsPage() {
               placeholder="군번, 이름 또는 IP 주소 검색..."
               className="pl-9 bg-background"
               value={logSearchQuery}
-              onChange={(e) => setLogSearchQuery(e.target.value)}
+              onChange={(e) => handleLogSearchChange(e.target.value)}
             />
           </div>
           <Input
@@ -311,38 +326,120 @@ export default function SystemSettingsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredLogs.map((log) => (
-              <TableRow key={log.id}>
-                <TableCell className="text-xs text-muted-foreground tabular-nums">{log.timestamp}</TableCell>
-                <TableCell className="font-mono text-xs">{log.visitorId}</TableCell>
-                <TableCell className="text-sm">
-                  {log.userName !== '-' ? `${log.userName} ${log.rank}` : '-'}
-                </TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground">{log.ip}</TableCell>
-                <TableCell className="text-sm">{log.action}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{log.target}</TableCell>
-                <TableCell className="text-center">
-                  <span className={cn(
-                    "text-xs",
-                    log.status === 'success' ? 'text-foreground' : 'text-destructive'
-                  )}>
-                    {log.status === 'success' ? '성공' : '실패'}
-                  </span>
-                </TableCell>
-                <TableCell className="text-center">
-                  {log.status === 'success' && log.action === '로그인' && (
-                    <button 
-                      onClick={() => handleForceLogout(log.visitorId, log.userName)}
-                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      세션 종료
-                    </button>
-                  )}
+            {paginatedLogs.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  검색 결과가 없습니다.
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedLogs.map((log) => (
+                <TableRow key={log.id}>
+                  <TableCell className="text-xs text-muted-foreground tabular-nums">{log.timestamp}</TableCell>
+                  <TableCell className="font-mono text-xs">{log.visitorId}</TableCell>
+                  <TableCell className="text-sm">
+                    {log.userName !== '-' ? `${log.userName} ${log.rank}` : '-'}
+                  </TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">{log.ip}</TableCell>
+                  <TableCell className="text-sm">{log.action}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{log.target}</TableCell>
+                  <TableCell className="text-center">
+                    <span className={cn(
+                      "text-xs",
+                      log.status === 'success' ? 'text-foreground' : 'text-destructive'
+                    )}>
+                      {log.status === 'success' ? '성공' : '실패'}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {log.status === 'success' && log.action === '로그인' && (
+                      <button 
+                        onClick={() => handleForceLogout(log.visitorId, log.userName)}
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        세션 종료
+                      </button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
+
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-4">
+            <p className="text-sm text-muted-foreground">
+              총 {filteredLogs.length}건 중 {startIndex + 1}-{Math.min(endIndex, filteredLogs.length)}건
+            </p>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(page => {
+                  if (totalPages <= 5) return true;
+                  if (page === 1 || page === totalPages) return true;
+                  if (Math.abs(page - currentPage) <= 1) return true;
+                  return false;
+                })
+                .map((page, index, array) => {
+                  const showEllipsis = index > 0 && page - array[index - 1] > 1;
+                  return (
+                    <div key={page} className="flex items-center">
+                      {showEllipsis && (
+                        <span className="px-2 text-muted-foreground">...</span>
+                      )}
+                      <Button
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </Button>
+                    </div>
+                  );
+                })}
+              
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
 
         <p className="text-xs text-muted-foreground">
           * 비인가 IP 접속 시도 시 관리자에게 자동 알림이 발송됩니다.
