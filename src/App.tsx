@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
-import LoginPage from "./pages/LoginPage";
+
 import DashboardPage from "./pages/DashboardPage";
 import ForecastPage from "./pages/ForecastPage";
 import ChatbotPage from "./pages/ChatbotPage";
@@ -35,7 +35,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/login" element={<LoginPage />} />
+      
       <Route
         element={
           <ProtectedRoute>
