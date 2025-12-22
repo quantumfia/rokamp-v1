@@ -16,6 +16,7 @@ interface UnitCascadeSelectProps {
   showFullPath?: boolean;
   spanFullWidth?: boolean;
   showSubLevels?: boolean;
+  inline?: boolean; // 모든 select를 한 줄에 표시
 }
 
 export function UnitCascadeSelect({ 
@@ -24,7 +25,8 @@ export function UnitCascadeSelect({
   placeholder = '부대 선택',
   showFullPath = true,
   spanFullWidth = false,
-  showSubLevels = true
+  showSubLevels = true,
+  inline = false
 }: UnitCascadeSelectProps) {
   const [selections, setSelections] = useState<string[]>([]);
   
@@ -91,6 +93,61 @@ export function UnitCascadeSelect({
   // 하위 레벨들 (군단, 사단 등)
   const subLevels = Array.from({ length: Math.max(0, visibleLevels - 1) }).map((_, idx) => idx + 1);
 
+  // 인라인 모드: 모든 select를 한 줄에 표시
+  if (inline) {
+    return (
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* 첫 번째 레벨 */}
+        <Select
+          value={firstLevelValue}
+          onValueChange={(val) => handleSelect(0, val)}
+        >
+          <SelectTrigger className="w-32 min-w-[128px]">
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent className="max-h-60 z-[300]">
+            <SelectItem value="all">전체 부대</SelectItem>
+            {firstLevelOptions.map((unit) => (
+              <SelectItem key={unit.id} value={unit.id}>
+                {unit.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* 하위 레벨들 */}
+        {showSubLevels && subLevels.map((level) => {
+          const options = getLevelOptions(level);
+          const currentValue = selections[level] || '';
+          
+          if (options.length === 0) return null;
+          
+          return (
+            <div key={level} className="flex items-center gap-1 flex-shrink-0">
+              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <Select
+                value={currentValue}
+                onValueChange={(val) => handleSelect(level, val)}
+              >
+                <SelectTrigger className="w-32 min-w-[128px]">
+                  <SelectValue placeholder="선택..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-60 z-[300]">
+                  {options.map((unit) => (
+                    <SelectItem key={unit.id} value={unit.id}>
+                      {unit.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // 기본 모드: 첫 번째 레벨과 하위 레벨 분리
   return (
     <div className="space-y-2">
       {/* 첫 번째 레벨: 육군본부/전체 선택 */}

@@ -377,6 +377,7 @@ export default function UserManagementPage() {
               placeholder="전체"
               showFullPath={false}
               showSubLevels={true}
+              inline={true}
             />
           </div>
         </div>
