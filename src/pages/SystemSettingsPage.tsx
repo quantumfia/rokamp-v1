@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Download, Globe } from 'lucide-react';
+import { Search, Download, Globe, Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { SystemSettingsSkeleton } from '@/components/skeletons';
 import { PageHeader } from '@/components/common';
@@ -28,11 +45,17 @@ const AUDIT_LOGS = [
   { id: 7, visitorId: '22-481523', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '로그아웃', target: '-', timestamp: '2024-12-13 17:30:00', status: 'success' },
 ];
 
-// 허용 IP 대역 Mock 데이터
-const ALLOWED_IPS = [
-  { ip: '10.10.0.0/16', desc: '본부 네트워크' },
-  { ip: '10.20.0.0/16', desc: '사단급 네트워크' },
-  { ip: '10.30.0.0/16', desc: '대대급 네트워크' },
+// 허용 IP 대역 타입 및 초기 데이터
+interface AllowedIP {
+  id: string;
+  ip: string;
+  desc: string;
+}
+
+const INITIAL_ALLOWED_IPS: AllowedIP[] = [
+  { id: '1', ip: '10.10.0.0/16', desc: '본부 네트워크' },
+  { id: '2', ip: '10.20.0.0/16', desc: '사단급 네트워크' },
+  { id: '3', ip: '10.30.0.0/16', desc: '대대급 네트워크' },
 ];
 
 export default function SystemSettingsPage() {
@@ -40,6 +63,16 @@ export default function SystemSettingsPage() {
   
   // IP 화이트리스트 활성화 상태
   const [ipWhitelistEnabled, setIpWhitelistEnabled] = useState(true);
+  const [allowedIPs, setAllowedIPs] = useState<AllowedIP[]>(INITIAL_ALLOWED_IPS);
+  
+  // IP 추가/수정 모달
+  const [showIPModal, setShowIPModal] = useState(false);
+  const [editingIP, setEditingIP] = useState<AllowedIP | null>(null);
+  const [ipForm, setIpForm] = useState({ ip: '', desc: '' });
+  
+  // IP 삭제 다이얼로그
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [ipToDelete, setIpToDelete] = useState<AllowedIP | null>(null);
   
   // 감사 로그 필터
   const [logSearchQuery, setLogSearchQuery] = useState('');
@@ -58,6 +91,78 @@ export default function SystemSettingsPage() {
       title: '강제 로그아웃',
       description: `${userName} 사용자의 세션을 종료했습니다.`,
     });
+  };
+
+  // IP 추가 모달 열기
+  const handleAddIP = () => {
+    setEditingIP(null);
+    setIpForm({ ip: '', desc: '' });
+    setShowIPModal(true);
+  };
+
+  // IP 수정 모달 열기
+  const handleEditIP = (ipItem: AllowedIP) => {
+    setEditingIP(ipItem);
+    setIpForm({ ip: ipItem.ip, desc: ipItem.desc });
+    setShowIPModal(true);
+  };
+
+  // IP 저장 (추가 또는 수정)
+  const handleSaveIP = () => {
+    if (!ipForm.ip.trim()) {
+      toast({
+        title: '입력 오류',
+        description: 'IP 대역을 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (editingIP) {
+      setAllowedIPs(prev => prev.map(item => 
+        item.id === editingIP.id 
+          ? { ...item, ip: ipForm.ip, desc: ipForm.desc }
+          : item
+      ));
+      toast({
+        title: '수정 완료',
+        description: 'IP 대역이 수정되었습니다.',
+      });
+    } else {
+      const newIP: AllowedIP = {
+        id: Date.now().toString(),
+        ip: ipForm.ip,
+        desc: ipForm.desc,
+      };
+      setAllowedIPs(prev => [...prev, newIP]);
+      toast({
+        title: '추가 완료',
+        description: 'IP 대역이 추가되었습니다.',
+      });
+    }
+
+    setShowIPModal(false);
+    setIpForm({ ip: '', desc: '' });
+    setEditingIP(null);
+  };
+
+  // IP 삭제 다이얼로그 열기
+  const handleDeleteClick = (ipItem: AllowedIP) => {
+    setIpToDelete(ipItem);
+    setShowDeleteDialog(true);
+  };
+
+  // IP 삭제 확인
+  const handleConfirmDelete = () => {
+    if (ipToDelete) {
+      setAllowedIPs(prev => prev.filter(item => item.id !== ipToDelete.id));
+      toast({
+        title: '삭제 완료',
+        description: 'IP 대역이 삭제되었습니다.',
+      });
+    }
+    setShowDeleteDialog(false);
+    setIpToDelete(null);
   };
 
   const filteredLogs = AUDIT_LOGS.filter((log) =>
@@ -100,22 +205,52 @@ export default function SystemSettingsPage() {
               <Globe className="w-4 h-4 text-muted-foreground" />
               <h2 className="text-sm font-medium">IP 접근 제어</h2>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">화이트리스트</span>
-              <Switch 
-                checked={ipWhitelistEnabled}
-                onCheckedChange={setIpWhitelistEnabled}
-              />
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleAddIP}
+                disabled={!ipWhitelistEnabled}
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                추가
+              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">화이트리스트</span>
+                <Switch 
+                  checked={ipWhitelistEnabled}
+                  onCheckedChange={setIpWhitelistEnabled}
+                />
+              </div>
             </div>
           </div>
           <div className={cn(
             "space-y-1.5 transition-opacity",
             !ipWhitelistEnabled && "opacity-50"
           )}>
-            {ALLOWED_IPS.map((item, index) => (
-              <div key={index} className="flex items-center gap-2 text-xs">
-                <code className="font-mono bg-muted px-1.5 py-0.5 rounded">{item.ip}</code>
-                <span className="text-muted-foreground">{item.desc}</span>
+            {allowedIPs.map((item) => (
+              <div key={item.id} className="flex items-center justify-between group text-xs">
+                <div className="flex items-center gap-2">
+                  <code className="font-mono bg-muted px-1.5 py-0.5 rounded">{item.ip}</code>
+                  <span className="text-muted-foreground">{item.desc}</span>
+                </div>
+                {ipWhitelistEnabled && (
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleEditIP(item)}
+                      className="p-1 hover:bg-muted rounded transition-colors"
+                      title="수정"
+                    >
+                      <Pencil className="w-3 h-3 text-muted-foreground" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(item)}
+                      className="p-1 hover:bg-muted rounded transition-colors"
+                      title="삭제"
+                    >
+                      <Trash2 className="w-3 h-3 text-muted-foreground" />
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -213,6 +348,59 @@ export default function SystemSettingsPage() {
           * 비인가 IP 접속 시도 시 관리자에게 자동 알림이 발송됩니다.
         </p>
       </section>
+
+      {/* IP 추가/수정 모달 */}
+      <Dialog open={showIPModal} onOpenChange={setShowIPModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingIP ? 'IP 대역 수정' : 'IP 대역 추가'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">IP 대역 *</label>
+              <Input
+                placeholder="예: 10.10.0.0/16"
+                value={ipForm.ip}
+                onChange={(e) => setIpForm(prev => ({ ...prev, ip: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1.5">설명</label>
+              <Input
+                placeholder="예: 본부 네트워크"
+                value={ipForm.desc}
+                onChange={(e) => setIpForm(prev => ({ ...prev, desc: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowIPModal(false)}>
+              취소
+            </Button>
+            <Button onClick={handleSaveIP}>
+              {editingIP ? '수정' : '추가'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* IP 삭제 확인 다이얼로그 */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>IP 대역 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              {ipToDelete?.ip} ({ipToDelete?.desc})을(를) 삭제하시겠습니까?
+              <br />
+              삭제 후에는 해당 IP 대역에서의 접속이 차단될 수 있습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete}>삭제</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
