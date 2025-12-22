@@ -302,7 +302,7 @@ export default function SystemSettingsPage() {
             <TableRow>
               <TableHead className="text-xs w-36">일시</TableHead>
               <TableHead className="text-xs w-24">군번</TableHead>
-              <TableHead className="text-xs w-24">이름/계급</TableHead>
+              <TableHead className="text-xs w-32 whitespace-nowrap">이름/계급</TableHead>
               <TableHead className="text-xs w-28">IP 주소</TableHead>
               <TableHead className="text-xs">수행 작업</TableHead>
               <TableHead className="text-xs">대상</TableHead>
