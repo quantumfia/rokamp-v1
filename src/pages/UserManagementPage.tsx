@@ -376,7 +376,7 @@ export default function UserManagementPage() {
               onChange={handleUnitFilterChange}
               placeholder="전체"
               showFullPath={false}
-              showSubLevels={false}
+              showSubLevels={true}
             />
           </div>
         </div>
