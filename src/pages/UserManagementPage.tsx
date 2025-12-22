@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Pencil } from 'lucide-react';
 import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
 import { toast } from '@/hooks/use-toast';
@@ -242,10 +242,20 @@ export default function UserManagementPage() {
     });
   };
 
+  const [isEditMode, setIsEditMode] = useState(false);
+
   const handleUserClick = (user: User) => {
     setSelectedUser(user);
     setEditForm({ ...user });
+    setIsEditMode(false);
     setShowDetailModal(true);
+  };
+
+  const handleDeleteFromDetail = () => {
+    if (selectedUser) {
+      setUserToDelete(selectedUser);
+      setShowDeleteDialog(true);
+    }
   };
 
   const handleSaveUser = () => {
@@ -491,102 +501,147 @@ export default function UserManagementPage() {
       />
 
       {/* 사용자 상세/수정 모달 */}
-      <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
+      <Dialog open={showDetailModal} onOpenChange={(open) => { setShowDetailModal(open); if (!open) setIsEditMode(false); }}>
         <DialogContent className="max-w-md overflow-hidden">
           <DialogHeader>
-            <DialogTitle>사용자 상세 정보</DialogTitle>
+            <DialogTitle>{isEditMode ? '사용자 수정' : '사용자 상세 정보'}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4 overflow-x-auto">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">군번</label>
-                <input
-                  type="text"
-                  value={editForm.militaryId || ''}
-                  onChange={(e) => setEditForm({ ...editForm, militaryId: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
-                />
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={editForm.militaryId || ''}
+                    onChange={(e) => setEditForm({ ...editForm, militaryId: e.target.value })}
+                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                  />
+                ) : (
+                  <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">{selectedUser?.militaryId}</p>
+                )}
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">이름</label>
-                <input
-                  type="text"
-                  value={editForm.name || ''}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
-                />
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={editForm.name || ''}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                  />
+                ) : (
+                  <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">{selectedUser?.name}</p>
+                )}
               </div>
             </div>
             
             <div>
               <label className="block text-xs text-muted-foreground mb-1.5">계급</label>
-              <select 
-                value={editForm.rank || ''}
-                onChange={(e) => setEditForm({ ...editForm, rank: e.target.value })}
-                className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
-              >
-                {RANKS.map(rank => (
-                  <option key={rank} value={rank}>{rank}</option>
-                ))}
-              </select>
+              {isEditMode ? (
+                <select 
+                  value={editForm.rank || ''}
+                  onChange={(e) => setEditForm({ ...editForm, rank: e.target.value })}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                >
+                  {RANKS.map(rank => (
+                    <option key={rank} value={rank}>{rank}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">{selectedUser?.rank}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-xs text-muted-foreground mb-1.5">소속 부대</label>
-              <UnitCascadeSelect
-                value={editForm.unitId || ''}
-                onChange={(value) => setEditForm({ ...editForm, unitId: value })}
-                placeholder="부대 선택"
-                showFullPath={true}
-              />
+              {isEditMode ? (
+                <UnitCascadeSelect
+                  value={editForm.unitId || ''}
+                  onChange={(value) => setEditForm({ ...editForm, unitId: value })}
+                  placeholder="부대 선택"
+                  showFullPath={true}
+                />
+              ) : (
+                <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">{selectedUser ? getUnitFullName(selectedUser.unitId) : ''}</p>
+              )}
             </div>
 
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1.5">비밀번호</label>
-              <input
-                type="password"
-                placeholder="변경 시 입력 (미입력시 유지)"
-                value={editForm.password === '********' ? '' : editForm.password || ''}
-                onChange={(e) => setEditForm({ ...editForm, password: e.target.value || '********' })}
-                className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
-              />
-            </div>
+            {isEditMode && (
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1.5">비밀번호</label>
+                <input
+                  type="password"
+                  placeholder="변경 시 입력 (미입력시 유지)"
+                  value={editForm.password === '********' ? '' : editForm.password || ''}
+                  onChange={(e) => setEditForm({ ...editForm, password: e.target.value || '********' })}
+                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">권한</label>
-                <select 
-                  value={editForm.role || ''}
-                  onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
-                >
-                  {ROLES.map(role => (
-                    <option key={role.value} value={role.value}>{role.label}</option>
-                  ))}
-                </select>
+                {isEditMode ? (
+                  <select 
+                    value={editForm.role || ''}
+                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                  >
+                    {ROLES.map(role => (
+                      <option key={role.value} value={role.value}>{role.label}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">
+                    {ROLES.find(r => r.value === selectedUser?.role)?.label || selectedUser?.role}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">상태</label>
-                <select 
-                  value={editForm.status || ''}
-                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value as 'active' | 'inactive' })}
-                  className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
-                >
-                  <option value="active">활성</option>
-                  <option value="inactive">비활성</option>
-                </select>
+                {isEditMode ? (
+                  <select 
+                    value={editForm.status || ''}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value as 'active' | 'inactive' })}
+                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                  >
+                    <option value="active">활성</option>
+                    <option value="inactive">비활성</option>
+                  </select>
+                ) : (
+                  <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">
+                    {selectedUser?.status === 'active' ? '활성' : '비활성'}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDetailModal(false)}>
-              취소
-            </Button>
-            <Button onClick={handleSaveUser}>
-              저장
-            </Button>
+          <DialogFooter className="flex gap-2">
+            {isEditMode ? (
+              <>
+                <Button variant="outline" onClick={() => { setIsEditMode(false); setEditForm({ ...selectedUser }); }}>
+                  취소
+                </Button>
+                <Button onClick={handleSaveUser}>
+                  저장
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="destructive" onClick={handleDeleteFromDetail}>
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  삭제
+                </Button>
+                <Button onClick={() => setIsEditMode(true)}>
+                  <Pencil className="w-4 h-4 mr-1" />
+                  수정
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
