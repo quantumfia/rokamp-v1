@@ -15,6 +15,7 @@ interface UnitCascadeSelectProps {
   placeholder?: string;
   showFullPath?: boolean;
   spanFullWidth?: boolean;
+  showSubLevels?: boolean;
 }
 
 export function UnitCascadeSelect({ 
@@ -22,7 +23,8 @@ export function UnitCascadeSelect({
   onChange, 
   placeholder = '부대 선택',
   showFullPath = true,
-  spanFullWidth = false
+  spanFullWidth = false,
+  showSubLevels = true
 }: UnitCascadeSelectProps) {
   const [selections, setSelections] = useState<string[]>([]);
   
@@ -110,7 +112,7 @@ export function UnitCascadeSelect({
       </Select>
 
       {/* 하위 레벨: 군단, 사단 등 - spanFullWidth 적용 시 왼쪽으로 확장 */}
-      {subLevels.length > 0 && selections.length > 0 && (
+      {showSubLevels && subLevels.length > 0 && selections.length > 0 && (
         <div 
           className="flex items-center gap-2 overflow-x-auto"
           style={spanFullWidth ? { marginLeft: 'calc(-100% - 12px)', width: 'calc(200% + 12px)' } : {}}
