@@ -134,9 +134,33 @@ export default function UserManagementPage() {
   };
 
   const handleDownloadTemplate = () => {
+    const headers = ['군번', '이름', '계급', '소속부대코드'];
+    const exampleRows = [
+      ['18-702341', '김철수', '대령', 'hq'],
+      ['17-681542', '이영희', '준장', 'div-1'],
+      ['19-723185', '박민호', '대령', 'div-3'],
+    ];
+
+    // BOM 추가 (한글 깨짐 방지)
+    const BOM = '\uFEFF';
+    const csvContent = BOM + [
+      headers.join(','),
+      ...exampleRows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '사용자_일괄등록_템플릿.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
     toast({
-      title: '템플릿 다운로드',
-      description: '사용자 일괄 등록 템플릿이 다운로드됩니다.',
+      title: '템플릿 다운로드 완료',
+      description: '사용자 일괄 등록 템플릿이 다운로드되었습니다.',
     });
   };
 
