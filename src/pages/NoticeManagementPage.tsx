@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Video, Paperclip, Upload, X, Edit2, Search } from 'lucide-react';
+import { Trash2, Video, Paperclip, Upload, X, Edit2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -119,6 +119,10 @@ export default function NoticeManagementPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired'>('all');
 
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   // 필터링된 공지사항 목록
   const filteredNotices = NOTICES.filter((notice) => {
     const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -127,6 +131,23 @@ export default function NoticeManagementPage() {
     const matchesStatus = statusFilter === 'all' || notice.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(filteredNotices.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedNotices = filteredNotices.slice(startIndex, endIndex);
+
+  // 검색/필터 변경 시 페이지 초기화
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusFilterChange = (value: 'all' | 'active' | 'expired') => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+  };
 
   const handleOpenModal = (mode: ModalMode, notice?: Notice) => {
     setModalMode(mode);
@@ -379,7 +400,7 @@ export default function NoticeManagementPage() {
             {/* 상태 필터 */}
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'expired')}
+              onChange={(e) => handleStatusFilterChange(e.target.value as 'all' | 'active' | 'expired')}
               className="h-8 px-3 text-xs bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring"
             >
               <option value="all">전체 상태</option>
@@ -393,7 +414,7 @@ export default function NoticeManagementPage() {
                 type="text"
                 placeholder="제목, 내용, 작성자 검색..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="h-8 pl-8 pr-3 w-56 text-xs"
               />
             </div>
@@ -412,14 +433,14 @@ export default function NoticeManagementPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredNotices.length === 0 ? (
+            {paginatedNotices.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8 text-sm text-muted-foreground">
                   검색 결과가 없습니다.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredNotices.map((notice) => (
+              paginatedNotices.map((notice) => (
               <TableRow 
                 key={notice.id} 
                 className="cursor-pointer hover:bg-muted/50"
@@ -460,6 +481,45 @@ export default function NoticeManagementPage() {
             )}
           </TableBody>
         </Table>
+
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
+            <p className="text-xs text-muted-foreground">
+              {filteredNotices.length}건 중 {startIndex + 1}-{Math.min(endIndex, filteredNotices.length)}건 표시
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="flex items-center justify-center w-8 h-8 text-xs border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 text-xs border rounded transition-colors",
+                    currentPage === page
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border hover:bg-muted"
+                  )}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="flex items-center justify-center w-8 h-8 text-xs border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 안내 */}
         <div className="text-xs text-muted-foreground space-y-1 pt-4 border-t border-border mt-4">
