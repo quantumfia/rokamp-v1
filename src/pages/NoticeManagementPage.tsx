@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Video, Paperclip, Upload, X, Edit2 } from 'lucide-react';
+import { Trash2, Video, Paperclip, Upload, X, Edit2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -114,6 +114,19 @@ export default function NoticeManagementPage() {
   // 삭제 확인 다이얼로그 상태
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [noticeToDelete, setNoticeToDelete] = useState<Notice | null>(null);
+
+  // 검색 및 필터 상태
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired'>('all');
+
+  // 필터링된 공지사항 목록
+  const filteredNotices = NOTICES.filter((notice) => {
+    const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         notice.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         notice.author.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || notice.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   const handleOpenModal = (mode: ModalMode, notice?: Notice) => {
     setModalMode(mode);
@@ -359,7 +372,31 @@ export default function NoticeManagementPage() {
             <h2 className="text-sm font-semibold text-foreground">공지사항 목록</h2>
             <p className="text-xs text-muted-foreground">
               총 {NOTICES.length}건 · 활성 {NOTICES.filter(n => n.status === 'active').length}건
+              {(searchQuery || statusFilter !== 'all') && ` · 검색결과 ${filteredNotices.length}건`}
             </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* 상태 필터 */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'expired')}
+              className="h-8 px-3 text-xs bg-background border border-input rounded focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="all">전체 상태</option>
+              <option value="active">활성</option>
+              <option value="expired">만료</option>
+            </select>
+            {/* 검색 */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="제목, 내용, 작성자 검색..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-8 pl-8 pr-3 w-56 text-xs"
+              />
+            </div>
           </div>
         </div>
 
@@ -375,7 +412,14 @@ export default function NoticeManagementPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {NOTICES.map((notice) => (
+            {filteredNotices.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-sm text-muted-foreground">
+                  검색 결과가 없습니다.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredNotices.map((notice) => (
               <TableRow 
                 key={notice.id} 
                 className="cursor-pointer hover:bg-muted/50"
@@ -412,7 +456,8 @@ export default function NoticeManagementPage() {
                   </span>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
 
