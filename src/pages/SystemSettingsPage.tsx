@@ -43,6 +43,16 @@ const AUDIT_LOGS = [
   { id: 5, visitorId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '데이터 조회', target: '제1사단 위험도', timestamp: '2024-12-14 08:22:18', status: 'success' },
   { id: 6, visitorId: '24-503994', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '공지사항 등록', target: '동절기 안전수칙', timestamp: '2024-12-13 17:45:30', status: 'success' },
   { id: 7, visitorId: '22-481523', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '로그아웃', target: '-', timestamp: '2024-12-13 17:30:00', status: 'success' },
+  { id: 8, visitorId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '로그인', target: '-', timestamp: '2024-12-13 14:20:15', status: 'success' },
+  { id: 9, visitorId: '23-567821', userName: '최정훈', rank: '대위', ip: '10.10.4.88', action: '보고서 생성', target: '12월 1주차 사고보고서', timestamp: '2024-12-13 11:45:22', status: 'success' },
+  { id: 10, visitorId: '-', userName: '-', rank: '-', ip: '172.16.5.100', action: '로그인 시도', target: '-', timestamp: '2024-12-13 10:15:33', status: 'failed' },
+  { id: 11, visitorId: '24-503994', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '권한 변경', target: '22-481523', timestamp: '2024-12-12 16:30:45', status: 'success' },
+  { id: 12, visitorId: '22-481523', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '데이터 조회', target: '제2사단 통계', timestamp: '2024-12-12 15:22:10', status: 'success' },
+  { id: 13, visitorId: '20-284756', userName: '정대호', rank: '중위', ip: '10.10.5.33', action: '로그인', target: '-', timestamp: '2024-12-12 14:10:05', status: 'success' },
+  { id: 14, visitorId: '20-284756', userName: '정대호', rank: '중위', ip: '10.10.5.33', action: '예보 조회', target: '12월 3주차 예보', timestamp: '2024-12-12 14:15:30', status: 'success' },
+  { id: 15, visitorId: '23-567821', userName: '최정훈', rank: '대위', ip: '10.10.4.88', action: '로그아웃', target: '-', timestamp: '2024-12-12 13:00:00', status: 'success' },
+  { id: 16, visitorId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '공지사항 수정', target: '겨울철 훈련 유의사항', timestamp: '2024-12-11 17:45:12', status: 'success' },
+  { id: 17, visitorId: '-', userName: '-', rank: '-', ip: '192.168.100.5', action: '로그인 시도', target: '-', timestamp: '2024-12-11 09:05:55', status: 'failed' },
 ];
 
 // 허용 IP 대역 타입 및 초기 데이터
