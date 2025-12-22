@@ -46,17 +46,17 @@ interface User {
 
 const MOCK_USERS: User[] = [
   { id: '1', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
-  { id: '2', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'div-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '3', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'div-3', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '4', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'bn-1-1', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '5', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'bn-1-2', password: '********', role: 'ROLE_USER', status: 'inactive' },
+  { id: '2', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'corps-1-div-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '3', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'corps-5-div-3', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '4', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'corps-1-div-9', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '5', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'corps-1-div-25', password: '********', role: 'ROLE_USER', status: 'inactive' },
   { id: '6', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '7', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'reg-11', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '8', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'bde-sf-1', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '7', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'corps-2-div-7', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '8', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'swc-bde-sf-1', password: '********', role: 'ROLE_USER', status: 'active' },
   { id: '9', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
-  { id: '10', militaryId: '19-745821', name: '송준혁', rank: '소령', unitId: 'bn-1-3', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '11', militaryId: '20-768432', name: '윤서연', rank: '중령', unitId: 'div-2', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '12', militaryId: '21-791543', name: '장민석', rank: '소령', unitId: 'reg-21', password: '********', role: 'ROLE_USER', status: 'inactive' },
+  { id: '10', militaryId: '19-745821', name: '송준혁', rank: '소령', unitId: 'corps-3-div-12', password: '********', role: 'ROLE_USER', status: 'active' },
+  { id: '11', militaryId: '20-768432', name: '윤서연', rank: '중령', unitId: 'corps-2-div-15', password: '********', role: 'ROLE_ADMIN', status: 'active' },
+  { id: '12', militaryId: '21-791543', name: '장민석', rank: '소령', unitId: 'corps-3-div-21', password: '********', role: 'ROLE_USER', status: 'inactive' },
 ];
 
 const RANKS = ['대장', '중장', '소장', '준장', '대령', '중령', '소령'];
