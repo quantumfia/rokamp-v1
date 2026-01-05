@@ -100,7 +100,7 @@ export function LNB({ isExpanded }: LNBProps) {
   return (
     <aside
       className={cn(
-        'h-[calc(100vh-3rem)] bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-200 sticky top-12 flex-shrink-0',
+        'h-[calc(100vh-3rem)] bg-sidebar border-r-2 border-sidebar-border flex flex-col transition-all duration-200 sticky top-12 flex-shrink-0',
         isExpanded ? 'w-44' : 'w-12'
       )}
     >
