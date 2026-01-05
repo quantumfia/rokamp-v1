@@ -6,6 +6,7 @@ import { UnitFilterPanel, FilterState } from '@/components/dashboard/UnitFilterP
 import { UnitListTable } from '@/components/dashboard/UnitListTable';
 import { UnitDetailPanel } from '@/components/dashboard/UnitDetailPanel';
 import { TrendChartsVertical } from '@/components/dashboard/TrendChartsVertical';
+import { NoticeListPanel } from '@/components/dashboard/NoticeListPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
 import { X, Filter, BarChart3 } from 'lucide-react';
@@ -159,7 +160,7 @@ export default function DashboardPage() {
         <div
           className={cn(
             'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden xl:block xl:w-80',
+            'hidden xl:block xl:w-72',
           )}
         >
           {isLoading ? (
@@ -173,6 +174,16 @@ export default function DashboardPage() {
           ) : (
             <TrendChartsVertical />
           )}
+        </div>
+
+        {/* Right Panel 2 - 공지사항 (Desktop) */}
+        <div
+          className={cn(
+            'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
+            'hidden 2xl:block 2xl:w-[374px]',
+          )}
+        >
+          <NoticeListPanel />
         </div>
 
         {/* Mobile/Tablet Right Panel Overlay - 부대 상세 */}
