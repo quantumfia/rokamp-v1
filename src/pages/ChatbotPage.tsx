@@ -1,20 +1,20 @@
-import { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Send, Sparkles, Shield, Car, Flame, Mountain, RotateCcw, ChevronDown, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { ChatbotSkeleton } from '@/components/skeletons';
-import { Button } from '@/components/ui/button';
+import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { Send, Sparkles, Shield, Car, Flame, Mountain, RotateCcw, ChevronDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ChatbotSkeleton } from "@/components/skeletons";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import armyLogo from '@/assets/army-logo.png';
+} from "@/components/ui/dropdown-menu";
+import armyLogo from "@/assets/army-logo.png";
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   sources?: string[];
   references?: Array<{
@@ -25,30 +25,30 @@ interface Message {
 }
 
 const SUGGESTED_QUESTIONS = [
-  { icon: Car, text: '동절기 차량 사고 예방 대책은?', color: 'text-blue-400' },
-  { icon: Shield, text: '야간 훈련 시 안전 수칙 알려줘', color: 'text-emerald-400' },
-  { icon: Flame, text: '화재 예방 점검 항목이 뭐야?', color: 'text-orange-400' },
-  { icon: Mountain, text: '행군 중 저체온증 대처 방법은?', color: 'text-cyan-400' },
+  { icon: Car, text: "동절기 차량 사고 예방 대책은?", color: "text-blue-400" },
+  { icon: Shield, text: "야간 훈련 시 안전 수칙 알려줘", color: "text-emerald-400" },
+  { icon: Flame, text: "화재 예방 점검 항목이 뭐야?", color: "text-orange-400" },
+  { icon: Mountain, text: "행군 중 저체온증 대처 방법은?", color: "text-cyan-400" },
 ];
 
 const DOCUMENT_SOURCES = [
-  { id: 'all', label: '전체', description: '모든 문서에서 검색' },
-  { id: 'training', label: '훈련 일정', description: '훈련 계획 및 일정 정보' },
-  { id: 'safety-report', label: '안전 리포트', description: '안전 점검 및 보고서' },
-  { id: 'life-guide', label: '병영생활 안전가이드', description: '생활관 안전 수칙' },
-  { id: 'calendar', label: '안전 캘린더', description: '월별 안전 중점사항' },
-  { id: 'trend', label: '발생사고 경향분석', description: '사고 통계 및 분석' },
-  { id: 'news', label: '언론 기사', description: '관련 뉴스 및 기사' },
-  { id: 'law', label: '법률/규정', description: '법령 및 규정 문서' },
+  { id: "all", label: "전체", description: "모든 문서에서 검색" },
+  { id: "training", label: "훈련 일정", description: "훈련 계획 및 일정 정보" },
+  { id: "safety-report", label: "안전 리포트", description: "안전 점검 및 보고서" },
+  { id: "life-guide", label: "병영생활 안전가이드", description: "생활관 안전 수칙" },
+  { id: "calendar", label: "안전 캘린더", description: "월별 안전 중점사항" },
+  { id: "trend", label: "발생사고 경향분석", description: "사고 통계 및 분석" },
+  { id: "news", label: "언론 기사", description: "관련 뉴스 및 기사" },
+  { id: "law", label: "법률/규정", description: "법령 및 규정 문서" },
 ];
 
 export default function ChatbotPage() {
   const location = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
-  const [selectedSources, setSelectedSources] = useState<string[]>(['all']);
+  const [selectedSources, setSelectedSources] = useState<string[]>(["all"]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -67,7 +67,7 @@ export default function ChatbotPage() {
   }, [location.state?.resetKey]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -76,20 +76,20 @@ export default function ChatbotPage() {
 
   const handleNewConversation = () => {
     setMessages([]);
-    setInput('');
-    setSelectedSources(['all']);
+    setInput("");
+    setSelectedSources(["all"]);
     inputRef.current?.focus();
   };
 
   const handleSourceToggle = (sourceId: string) => {
-    if (sourceId === 'all') {
-      setSelectedSources(['all']);
+    if (sourceId === "all") {
+      setSelectedSources(["all"]);
     } else {
-      setSelectedSources(prev => {
-        const withoutAll = prev.filter(s => s !== 'all');
+      setSelectedSources((prev) => {
+        const withoutAll = prev.filter((s) => s !== "all");
         if (withoutAll.includes(sourceId)) {
-          const newSources = withoutAll.filter(s => s !== sourceId);
-          return newSources.length === 0 ? ['all'] : newSources;
+          const newSources = withoutAll.filter((s) => s !== sourceId);
+          return newSources.length === 0 ? ["all"] : newSources;
         } else {
           return [...withoutAll, sourceId];
         }
@@ -98,11 +98,11 @@ export default function ChatbotPage() {
   };
 
   const getSelectedSourceLabels = () => {
-    if (selectedSources.includes('all')) return '전체';
+    if (selectedSources.includes("all")) return "전체";
     return selectedSources
-      .map(id => DOCUMENT_SOURCES.find(s => s.id === id)?.label)
+      .map((id) => DOCUMENT_SOURCES.find((s) => s.id === id)?.label)
       .filter(Boolean)
-      .join(', ');
+      .join(", ");
   };
 
   const handleSend = async (text?: string) => {
@@ -111,20 +111,20 @@ export default function ChatbotPage() {
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      role: 'user',
+      role: "user",
       content: messageText,
-      sources: selectedSources.includes('all') ? undefined : [...selectedSources],
+      sources: selectedSources.includes("all") ? undefined : [...selectedSources],
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    setInput("");
     setIsLoading(true);
 
     setTimeout(() => {
       const response = getAIResponse(messageText, userMessage.sources);
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
+        role: "assistant",
         content: response.content,
         references: response.references,
       };
@@ -133,12 +133,16 @@ export default function ChatbotPage() {
     }, 1500);
   };
 
-  const getAIResponse = (question: string, sources?: string[]): { content: string; references: Array<{ title: string; source: string; url?: string }> } => {
-    const sourceNote = sources && sources.length > 0 
-      ? `\n\n_검색 범위: ${sources.map(id => DOCUMENT_SOURCES.find(s => s.id === id)?.label).join(', ')}_`
-      : '';
+  const getAIResponse = (
+    question: string,
+    sources?: string[],
+  ): { content: string; references: Array<{ title: string; source: string; url?: string }> } => {
+    const sourceNote =
+      sources && sources.length > 0
+        ? `\n\n_검색 범위: ${sources.map((id) => DOCUMENT_SOURCES.find((s) => s.id === id)?.label).join(", ")}_`
+        : "";
 
-    if (question.includes('차량') || question.includes('동절기')) {
+    if (question.includes("차량") || question.includes("동절기")) {
       return {
         content: `동절기 차량 사고 예방을 위한 핵심 대책을 안내드립니다.
 
@@ -158,13 +162,13 @@ export default function ChatbotPage() {
 • 필수: 삼각대, 손전등, 견인로프, 구급함
 • 동절기 추가: 스노우체인, 염화칼슘, 삽, 모래주머니${sourceNote}`,
         references: [
-          { title: '육군 차량 운행 안전관리 규정', source: '육군본부 2024.03', url: '#' },
-          { title: '동절기 교통사고 예방 대책', source: '국방부 안전정책과', url: '#' },
-        ]
+          { title: "육군 차량 운행 안전관리 규정", source: "육군본부 2024.03", url: "#" },
+          { title: "동절기 교통사고 예방 대책", source: "국방부 안전정책과", url: "#" },
+        ],
       };
     }
-    
-    if (question.includes('야간') || question.includes('훈련')) {
+
+    if (question.includes("야간") || question.includes("훈련")) {
       return {
         content: `야간 훈련 시 안전수칙을 안내드립니다.
 
@@ -183,13 +187,13 @@ export default function ChatbotPage() {
 • 낙오자 발생 시 즉시 훈련 중지 및 수색
 • 부상자 발생 시 응급처치 후 즉시 후송${sourceNote}`,
         references: [
-          { title: '야간훈련 안전관리 지침', source: '육군훈련소 2024.06', url: '#' },
-          { title: '훈련장 안전사고 예방 매뉴얼', source: '육군본부', url: '#' },
-        ]
+          { title: "야간훈련 안전관리 지침", source: "육군훈련소 2024.06", url: "#" },
+          { title: "훈련장 안전사고 예방 매뉴얼", source: "육군본부", url: "#" },
+        ],
       };
     }
-    
-    if (question.includes('화재') || question.includes('점검')) {
+
+    if (question.includes("화재") || question.includes("점검")) {
       return {
         content: `화재 예방 점검 항목을 안내드립니다.
 
@@ -210,13 +214,13 @@ export default function ChatbotPage() {
 • 인화성 물질 5m 이내 화기작업 금지
 • 작업 종료 후 30분간 잔화 감시${sourceNote}`,
         references: [
-          { title: '군 시설물 화재예방 규정', source: '국방부 2024.01', url: '#' },
-          { title: '소방안전관리 업무편람', source: '육군 시설관리단', url: '#' },
-        ]
+          { title: "군 시설물 화재예방 규정", source: "국방부 2024.01", url: "#" },
+          { title: "소방안전관리 업무편람", source: "육군 시설관리단", url: "#" },
+        ],
       };
     }
-    
-    if (question.includes('행군') || question.includes('저체온')) {
+
+    if (question.includes("행군") || question.includes("저체온")) {
       return {
         content: `행군 중 저체온증 대처 방법을 안내드립니다.
 
@@ -236,9 +240,9 @@ export default function ChatbotPage() {
 • 땀 배출 가능한 기능성 내의 착용
 • 휴식 시 즉시 방풍·보온 조치${sourceNote}`,
         references: [
-          { title: '한랭질환 응급처치 매뉴얼', source: '국군의무사령부 2024.11', url: '#' },
-          { title: '동계 행군 안전관리 지침', source: '육군본부', url: '#' },
-        ]
+          { title: "한랭질환 응급처치 매뉴얼", source: "국군의무사령부 2024.11", url: "#" },
+          { title: "동계 행군 안전관리 지침", source: "육군본부", url: "#" },
+        ],
       };
     }
 
@@ -258,9 +262,7 @@ export default function ChatbotPage() {
 • 무리한 일정 강행 금지, 충분한 휴식 보장
 
 더 구체적인 질문이 있으시면 말씀해 주세요.${sourceNote}`,
-      references: [
-        { title: '육군 안전관리 규정', source: '육군본부', url: '#' },
-      ]
+      references: [{ title: "육군 안전관리 규정", source: "육군본부", url: "#" }],
     };
   };
 
@@ -272,10 +274,10 @@ export default function ChatbotPage() {
     <div className="h-full flex flex-col bg-background relative overflow-hidden">
       {/* Subtle background effect */}
       <div className="absolute inset-0 pointer-events-none">
-        <div 
+        <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-[0.03]"
           style={{
-            background: 'radial-gradient(ellipse at center, hsl(var(--primary)) 0%, transparent 70%)',
+            background: "radial-gradient(ellipse at center, hsl(var(--primary)) 0%, transparent 70%)",
           }}
         />
       </div>
@@ -287,15 +289,16 @@ export default function ChatbotPage() {
           <div className="flex-1 flex flex-col items-center justify-center px-4 animate-page-enter">
             <div className="flex flex-col items-center mb-8">
               <div className="relative mb-4">
-                <div 
+                <div
                   className="absolute -inset-8 rounded-full blur-2xl opacity-20"
-                  style={{ background: 'hsl(var(--primary))' }}
+                  style={{ background: "hsl(var(--primary))" }}
                 />
                 <img src={armyLogo} alt="ROKA-MP" className="w-16 h-16 relative" />
               </div>
-              <h1 className="text-2xl font-semibold text-foreground mb-2">ROKA-MP Assistant</h1>
+              <h1 className="text-2xl font-semibold text-foreground mb-2">대한민국 육군 Assistant</h1>
               <p className="text-sm text-muted-foreground text-center max-w-md">
-                안전사고 예방에 관한 질문에 답변드립니다.<br />
+                안전사고 예방에 관한 질문에 답변드립니다.
+                <br />
                 법령, 규정, 매뉴얼 기반의 정확한 정보를 제공합니다.
               </p>
             </div>
@@ -309,7 +312,7 @@ export default function ChatbotPage() {
                     onClick={() => handleSend(q.text)}
                     className="group flex items-start gap-3 p-4 text-left border border-border rounded-lg hover:bg-muted/50 hover:border-muted-foreground/20 transition-all duration-200"
                   >
-                    <div className={cn('mt-0.5', q.color)}>
+                    <div className={cn("mt-0.5", q.color)}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <span className="text-sm text-foreground group-hover:text-foreground/90">{q.text}</span>
@@ -344,10 +347,10 @@ export default function ChatbotPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {!selectedSources.includes('all') && selectedSources.length > 0 && (
+                {!selectedSources.includes("all") && selectedSources.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
-                    {selectedSources.map(id => {
-                      const source = DOCUMENT_SOURCES.find(s => s.id === id);
+                    {selectedSources.map((id) => {
+                      const source = DOCUMENT_SOURCES.find((s) => s.id === id);
                       if (!source) return null;
                       return (
                         <span
@@ -405,9 +408,7 @@ export default function ChatbotPage() {
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium text-foreground">대화 중</span>
                   {messages.length > 0 && (
-                    <span className="text-xs text-muted-foreground">
-                      · {Math.ceil(messages.length / 2)}개 질문
-                    </span>
+                    <span className="text-xs text-muted-foreground">· {Math.ceil(messages.length / 2)}개 질문</span>
                   )}
                 </div>
                 <Button
@@ -416,8 +417,7 @@ export default function ChatbotPage() {
                   onClick={handleNewConversation}
                   className="h-8 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  새 대화
+                  <RotateCcw className="w-3.5 h-3.5" />새 대화
                 </Button>
               </div>
               <div className="h-4 bg-gradient-to-b from-background/50 to-transparent" />
@@ -429,38 +429,49 @@ export default function ChatbotPage() {
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={cn(
-                      'flex gap-3',
-                      message.role === 'user' ? 'justify-end' : 'justify-start'
-                    )}
+                    className={cn("flex gap-3", message.role === "user" ? "justify-end" : "justify-start")}
                   >
-                    {message.role === 'assistant' && (
+                    {message.role === "assistant" && (
                       <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <Sparkles className="w-4 h-4 text-primary" />
                       </div>
                     )}
                     <div
                       className={cn(
-                        'max-w-[85%] text-sm',
-                        message.role === 'user'
-                          ? 'bg-primary text-primary-foreground px-4 py-3 rounded-2xl rounded-br-md'
-                          : 'text-foreground'
+                        "max-w-[85%] text-sm",
+                        message.role === "user"
+                          ? "bg-primary text-primary-foreground px-4 py-3 rounded-2xl rounded-br-md"
+                          : "text-foreground",
                       )}
                     >
-                      {message.role === 'user' && message.sources && message.sources.length > 0 && (
+                      {message.role === "user" && message.sources && message.sources.length > 0 && (
                         <div className="text-[10px] text-primary-foreground/70 mb-1">
-                          검색: {message.sources.map(id => DOCUMENT_SOURCES.find(s => s.id === id)?.label).join(', ')}
+                          검색:{" "}
+                          {message.sources.map((id) => DOCUMENT_SOURCES.find((s) => s.id === id)?.label).join(", ")}
                         </div>
                       )}
                       <div className="whitespace-pre-wrap leading-relaxed">
-                        {message.content.split('\n').map((line, i) => {
-                          if (line.startsWith('**') && line.endsWith('**')) {
-                            return <p key={i} className="font-semibold mt-4 mb-2 first:mt-0">{line.replace(/\*\*/g, '')}</p>;
+                        {message.content.split("\n").map((line, i) => {
+                          if (line.startsWith("**") && line.endsWith("**")) {
+                            return (
+                              <p key={i} className="font-semibold mt-4 mb-2 first:mt-0">
+                                {line.replace(/\*\*/g, "")}
+                              </p>
+                            );
                           }
-                          if (line.startsWith('_') && line.endsWith('_')) {
-                            return <p key={i} className="text-xs text-muted-foreground mt-3 italic">{line.replace(/_/g, '')}</p>;
+                          if (line.startsWith("_") && line.endsWith("_")) {
+                            return (
+                              <p key={i} className="text-xs text-muted-foreground mt-3 italic">
+                                {line.replace(/_/g, "")}
+                              </p>
+                            );
                           }
-                          return <span key={i}>{line}{'\n'}</span>;
+                          return (
+                            <span key={i}>
+                              {line}
+                              {"\n"}
+                            </span>
+                          );
                         })}
                       </div>
                       {message.references && message.references.length > 0 && (
@@ -478,7 +489,7 @@ export default function ChatbotPage() {
                         </div>
                       )}
                     </div>
-                    {message.role === 'user' && (
+                    {message.role === "user" && (
                       <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center flex-shrink-0 text-xs font-medium text-background">
                         U
                       </div>
@@ -492,9 +503,18 @@ export default function ChatbotPage() {
                       <Sparkles className="w-4 h-4 text-primary animate-pulse" />
                     </div>
                     <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span
+                        className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce"
+                        style={{ animationDelay: "0ms" }}
+                      />
+                      <span
+                        className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce"
+                        style={{ animationDelay: "150ms" }}
+                      />
+                      <span
+                        className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full animate-bounce"
+                        style={{ animationDelay: "300ms" }}
+                      />
                     </div>
                   </div>
                 )}
@@ -533,10 +553,10 @@ export default function ChatbotPage() {
                       </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {!selectedSources.includes('all') && selectedSources.length > 0 && (
+                    {!selectedSources.includes("all") && selectedSources.length > 0 && (
                       <div className="flex flex-wrap gap-1">
-                        {selectedSources.slice(0, 3).map(id => {
-                          const source = DOCUMENT_SOURCES.find(s => s.id === id);
+                        {selectedSources.slice(0, 3).map((id) => {
+                          const source = DOCUMENT_SOURCES.find((s) => s.id === id);
                           if (!source) return null;
                           return (
                             <span
@@ -544,7 +564,10 @@ export default function ChatbotPage() {
                               className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] rounded"
                             >
                               {source.label}
-                              <button onClick={() => handleSourceToggle(id)} className="hover:bg-primary/20 rounded p-0.5">
+                              <button
+                                onClick={() => handleSourceToggle(id)}
+                                className="hover:bg-primary/20 rounded p-0.5"
+                              >
                                 <X className="w-2.5 h-2.5" />
                               </button>
                             </span>
