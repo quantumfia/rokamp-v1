@@ -87,7 +87,7 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
 
   return (
     <>
-      <header className="h-12 bg-sidebar flex items-center justify-between px-3 sticky top-0 z-[100] border-t-4 border-t-sidebar-border border-b border-b-border">
+      <header className="h-12 bg-sidebar flex items-center justify-between px-3 sticky top-0 z-[100] border-b border-border shadow-md">
         {/* Left Section */}
         <div className="flex items-center gap-2">
           {/* Sidebar Toggle */}
