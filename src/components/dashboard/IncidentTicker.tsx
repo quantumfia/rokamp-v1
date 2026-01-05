@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, ChevronRight } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface IncidentItem {
@@ -66,7 +66,7 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
       {/* 라벨 */}
       <div className="flex items-center gap-1.5 shrink-0">
         <AlertCircle className={cn('w-4 h-4', getIconColor(currentIncident.type))} />
-        <span className="text-xs font-medium text-foreground whitespace-nowrap">일일 사고 사례</span>
+        <span className="text-xs font-medium text-foreground whitespace-nowrap">일일 사고사례</span>
       </div>
 
       {/* 구분선 */}
@@ -83,35 +83,6 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
       >
         <span className="text-xs font-medium whitespace-nowrap">{currentIncident.unit}</span>
         <span className="text-xs truncate">{currentIncident.title}</span>
-      </div>
-
-      {/* 상세보기 버튼 */}
-      <button 
-        onClick={onClickDetail}
-        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
-      >
-        <span>상세보기</span>
-        <ChevronRight className="w-3.5 h-3.5" />
-      </button>
-
-      {/* 인디케이터 */}
-      <div className="flex items-center gap-1 shrink-0">
-        {MOCK_INCIDENTS.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => {
-              setIsAnimating(true);
-              setTimeout(() => {
-                setCurrentIndex(idx);
-                setIsAnimating(false);
-              }, 150);
-            }}
-            className={cn(
-              'w-1.5 h-1.5 rounded-full transition-all',
-              idx === currentIndex ? 'bg-primary w-3' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-            )}
-          />
-        ))}
       </div>
     </div>
   );
