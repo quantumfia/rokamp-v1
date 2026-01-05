@@ -66,7 +66,7 @@ export function StatusHeader() {
   const { date, time } = formatDateTime(currentTime);
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 h-[60px]">
+    <div className="flex items-center gap-5 px-4 py-3 h-[60px]">
       {/* 날짜/시간 */}
       <div className="flex flex-col justify-center gap-0.5 shrink-0">
         <span className="text-muted-foreground text-[11px] leading-tight">{date}</span>
@@ -76,11 +76,11 @@ export function StatusHeader() {
       <div className="w-px h-10 bg-border" />
 
       {/* 오늘의 날씨 */}
-      <div className="flex flex-col items-center justify-center gap-1">
+      <div className="flex flex-col items-center justify-center gap-1 px-3">
         <span className="text-[10px] text-muted-foreground leading-tight">오늘의 날씨</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <WeatherIcon condition={mockWeatherData.today.condition} />
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start gap-0.5">
             <span className="text-red-500 font-medium text-xs leading-tight">{mockWeatherData.today.high}°C</span>
             <span className="text-blue-500 font-medium text-xs leading-tight">{mockWeatherData.today.low}°C</span>
           </div>
@@ -90,11 +90,11 @@ export function StatusHeader() {
       <div className="w-px h-10 bg-border" />
 
       {/* 내일의 날씨 */}
-      <div className="flex flex-col items-center justify-center gap-1">
+      <div className="flex flex-col items-center justify-center gap-1 px-3">
         <span className="text-[10px] text-muted-foreground leading-tight">내일의 날씨</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <WeatherIcon condition={mockWeatherData.tomorrow.condition} />
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start gap-0.5">
             <span className="text-red-500 font-medium text-xs leading-tight">{mockWeatherData.tomorrow.high}°C</span>
             <span className="text-blue-500 font-medium text-xs leading-tight">{mockWeatherData.tomorrow.low}°C</span>
           </div>
