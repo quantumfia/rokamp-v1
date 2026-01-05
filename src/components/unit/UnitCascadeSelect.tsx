@@ -17,6 +17,7 @@ interface UnitCascadeSelectProps {
   spanFullWidth?: boolean;
   showSubLevels?: boolean;
   inline?: boolean; // 모든 select를 한 줄에 표시
+  firstFullWidthRestInline?: boolean; // 첫 번째만 전체 너비, 나머지는 인라인
 }
 
 export function UnitCascadeSelect({ 
@@ -26,7 +27,8 @@ export function UnitCascadeSelect({
   showFullPath = true,
   spanFullWidth = false,
   showSubLevels = true,
-  inline = false
+  inline = false,
+  firstFullWidthRestInline = false
 }: UnitCascadeSelectProps) {
   const [selections, setSelections] = useState<string[]>([]);
   
@@ -143,6 +145,72 @@ export function UnitCascadeSelect({
             </div>
           );
         })}
+      </div>
+    );
+  }
+
+  // firstFullWidthRestInline 모드: 첫 번째만 전체 너비, 나머지는 인라인
+  if (firstFullWidthRestInline) {
+    return (
+      <div className="space-y-2">
+        {/* 첫 번째 레벨: 전체 너비 */}
+        <Select
+          value={firstLevelValue}
+          onValueChange={(val) => handleSelect(0, val)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent className="max-h-60 z-[300]">
+            <SelectItem value="all">전체 부대</SelectItem>
+            {firstLevelOptions.map((unit) => (
+              <SelectItem key={unit.id} value={unit.id}>
+                {unit.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* 하위 레벨들: 인라인으로 한 줄에 */}
+        {showSubLevels && subLevels.length > 0 && selections.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {subLevels.map((level) => {
+              const options = getLevelOptions(level);
+              const currentValue = selections[level] || '';
+              
+              if (options.length === 0) return null;
+              
+              return (
+                <div key={level} className="flex items-center gap-1 flex-shrink-0">
+                  {level > 1 && (
+                    <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  )}
+                  <Select
+                    value={currentValue}
+                    onValueChange={(val) => handleSelect(level, val)}
+                  >
+                    <SelectTrigger className="w-32 min-w-[128px]">
+                      <SelectValue placeholder="선택..." />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60 z-[300]">
+                      {options.map((unit) => (
+                        <SelectItem key={unit.id} value={unit.id}>
+                          {unit.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        
+        {showFullPath && selections.length > 0 && (
+          <p className="text-xs text-muted-foreground">
+            {getDisplayPath()}
+          </p>
+        )}
       </div>
     );
   }

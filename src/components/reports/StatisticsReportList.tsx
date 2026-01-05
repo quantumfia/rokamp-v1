@@ -1256,6 +1256,7 @@ export function StatisticsReportList({ showModal = false, onCloseModal }: Statis
             value={createForm.unitId}
             onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
             placeholder="부대 선택"
+            firstFullWidthRestInline={true}
           />
         </div>
       ) : (
