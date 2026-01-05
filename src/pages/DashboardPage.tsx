@@ -160,7 +160,7 @@ export default function DashboardPage() {
         <div
           className={cn(
             'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300 flex flex-col',
-            'hidden xl:flex xl:w-[400px]',
+            'hidden xl:flex xl:w-[600px]',
           )}
         >
           {/* 상단: 트렌드 차트 또는 부대 상세 */}
