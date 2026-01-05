@@ -66,7 +66,7 @@ export function StatusHeader() {
   const { date, time } = formatDateTime(currentTime);
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3 h-[60px] w-[280px]">
+    <div className="flex items-center gap-4 px-4 py-3 h-[60px] w-56">
       {/* 오늘의 날씨 */}
       <div className="flex-1 flex flex-col items-center justify-center gap-1">
         <span className="text-[10px] text-muted-foreground leading-tight">오늘의 날씨</span>
