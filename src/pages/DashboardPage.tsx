@@ -156,34 +156,32 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right Panel - 트렌드 차트 또는 부대 상세 (Desktop) */}
+        {/* Right Panel - 트렌드 + 공지사항 (세로 배치) */}
         <div
           className={cn(
-            'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden xl:block xl:w-[374px]',
+            'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300 flex flex-col',
+            'hidden xl:flex xl:w-[400px]',
           )}
         >
-          {isLoading ? (
-            <TrendChartsSkeleton />
-          ) : selectedUnitId ? (
-            <UnitDetailPanel 
-              unitId={selectedUnitId} 
-              onClose={handleCloseDetail}
-              showBackButton
-            />
-          ) : (
-            <TrendChartsVertical />
-          )}
-        </div>
+          {/* 상단: 트렌드 차트 또는 부대 상세 */}
+          <div className="shrink-0 h-[45%] border-b border-border overflow-hidden">
+            {isLoading ? (
+              <TrendChartsSkeleton />
+            ) : selectedUnitId ? (
+              <UnitDetailPanel 
+                unitId={selectedUnitId} 
+                onClose={handleCloseDetail}
+                showBackButton
+              />
+            ) : (
+              <TrendChartsVertical />
+            )}
+          </div>
 
-        {/* Right Panel 2 - 공지사항 (Desktop) */}
-        <div
-          className={cn(
-            'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden 2xl:block 2xl:w-[560px]',
-          )}
-        >
-          <NoticeListPanel />
+          {/* 하단: 공지사항 */}
+          <div className="flex-1 overflow-hidden">
+            <NoticeListPanel />
+          </div>
         </div>
 
         {/* Mobile/Tablet Right Panel Overlay - 부대 상세 */}
