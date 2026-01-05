@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronUp, ChevronDown, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ARMY_UNITS, UNIT_LOCATIONS, UNIT_TYPE_LABELS, getUnitFullName, getUnitById } from '@/data/armyUnits';
+import { ARMY_UNITS, UNIT_LOCATIONS, UNIT_TYPE_LABELS, getUnitFullName, getUnitById, getAllDescendants } from '@/data/armyUnits';
 import type { FilterState } from './UnitFilterPanel';
 
 interface UnitListTableProps {
@@ -43,13 +43,16 @@ export function UnitListTable({ onUnitClick, selectedUnitId, filters }: UnitList
   const filteredUnits = allUnits.filter((unit) => {
     if (!filters) return true;
 
-    // 부대 선택 필터
+    // 부대 선택 필터 - 선택된 부대와 모든 하위 부대 표시
     if (filters.selectedUnit && filters.selectedUnit !== 'all') {
-      // 선택된 부대 또는 그 하위 부대인지 확인
-      const unitPath = unit.fullName;
       const selectedUnitData = getUnitById(filters.selectedUnit);
-      if (selectedUnitData && !unitPath.includes(selectedUnitData.name)) {
-        return false;
+      if (selectedUnitData) {
+        // 선택된 부대의 모든 하위 부대 ID 목록
+        const descendantIds = getAllDescendants(filters.selectedUnit).map(u => u.id);
+        // 현재 부대가 선택된 부대이거나 하위 부대인지 확인
+        if (unit.id !== filters.selectedUnit && !descendantIds.includes(unit.id)) {
+          return false;
+        }
       }
     }
 
