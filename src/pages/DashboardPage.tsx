@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { IncidentTicker } from '@/components/dashboard/IncidentTicker';
 import { StatusHeader } from '@/components/dashboard/StatusHeader';
+import { RiskLevelPanel } from '@/components/dashboard/RiskLevelGauge';
 import { UnitFilterPanel, FilterState } from '@/components/dashboard/UnitFilterPanel';
 import { UnitListTable } from '@/components/dashboard/UnitListTable';
 import { UnitDetailPanel } from '@/components/dashboard/UnitDetailPanel';
@@ -63,14 +64,24 @@ export default function DashboardPage() {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Top Status Bar - 날짜/시간 + 기상 */}
+      {/* Top Status Bar - 3개 섹션: 날짜/시간/날씨 + 사고사례 + 위험도 */}
       <div className="shrink-0 border-b border-border bg-card/50">
-        {isLoading ? <StatusHeaderSkeleton /> : <StatusHeader />}
-      </div>
-
-      {/* 일일 사고 사례 */}
-      <div className="shrink-0 border-b border-border bg-muted/30">
-        {isLoading ? <TickerBarSkeleton /> : <IncidentTicker onClickDetail={handleIncidentDetail} />}
+        <div className="flex items-stretch divide-x divide-border">
+          {/* 섹션 1: 날짜/시간/날씨 */}
+          <div className="shrink-0">
+            {isLoading ? <StatusHeaderSkeleton /> : <StatusHeader />}
+          </div>
+          
+          {/* 섹션 2: 사고사례 실시간 카드 */}
+          <div className="flex-1 min-w-0">
+            {isLoading ? <TickerBarSkeleton /> : <IncidentTicker onClickDetail={handleIncidentDetail} />}
+          </div>
+          
+          {/* 섹션 3: 위험도 게이지 */}
+          <div className="shrink-0 hidden md:flex items-center">
+            <RiskLevelPanel />
+          </div>
+        </div>
       </div>
 
       {/* Main Content - 3단 구조 */}
