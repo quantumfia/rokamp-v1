@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { ChevronRight, ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getChildUnits, getUnitPath, ArmyUnit } from '@/data/armyUnits';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface UnitTreeSelectProps {
   value?: string;
@@ -153,21 +152,19 @@ export function UnitTreeSelect({ value = '', onChange }: UnitTreeSelectProps) {
       </div>
 
       {/* 부대 트리 */}
-      <ScrollArea className="max-h-64">
-        <div className="space-y-0.5">
-          {topLevelUnits.map((unit) => (
-            <TreeNode
-              key={unit.id}
-              unit={unit}
-              level={0}
-              selectedId={selectedId}
-              expandedIds={expandedIds}
-              onSelect={handleSelect}
-              onToggle={handleToggle}
-            />
-          ))}
-        </div>
-      </ScrollArea>
+      <div className="space-y-0.5">
+        {topLevelUnits.map((unit) => (
+          <TreeNode
+            key={unit.id}
+            unit={unit}
+            level={0}
+            selectedId={selectedId}
+            expandedIds={expandedIds}
+            onSelect={handleSelect}
+            onToggle={handleToggle}
+          />
+        ))}
+      </div>
     </div>
   );
 }
