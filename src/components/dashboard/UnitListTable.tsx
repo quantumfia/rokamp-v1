@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronUp, ChevronDown, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ARMY_UNITS, UNIT_LOCATIONS, UNIT_TYPE_LABELS, getUnitFullName } from '@/data/armyUnits';
+import { ARMY_UNITS, UNIT_LOCATIONS, UNIT_TYPE_LABELS, getUnitFullName, getUnitById } from '@/data/armyUnits';
 import type { FilterState } from './UnitFilterPanel';
 
 interface UnitListTableProps {
@@ -43,13 +43,14 @@ export function UnitListTable({ onUnitClick, selectedUnitId, filters }: UnitList
   const filteredUnits = allUnits.filter((unit) => {
     if (!filters) return true;
 
-    // 사단 필터
-    if (filters.divisions.length > 0) {
-      const divisionMatch = filters.divisions.some((div) => {
-        const divNum = div.replace('div-', '');
-        return unit.fullName.includes(`제${divNum}사단`);
-      });
-      if (!divisionMatch) return false;
+    // 부대 선택 필터
+    if (filters.selectedUnit && filters.selectedUnit !== 'all') {
+      // 선택된 부대 또는 그 하위 부대인지 확인
+      const unitPath = unit.fullName;
+      const selectedUnitData = getUnitById(filters.selectedUnit);
+      if (selectedUnitData && !unitPath.includes(selectedUnitData.name)) {
+        return false;
+      }
     }
 
     // 위험도 필터
@@ -61,11 +62,6 @@ export function UnitListTable({ onUnitClick, selectedUnitId, filters }: UnitList
         return false;
       });
       if (!riskMatch) return false;
-    }
-
-    // 유형 필터
-    if (filters.unitTypes.length > 0) {
-      if (!filters.unitTypes.includes(unit.type)) return false;
     }
 
     return true;

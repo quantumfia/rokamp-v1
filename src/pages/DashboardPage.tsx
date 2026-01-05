@@ -25,9 +25,8 @@ export default function DashboardPage() {
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<FilterState>({
-    divisions: [],
+    selectedUnit: '',
     riskLevels: [],
-    unitTypes: [],
   });
   
   // 반응형 패널 상태
