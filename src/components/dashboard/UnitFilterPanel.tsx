@@ -8,8 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
-
+import { UnitChipSelect } from '@/components/unit/UnitChipSelect';
 interface FilterOption {
   id: string;
   label: string;
@@ -134,11 +133,10 @@ export function UnitFilterPanel({ onFilterChange }: UnitFilterPanelProps) {
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="px-3 py-2">
-              <UnitCascadeSelect
+              <UnitChipSelect
                 value={filters.selectedUnit}
                 onChange={handleUnitChange}
                 placeholder="전체 부대"
-                showFullPath={true}
               />
             </div>
           </CollapsibleContent>
