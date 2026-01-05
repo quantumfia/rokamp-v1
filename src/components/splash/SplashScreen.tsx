@@ -19,7 +19,7 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
   const [showElements, setShowElements] = useState(skipSplash);
   
   // Login form state
-  const [militaryId, setMilitaryId] = useState('');
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
@@ -62,13 +62,13 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
     e.preventDefault();
     setError('');
     
-    if (!militaryId || !password) {
-      setError('군번과 비밀번호를 입력해주세요.');
+    if (!userId || !password) {
+      setError('아이디와 비밀번호를 입력해주세요.');
       return;
     }
 
     try {
-      await login(militaryId, password);
+      await login(userId, password);
       onComplete();
     } catch (err) {
       setError('로그인에 실패했습니다. 다시 시도해주세요.');
@@ -212,12 +212,12 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
               <div className="relative">
                 <Input
                   type="text"
-                  placeholder="군번 (Military ID)"
-                  value={militaryId}
-                  onChange={(e) => setMilitaryId(e.target.value)}
+                  placeholder="아이디 (ID)"
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
                   className="h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-primary/50 focus:ring-primary/20 transition-all"
                   style={{
-                    boxShadow: militaryId ? '0 0 20px hsl(210, 75%, 50%, 0.1)' : 'none',
+                    boxShadow: userId ? '0 0 20px hsl(210, 75%, 50%, 0.1)' : 'none',
                   }}
                 />
               </div>
