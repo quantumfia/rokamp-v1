@@ -89,7 +89,7 @@ export default function DashboardPage() {
         <div
           className={cn(
             'shrink-0 border-r border-border bg-card overflow-hidden transition-all duration-300',
-            'hidden lg:block lg:w-56',
+            'hidden lg:block lg:w-64',
           )}
         >
           {isLoading ? <RiskSummarySkeleton /> : <UnitFilterPanel onFilterChange={setFilters} />}
