@@ -62,9 +62,9 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
   };
 
   return (
-    <div className="h-[78px] flex flex-col justify-center px-4 gap-1.5">
-      {/* 상단 행: 라벨 + 카드 + 상세보기 */}
-      <div className="flex items-center gap-3">
+    <div className="h-[78px] relative flex items-center px-4">
+      {/* 메인 행: 라벨 + 카드 + 상세보기 (세로 중앙) */}
+      <div className="flex items-center gap-3 w-full">
         {/* 라벨 */}
         <div className="flex items-center gap-1.5 shrink-0">
           <AlertCircle className={cn('w-4 h-4', getIconColor(currentIncident.type))} />
@@ -97,8 +97,8 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
         </button>
       </div>
 
-      {/* 하단 행: 인디케이터 (가운데 정렬) */}
-      <div className="flex items-center justify-center gap-1.5">
+      {/* 인디케이터 (하단 고정, 레이아웃에 영향 없음) */}
+      <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1.5">
         {MOCK_INCIDENTS.map((_, idx) => (
           <button
             key={idx}
