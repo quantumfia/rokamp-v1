@@ -256,6 +256,7 @@ export default function ForecastPage() {
                 onChange={setSelectedUnitId}
                 placeholder="부대 선택"
                 showFullPath={true}
+                inline={true}
               />
             </div>
 
