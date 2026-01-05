@@ -171,40 +171,45 @@ export function UnitCascadeSelect({
           </SelectContent>
         </Select>
 
-        {/* 하위 레벨들: 인라인으로 한 줄에 */}
-        {showSubLevels && subLevels.length > 0 && selections.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            {subLevels.map((level) => {
-              const options = getLevelOptions(level);
-              const currentValue = selections[level] || '';
-              
-              if (options.length === 0) return null;
-              
-              return (
-                <div key={level} className="flex items-center gap-1 flex-shrink-0">
-                  {level > 1 && (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                  )}
-                  <Select
-                    value={currentValue}
-                    onValueChange={(val) => handleSelect(level, val)}
-                  >
-                    <SelectTrigger className="w-32 min-w-[128px]">
-                      <SelectValue placeholder="선택..." />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-60 z-[300]">
-                      {options.map((unit) => (
-                        <SelectItem key={unit.id} value={unit.id}>
-                          {unit.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {/* 하위 레벨들: 균등 분배로 100% 채움 */}
+        {showSubLevels && subLevels.length > 0 && selections.length > 0 && (() => {
+          // 실제로 렌더링될 레벨 수 계산
+          const visibleSubLevels = subLevels.filter(level => getLevelOptions(level).length > 0);
+          
+          if (visibleSubLevels.length === 0) return null;
+          
+          return (
+            <div className="flex items-center gap-2 w-full">
+              {visibleSubLevels.map((level, idx) => {
+                const options = getLevelOptions(level);
+                const currentValue = selections[level] || '';
+                
+                return (
+                  <div key={level} className="flex items-center gap-1 flex-1 min-w-0">
+                    {idx > 0 && (
+                      <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    )}
+                    <Select
+                      value={currentValue}
+                      onValueChange={(val) => handleSelect(level, val)}
+                    >
+                      <SelectTrigger className="w-full min-w-0">
+                        <SelectValue placeholder="선택..." />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 z-[300]">
+                        {options.map((unit) => (
+                          <SelectItem key={unit.id} value={unit.id}>
+                            {unit.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
         
         {showFullPath && selections.length > 0 && (
           <p className="text-xs text-muted-foreground">
