@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface IncidentItem {
@@ -62,27 +62,59 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
   };
 
   return (
-    <div className="h-[78px] flex items-center px-4 gap-3">
-      {/* 라벨 */}
-      <div className="flex items-center gap-1.5 shrink-0">
-        <AlertCircle className={cn('w-4 h-4', getIconColor(currentIncident.type))} />
-        <span className="text-xs font-medium text-foreground whitespace-nowrap">일일 사고사례</span>
+    <div className="h-[78px] flex flex-col justify-center px-4 gap-1.5">
+      {/* 상단 행: 라벨 + 카드 + 상세보기 */}
+      <div className="flex items-center gap-3">
+        {/* 라벨 */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <AlertCircle className={cn('w-4 h-4', getIconColor(currentIncident.type))} />
+          <span className="text-xs font-medium text-foreground whitespace-nowrap">일일사고사례</span>
+        </div>
+
+        {/* 구분선 */}
+        <div className="h-6 w-px bg-border shrink-0" />
+
+        {/* 사고 내용 */}
+        <div 
+          className={cn(
+            'flex-1 flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all duration-300 cursor-pointer hover:opacity-80',
+            getTypeStyle(currentIncident.type),
+            isAnimating ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+          )}
+          onClick={onClickDetail}
+        >
+          <span className="text-xs font-medium whitespace-nowrap">{currentIncident.unit}</span>
+          <span className="text-xs truncate">{currentIncident.title}</span>
+        </div>
+
+        {/* 상세보기 버튼 */}
+        <button 
+          onClick={onClickDetail}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
+        >
+          <span>상세보기</span>
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
       </div>
 
-      {/* 구분선 */}
-      <div className="h-8 w-px bg-border shrink-0" />
-
-      {/* 사고 내용 */}
-      <div 
-        className={cn(
-          'flex-1 flex items-center gap-2 px-3 py-2 rounded-md border transition-all duration-300 cursor-pointer hover:opacity-80',
-          getTypeStyle(currentIncident.type),
-          isAnimating ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
-        )}
-        onClick={onClickDetail}
-      >
-        <span className="text-xs font-medium whitespace-nowrap">{currentIncident.unit}</span>
-        <span className="text-xs truncate">{currentIncident.title}</span>
+      {/* 하단 행: 인디케이터 (가운데 정렬) */}
+      <div className="flex items-center justify-center gap-1.5">
+        {MOCK_INCIDENTS.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => {
+              setIsAnimating(true);
+              setTimeout(() => {
+                setCurrentIndex(idx);
+                setIsAnimating(false);
+              }, 150);
+            }}
+            className={cn(
+              'w-1.5 h-1.5 rounded-full transition-all',
+              idx === currentIndex ? 'bg-primary w-3' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+            )}
+          />
+        ))}
       </div>
     </div>
   );
