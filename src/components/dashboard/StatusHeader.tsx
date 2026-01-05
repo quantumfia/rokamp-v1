@@ -68,7 +68,7 @@ export function StatusHeader() {
   return (
     <div className="flex items-center gap-3 px-4 py-3 h-[60px]">
       {/* 날짜/시간 */}
-      <div className="flex flex-col justify-center gap-0.5 min-w-[100px]">
+      <div className="flex flex-col justify-center gap-0.5 shrink-0">
         <span className="text-muted-foreground text-[11px] leading-tight">{date}</span>
         <span className="font-mono font-semibold text-foreground tabular-nums text-base leading-tight">{time}</span>
       </div>
