@@ -2,6 +2,12 @@ import { X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUnitById, getUnitFullName, LEVEL_LABELS, getChildUnits, UNIT_TYPE_LABELS } from '@/data/armyUnits';
 
+interface Training {
+  id: string;
+  name: string;
+  date: string;
+}
+
 interface RiskFactor {
   id: string;
   description: string;
@@ -12,6 +18,12 @@ interface UnitDetailPanelProps {
   onClose: () => void;
   showBackButton?: boolean;
 }
+
+const MOCK_TRAININGS: Training[] = [
+  { id: '1', name: '사격 훈련', date: '12/15' },
+  { id: '2', name: '야간 행군', date: '12/17' },
+  { id: '3', name: '차량 기동훈련', date: '12/19' },
+];
 
 const MOCK_RISK_FACTORS: RiskFactor[] = [
   { id: '1', description: '폭우 예보로 인한 차량 전복 위험 증가' },
@@ -128,6 +140,23 @@ export function UnitDetailPanel({ unitId, onClose, showBackButton = false }: Uni
           </div>
         )}
 
+        {/* Training Schedule */}
+        <div className="border-b border-border">
+          <div className="px-4 py-2 bg-muted/30">
+            <p className="text-[10px] text-muted-foreground">주간 훈련 일정</p>
+          </div>
+          <div className="divide-y divide-border/50">
+            {MOCK_TRAININGS.map((training) => (
+              <div
+                key={training.id}
+                className="flex items-center justify-between px-4 py-2"
+              >
+                <span className="text-xs text-foreground">{training.name}</span>
+                <span className="text-[10px] text-muted-foreground font-mono">{training.date}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Risk Factors */}
         <div>

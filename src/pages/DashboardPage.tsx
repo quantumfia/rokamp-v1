@@ -6,7 +6,6 @@ import { UnitFilterPanel, FilterState } from '@/components/dashboard/UnitFilterP
 import { UnitListTable } from '@/components/dashboard/UnitListTable';
 import { UnitDetailPanel } from '@/components/dashboard/UnitDetailPanel';
 import { TrendChartsVertical } from '@/components/dashboard/TrendChartsVertical';
-import { NoticeListPanel } from '@/components/dashboard/NoticeListPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
 import { X, Filter, BarChart3 } from 'lucide-react';
@@ -156,32 +155,24 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right Panel - 트렌드 + 공지사항 (세로 배치) */}
+        {/* Right Panel - 트렌드 차트 또는 부대 상세 (Desktop) */}
         <div
           className={cn(
-            'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300 flex flex-col',
-            'hidden xl:flex xl:w-[600px]',
+            'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
+            'hidden xl:block xl:w-80',
           )}
         >
-          {/* 상단: 트렌드 차트 또는 부대 상세 */}
-          <div className="shrink-0 h-[45%] border-b border-border overflow-hidden">
-            {isLoading ? (
-              <TrendChartsSkeleton />
-            ) : selectedUnitId ? (
-              <UnitDetailPanel 
-                unitId={selectedUnitId} 
-                onClose={handleCloseDetail}
-                showBackButton
-              />
-            ) : (
-              <TrendChartsVertical />
-            )}
-          </div>
-
-          {/* 하단: 공지사항 */}
-          <div className="flex-1 overflow-hidden">
-            <NoticeListPanel />
-          </div>
+          {isLoading ? (
+            <TrendChartsSkeleton />
+          ) : selectedUnitId ? (
+            <UnitDetailPanel 
+              unitId={selectedUnitId} 
+              onClose={handleCloseDetail}
+              showBackButton
+            />
+          ) : (
+            <TrendChartsVertical />
+          )}
         </div>
 
         {/* Mobile/Tablet Right Panel Overlay - 부대 상세 */}
