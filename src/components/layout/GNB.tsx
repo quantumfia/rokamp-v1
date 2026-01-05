@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, ChevronDown, LogOut, Key, User, Menu, Eye, EyeOff } from 'lucide-react';
 import rokaLogo from '@/assets/roka-logo.svg';
@@ -20,6 +20,22 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { ROLE_LABELS } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
+
+// 실시간 시계 컴포넌트
+function HeaderClock() {
+  const [time, setTime] = useState(new Date());
+  
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  
+  return (
+    <span className="font-mono tabular-nums">
+      {time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+    </span>
+  );
+}
 
 interface GNBProps {
   onNotificationClick: () => void;
@@ -113,10 +129,14 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
             </div>
           </button>
 
-          <div className="hidden lg:flex items-center ml-3">
+          <div className="hidden lg:flex items-center ml-3 gap-3">
             <span className="text-xs text-sidebar-muted px-2 py-1 rounded bg-sidebar-accent">
               안전사고 예측 시스템
             </span>
+            <div className="flex items-center gap-2 text-xs text-sidebar-muted">
+              <span>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' })}</span>
+              <HeaderClock />
+            </div>
           </div>
         </div>
 
