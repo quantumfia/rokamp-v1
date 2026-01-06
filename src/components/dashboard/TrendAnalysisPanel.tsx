@@ -1,5 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { AlertTriangle, Users, Shield } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Shield } from 'lucide-react';
 
 // 발생사고 현황 데이터
 const accidentData = [
@@ -10,13 +10,13 @@ const accidentData = [
   { type: '대 상관', count: 4 },
 ];
 
-// 신분별 사고 현황 (도넛 차트)
-const statusAccidentData = [
-  { name: '부사관', value: 35, color: 'hsl(var(--chart-1))' },
-  { name: '병', value: 28, color: 'hsl(var(--chart-2))' },
-  { name: '장교', value: 18, color: 'hsl(var(--chart-3))' },
-  { name: '군무원', value: 12, color: 'hsl(var(--chart-4))' },
-  { name: '기타', value: 7, color: 'hsl(var(--chart-5))' },
+// 예측 위험 요인 데이터 (도넛 차트)
+const riskFactorData = [
+  { name: '훈련 강도', value: 32, color: 'hsl(var(--chart-1))' },
+  { name: '근무 피로', value: 28, color: 'hsl(var(--chart-2))' },
+  { name: '대인 갈등', value: 20, color: 'hsl(var(--chart-3))' },
+  { name: '환경 요인', value: 12, color: 'hsl(var(--chart-4))' },
+  { name: '기타', value: 8, color: 'hsl(var(--chart-5))' },
 ];
 
 const chartTooltipStyle = {
@@ -33,11 +33,11 @@ export function TrendAnalysisPanel() {
   const dangerousUnitCount = 12;
   const totalUnitCount = 275;
   
+  // 위험도 평균
+  const averageRiskScore = 67.3;
+  
   // 상위 발생사고
   const topAccident = accidentData[0];
-  
-  // 상위 신분
-  const topStatus = statusAccidentData[0];
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-card">
@@ -61,27 +61,27 @@ export function TrendAnalysisPanel() {
             </div>
           </div>
           
-          {/* 발생사고 상위 */}
+          {/* 위험도 평균 */}
           <div className="px-5 py-4">
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-status-warning" />
-              <span className="text-sm text-muted-foreground">발생사고 상위</span>
+              <TrendingUp className="w-4 h-4 text-status-warning" />
+              <span className="text-sm text-muted-foreground">위험도 평균</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-status-warning tracking-tight">{topAccident.type}</span>
-              <span className="text-base text-muted-foreground">{topAccident.count}건</span>
+              <span className="text-4xl font-bold text-status-warning tracking-tight">{averageRiskScore}</span>
+              <span className="text-base text-muted-foreground">점</span>
             </div>
           </div>
           
-          {/* 신분별 분포 상위 */}
+          {/* 발생사고 상위 */}
           <div className="px-5 py-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-primary" />
-              <span className="text-sm text-muted-foreground">신분별 분포</span>
+              <AlertTriangle className="w-4 h-4 text-primary" />
+              <span className="text-sm text-muted-foreground">발생사고 상위</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-primary tracking-tight">{topStatus.name}</span>
-              <span className="text-base text-muted-foreground">{topStatus.value}%</span>
+              <span className="text-4xl font-bold text-primary tracking-tight">{topAccident.type}</span>
+              <span className="text-base text-muted-foreground">{topAccident.count}건</span>
             </div>
           </div>
         </div>
@@ -89,7 +89,54 @@ export function TrendAnalysisPanel() {
 
       {/* 하단 2컬럼 */}
       <div className="flex-1 overflow-hidden flex divide-x divide-border">
-        {/* 좌측 - 발생사고 현황 바 차트 */}
+        {/* 좌측 - 예측 위험 요인 도넛 차트 */}
+        <div className="w-1/2 p-5 flex flex-col min-h-0">
+          <h4 className="text-sm font-semibold text-foreground mb-4">예측 위험 요인</h4>
+          <div className="flex-1 min-h-0 flex items-center">
+            {/* 도넛 차트 */}
+            <div className="w-1/2 h-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={riskFactorData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="50%"
+                    outerRadius="85%"
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {riskFactorData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={chartTooltipStyle}
+                    formatter={(value: number) => [`${value}%`, '비율']}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* 범례 */}
+            <div className="w-1/2 space-y-2.5 pl-2">
+              {riskFactorData.map((item, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-sm" 
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-sm text-foreground">{item.name}</span>
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums text-foreground">{item.value}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 우측 - 발생사고 현황 바 차트 */}
         <div className="w-1/2 p-5 flex flex-col min-h-0">
           <h4 className="text-sm font-semibold text-foreground mb-4">발생사고 현황</h4>
           <div className="flex-1 min-h-0">
@@ -122,53 +169,6 @@ export function TrendAnalysisPanel() {
                 />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* 우측 - 신분별 사고 현황 도넛 차트 */}
-        <div className="w-1/2 p-5 flex flex-col min-h-0">
-          <h4 className="text-sm font-semibold text-foreground mb-4">신분별 사고 현황</h4>
-          <div className="flex-1 min-h-0 flex items-center">
-            {/* 도넛 차트 */}
-            <div className="w-1/2 h-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={statusAccidentData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius="50%"
-                    outerRadius="85%"
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {statusAccidentData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={chartTooltipStyle}
-                    formatter={(value: number) => [`${value}%`, '비율']}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            
-            {/* 범례 */}
-            <div className="w-1/2 space-y-2.5 pl-2">
-              {statusAccidentData.map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-sm" 
-                      style={{ backgroundColor: item.color }}
-                    />
-                    <span className="text-sm text-foreground">{item.name}</span>
-                  </div>
-                  <span className="text-sm font-semibold tabular-nums text-foreground">{item.value}%</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
