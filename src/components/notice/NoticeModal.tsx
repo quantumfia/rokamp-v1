@@ -199,7 +199,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 dark:bg-black/80" onClick={handleClose} />
       {/* Modal - Fixed size */}
-      <div className="relative w-full max-w-3xl h-[520px] min-h-[520px] max-h-[520px] bg-background border border-border shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-3xl h-[580px] min-h-[580px] max-h-[580px] bg-background border border-border shadow-2xl overflow-hidden flex flex-col">
         {/* Header Bar */}
         <div className="flex items-center justify-between h-10 px-4 bg-muted/50 border-b border-border">
           <div className="flex items-center gap-2">
@@ -241,9 +241,10 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
               </div>
             </div>
             
-            {/* Notice List (5개) + 전체보기 */}
-            <div className="flex-1 flex flex-col">
-              <div>
+            {/* Notice List (5개 고정 높이) */}
+            <div className="flex-1 flex flex-col min-h-0">
+              {/* 5개 공지사항 리스트 - 고정 높이 */}
+              <div className="h-[330px]">
                 {filteredNotices.map((notice) => (
                   <button
                     key={notice.id}
@@ -269,8 +270,8 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                   </button>
                 ))}
               </div>
-              {/* 하단 남는 영역 - 전체보기 버튼 */}
-              <div className="flex-1 grid items-end justify-items-end px-3 pb-3">
+              {/* 전체보기 버튼 - 고정 하단 영역 */}
+              <div className="h-10 flex items-center justify-end px-3 border-t border-border/30">
                 <button
                   onClick={handleViewAll}
                   className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
