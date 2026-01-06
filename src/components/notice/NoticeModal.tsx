@@ -220,24 +220,33 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
           <div className="w-56 border-r border-border bg-muted/30 flex flex-col">
             {/* Filter Tabs */}
             <div className="px-3 py-2 border-b border-border shrink-0">
-              <div className="flex items-center">
-                {TAG_FILTERS.map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setActiveFilter(filter)}
-                    className={cn(
-                      "relative px-2 py-1 text-[10px] transition-colors",
-                      activeFilter === filter
-                        ? "text-foreground font-medium"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {filter}
-                    {activeFilter === filter && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-0.5 bg-foreground rounded-full" />
-                    )}
-                  </button>
-                ))}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  {TAG_FILTERS.map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setActiveFilter(filter)}
+                      className={cn(
+                        "relative px-2 py-1 text-[10px] transition-colors",
+                        activeFilter === filter
+                          ? "text-foreground font-medium"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {filter}
+                      {activeFilter === filter && (
+                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-0.5 bg-foreground rounded-full" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={handleViewAll}
+                  className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  전체보기
+                  <ChevronRight className="w-3 h-3" />
+                </button>
               </div>
             </div>
             
@@ -267,17 +276,6 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                   </div>
                 </button>
               ))}
-            </div>
-
-            {/* 전체보기 버튼 */}
-            <div className="shrink-0 px-3 py-2 border-t border-border">
-              <button
-                onClick={handleViewAll}
-                className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                전체보기
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
             </div>
           </div>
 
