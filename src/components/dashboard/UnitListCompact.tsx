@@ -26,7 +26,7 @@ type SortDirection = 'asc' | 'desc';
 // 역할 기반 필터링된 부대 목록 반환
 const getDisplayUnits = (accessibleIds: Set<string>) => {
   return ARMY_UNITS
-    .filter((unit) => unit.level !== 'CATEGORY' && accessibleIds.has(unit.id))
+    .filter((unit) => accessibleIds.has(unit.id))
     .map((unit) => {
       const location = UNIT_LOCATIONS[unit.id];
       const baseRisk = location?.risk ?? Math.floor(Math.random() * 60) + 10;

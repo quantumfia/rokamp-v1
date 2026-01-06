@@ -61,9 +61,7 @@ export function TrendAnalysisPanel() {
       .slice(0, 5);
     
     // 접근 가능한 부대 수
-    const accessibleUnits = ARMY_UNITS.filter(u => 
-      u.level !== 'CATEGORY' && accessibleIds.has(u.id)
-    );
+    const accessibleUnits = ARMY_UNITS.filter(u => accessibleIds.has(u.id));
     const totalUnitCount = accessibleUnits.length;
     
     // 위험 부대 수 (risk >= 60)
