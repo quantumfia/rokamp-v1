@@ -27,32 +27,30 @@ const chartTooltipStyle = {
 };
 
 export function TrendAnalysisPanel() {
-  // 가장 많은 사고 유형 찾기
-  const topAccident = weeklyAccidentData.reduce((max, item) => 
-    item.count > max.count ? item : max, weeklyAccidentData[0]
-  );
-  const totalCount = weeklyAccidentData.reduce((sum, item) => sum + item.count, 0);
+  // 위험부대 수 (위험도 60% 이상)
+  const dangerousUnitCount = 12;
+  const totalUnitCount = 275;
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-card">
-      {/* Header - 더 크고 명확하게 */}
+      {/* Header */}
       <div className="shrink-0 px-5 py-3 border-b border-border">
         <h3 className="text-base font-bold text-foreground">오늘의 안전사고 예보</h3>
       </div>
 
       {/* Content - 2컬럼 레이아웃 */}
       <div className="flex-1 overflow-hidden flex">
-        {/* Left Column - 핵심 숫자 + 바 차트 */}
+        {/* Left Column - 위험부대 + 바 차트 */}
         <div className="w-1/2 border-r border-border flex flex-col">
-          {/* 주요 사고 유형 - 가장 많은 유형 강조 */}
+          {/* 위험부대 수 */}
           <div className="px-5 py-4 border-b border-border">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm text-muted-foreground">주요 사고 유형</span>
+              <div className="w-2 h-2 rounded-full bg-status-error animate-pulse" />
+              <span className="text-sm text-muted-foreground">위험부대</span>
             </div>
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold text-primary tracking-tight">{topAccident.type}</span>
-              <span className="text-lg text-muted-foreground">{topAccident.count}건 / 총 {totalCount}건</span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-5xl font-bold text-status-error tracking-tight">{dangerousUnitCount}</span>
+              <span className="text-lg text-muted-foreground">/ {totalUnitCount} 부대</span>
             </div>
           </div>
 
