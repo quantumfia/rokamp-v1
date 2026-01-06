@@ -344,9 +344,9 @@ export default function ChatbotPage() {
               </div>
               <h1 className="text-2xl font-semibold text-foreground mb-2">육군 AI 챗봇</h1>
               <p className="text-sm text-muted-foreground text-center max-w-md">
-                AI 사고예보 시스템의 데이터를 기반으로
+                안전과 관련된 다양한 질문을 24시간 쉽고 빠르게 문의할 수 있습니다.
                 <br />
-                사고 예방 관련 질문에 답변드립니다.
+                과거 사건·사고 사례, 예방 수칙, 비상대응 절차, 법률정보 등을 제공합니다.
               </p>
             </div>
 
