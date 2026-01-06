@@ -384,7 +384,7 @@ export default function UserManagementPage() {
       />
 
       {/* 통계 요약 - 접근 가능한 사용자 기준 */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
         <div>
           <p className="text-xs text-muted-foreground">전체 사용자</p>
           <p className="text-2xl font-semibold text-foreground mt-1">{filteredUsers.length}</p>
@@ -402,26 +402,28 @@ export default function UserManagementPage() {
       <div className="border-t border-border pt-6" />
 
       {/* 검색 및 필터 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h2 className="text-sm font-medium text-foreground">사용자 목록</h2>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 lg:gap-4">
+          <h2 className="text-sm font-medium text-foreground shrink-0">사용자 목록</h2>
           <UnitFilterSelect
             value={selectedUnitFilter}
             onChange={handleUnitFilterChange}
             mode="popover"
             placeholder="전체 부대"
+            containerWidth="w-full sm:w-[280px] lg:w-[320px]"
           />
         </div>
         <input
           placeholder="이름, 계정 ID, 군번, 부대 검색..."
           value={searchQuery}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="w-64 bg-transparent border border-border rounded px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+          className="w-full lg:w-64 bg-transparent border border-border rounded px-3 py-1.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
         />
       </div>
 
-      {/* 테이블 - 간소화 */}
-      <Table>
+      {/* 테이블 - 가로 스크롤 지원 */}
+      <div className="overflow-x-auto -mx-6 px-6">
+        <Table className="min-w-[700px]">
         <TableHeader>
           <TableRow>
             <TableHead className="text-xs w-24">계정 ID</TableHead>
@@ -467,6 +469,7 @@ export default function UserManagementPage() {
           )}
         </TableBody>
       </Table>
+      </div>
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (

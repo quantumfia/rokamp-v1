@@ -74,44 +74,44 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-muted/30">
+    <div className="h-full flex flex-col bg-muted/30 overflow-auto lg:overflow-hidden">
       {/* Top Status Bar - 3개 섹션: 날짜/시간/날씨 + 사고사례 + 사용자 정보 */}
       <div className="shrink-0 m-3 mb-0 rounded-lg border border-border bg-card">
-        <div className="flex items-stretch divide-x divide-border">
+        <div className="flex flex-col lg:flex-row lg:items-stretch lg:divide-x divide-border">
           {/* 섹션 1: 날짜/시간/날씨 */}
           <div className="shrink-0">
             {isLoading ? <StatusHeaderSkeleton /> : <StatusHeader />}
           </div>
           
           {/* 섹션 2: 사고사례 실시간 카드 */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 border-t lg:border-t-0 border-border">
             {isLoading ? <TickerBarSkeleton /> : <IncidentTicker onClickDetail={handleIncidentDetail} />}
           </div>
           
           {/* 섹션 3: 위험도 게이지 */}
-          <div className="shrink-0 hidden md:block">
+          <div className="shrink-0 hidden lg:block">
             <RiskLevelPanel />
           </div>
         </div>
       </div>
 
       {/* Main Content - 좌측 (트렌드 + 공지) + 우측 부대 리스트/상세 */}
-      <div className="flex-1 flex overflow-hidden p-3 gap-3">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden p-3 gap-3 min-h-0">
         {/* Left Section - 트렌드 + 공지사항 (60%) */}
-        <div className="w-[60%] flex flex-col gap-3 overflow-hidden">
+        <div className="lg:w-[60%] flex flex-col gap-3 overflow-hidden min-h-[400px] lg:min-h-0">
           {/* 상단 - 트렌드 분석 */}
-          <div className="h-1/2 rounded-lg border border-border bg-card overflow-hidden">
+          <div className="flex-1 lg:h-1/2 min-h-[200px] rounded-lg border border-border bg-card overflow-hidden">
             {isLoading ? <TrendChartsSkeleton /> : <TrendAnalysisPanel />}
           </div>
 
           {/* 하단 - 공지사항 리스트 */}
-          <div className="h-1/2 rounded-lg border border-border bg-card overflow-hidden">
+          <div className="flex-1 lg:h-1/2 min-h-[200px] rounded-lg border border-border bg-card overflow-hidden">
             <DashboardNoticeList />
           </div>
         </div>
 
         {/* Right Section - 부대 리스트 또는 상세 (40%) */}
-        <div className="w-[40%] flex flex-col rounded-lg border border-border bg-card overflow-hidden relative">
+        <div className="lg:w-[40%] flex flex-col rounded-lg border border-border bg-card overflow-hidden relative min-h-[300px] lg:min-h-0">
           {selectedUnitId ? (
             /* 부대 상세 패널 */
             <UnitDetailPanelHorizontal 

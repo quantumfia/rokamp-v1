@@ -54,7 +54,7 @@ export default function WeeklyForecastTab({ selectedUnit }: WeeklyForecastTabPro
   return (
     <div className="space-y-6">
       {/* 상단 요약 */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="border-border">
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground mb-1">주간 평균 위험도</p>
@@ -90,7 +90,7 @@ export default function WeeklyForecastTab({ selectedUnit }: WeeklyForecastTabPro
       {/* 주간 종합 위험도 테이블 */}
       <Card className="border-border">
         <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
             <CardTitle className="text-sm font-medium">주간 종합 위험도</CardTitle>
             <div className="flex items-center gap-3 text-[10px]">
               <div className="flex items-center gap-1">
@@ -109,8 +109,8 @@ export default function WeeklyForecastTab({ selectedUnit }: WeeklyForecastTabPro
           </div>
         </CardHeader>
         <CardContent>
-          <div className="border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="border border-border rounded-lg overflow-x-auto">
+            <table className="w-full text-sm min-w-[600px]">
               <thead>
                 <tr className="bg-muted/50">
                   <th className="py-2 px-3 text-left font-medium text-foreground border-r border-border w-20">구분</th>
@@ -163,7 +163,7 @@ export default function WeeklyForecastTab({ selectedUnit }: WeeklyForecastTabPro
       </Card>
 
       {/* 사고유형별 + 계급별 */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 사고유형별 주간 위험지수 */}
         <Card className="border-border">
           <CardHeader className="pb-2">
