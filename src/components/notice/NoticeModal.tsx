@@ -299,7 +299,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                 <button
                   onClick={() => {
                     onClose();
-                    navigate('/notice', { state: { openNoticeId: selectedNotice.id } });
+                    navigate(`/admin/notice/${selectedNotice.id}`);
                   }}
                   className="flex items-center gap-1 px-2 py-1 text-[10px] text-muted-foreground hover:text-foreground border border-border hover:bg-muted rounded transition-colors shrink-0"
                 >
