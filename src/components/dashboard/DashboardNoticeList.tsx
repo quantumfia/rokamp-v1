@@ -132,20 +132,23 @@ export function DashboardNoticeList() {
         </Button>
       </div>
 
-      {/* Tag Filter Tabs */}
-      <div className="flex items-center gap-1 px-4 pb-2">
-        {TAG_FILTERS.map((filter) => (
+      {/* Tag Filter Tabs - 밑줄 스타일 */}
+      <div className="flex items-center px-4 pb-2 border-b border-border">
+        {TAG_FILTERS.map((filter, idx) => (
           <button
             key={filter}
             onClick={() => setActiveFilter(filter)}
             className={cn(
-              "px-3 py-1 text-xs rounded-md transition-colors",
+              "relative px-3 py-1.5 text-xs transition-colors",
               activeFilter === filter
-                ? "bg-foreground text-background font-medium"
-                : "text-muted-foreground hover:bg-muted/50"
+                ? "text-foreground font-medium"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             {filter}
+            {activeFilter === filter && (
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-0.5 bg-foreground rounded-full" />
+            )}
           </button>
         ))}
       </div>
