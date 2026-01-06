@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trash2, Video, Paperclip, Upload, X, Save } from 'lucide-react';
+import { ArrowLeft, Trash2, Video, Link2, Plus, X, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -17,8 +17,15 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Mock 데이터 (실제 구현 시 API에서 가져옴)
+interface AttachmentLink {
+  id: string;
+  name: string;
+  url: string;
+}
+
 interface Notice {
   id: number;
   title: string;
@@ -27,7 +34,7 @@ interface Notice {
   targetLabel: string;
   videoUrl: string;
   hasVideo: boolean;
-  hasAttachment: boolean;
+  attachments: AttachmentLink[];
   createdAt: string;
   author: string;
   status: string;
@@ -42,7 +49,9 @@ const NOTICES: Notice[] = [
     targetLabel: '전체',
     videoUrl: 'https://youtu.be/example1',
     hasVideo: true,
-    hasAttachment: true,
+    attachments: [
+      { id: '1', name: '동절기_안전수칙_체크리스트.pdf', url: 'https://portal.cstec.kr/docs/winter-safety' },
+    ],
     createdAt: '2024-12-13', 
     author: '김철수 대령',
     status: 'active'
@@ -55,7 +64,7 @@ const NOTICES: Notice[] = [
     targetLabel: '전체',
     videoUrl: '',
     hasVideo: false,
-    hasAttachment: false,
+    attachments: [],
     createdAt: '2024-12-10', 
     author: '김철수 대령',
     status: 'active'
@@ -65,16 +74,21 @@ const NOTICES: Notice[] = [
 export default function NoticeFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isLoading = usePageLoading(500);
   const isEditMode = !!id;
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [target, setTarget] = useState('all');
+  const [target, setTarget] = useState('subordinate'); // 기본값을 예하 부대로
   const [videoUrl, setVideoUrl] = useState('');
-  const [attachedFile, setAttachedFile] = useState<File | null>(null);
-  const [existingAttachment, setExistingAttachment] = useState(false);
+  const [attachments, setAttachments] = useState<AttachmentLink[]>([]);
+  const [newLinkName, setNewLinkName] = useState('');
+  const [newLinkUrl, setNewLinkUrl] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // 역할에 따른 발송 대상 옵션
+  const canSendToAll = user?.role === 'ROLE_HQ';
 
   useEffect(() => {
     if (id) {
@@ -84,7 +98,7 @@ export default function NoticeFormPage() {
         setContent(notice.content);
         setTarget(notice.target);
         setVideoUrl(notice.videoUrl);
-        setExistingAttachment(notice.hasAttachment);
+        setAttachments(notice.attachments || []);
       }
     }
   }, [id]);
@@ -122,17 +136,29 @@ export default function NoticeFormPage() {
     navigate('/admin/notice');
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setAttachedFile(file);
+  const handleAddLink = () => {
+    if (!newLinkName.trim() || !newLinkUrl.trim()) {
+      toast({
+        title: '입력 오류',
+        description: '링크 이름과 URL을 모두 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
     }
+
+    const newAttachment: AttachmentLink = {
+      id: Date.now().toString(),
+      name: newLinkName.trim(),
+      url: newLinkUrl.trim(),
+    };
+
+    setAttachments(prev => [...prev, newAttachment]);
+    setNewLinkName('');
+    setNewLinkUrl('');
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  const handleRemoveLink = (id: string) => {
+    setAttachments(prev => prev.filter(a => a.id !== id));
   };
 
   if (isLoading) {
@@ -216,9 +242,14 @@ export default function NoticeFormPage() {
               onChange={(e) => setTarget(e.target.value)}
               className="w-full h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
             >
-              <option value="all">전체 (전군)</option>
-              <option value="division">예하 부대</option>
+              {canSendToAll && <option value="all">전체 (전군)</option>}
+              <option value="subordinate">예하 부대</option>
             </select>
+            {!canSendToAll && (
+              <p className="text-[10px] text-muted-foreground">
+                전체 발송은 본부 관리자만 가능합니다.
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -236,41 +267,64 @@ export default function NoticeFormPage() {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">첨부파일 (선택)</Label>
-          {!attachedFile && !existingAttachment ? (
-            <label className="flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-muted-foreground hover:bg-muted/30 transition-colors">
-              <Upload className="w-5 h-5 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">파일을 선택하거나 드래그하세요</span>
-              <input
-                type="file"
-                accept=".hwp,.pdf,.docx,.xlsx,.pptx"
-                onChange={handleFileSelect}
-                className="hidden"
+        {/* 첨부 링크 섹션 */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">첨부 링크 (선택)</Label>
+          <p className="text-xs text-muted-foreground -mt-1">
+            관련 문서가 있는 외부 페이지 링크를 추가합니다.
+          </p>
+          
+          {/* 링크 추가 입력 */}
+          <div className="flex gap-2">
+            <Input
+              placeholder="링크 이름 (예: 안전수칙 체크리스트)"
+              value={newLinkName}
+              onChange={(e) => setNewLinkName(e.target.value)}
+              className="bg-background flex-1"
+            />
+            <div className="relative flex-1">
+              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="https://..."
+                value={newLinkUrl}
+                onChange={(e) => setNewLinkUrl(e.target.value)}
+                className="bg-background pl-10"
               />
-            </label>
-          ) : (
-            <div className="flex items-center justify-between px-4 py-3 border border-border rounded-lg bg-muted/30">
-              <div className="flex items-center gap-3">
-                <Paperclip className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm">
-                  {attachedFile ? attachedFile.name : '기존 첨부파일'}
-                </span>
-                {attachedFile && (
-                  <span className="text-xs text-muted-foreground">
-                    ({formatFileSize(attachedFile.size)})
-                  </span>
-                )}
-              </div>
-              <button 
-                onClick={() => {
-                  setAttachedFile(null);
-                  setExistingAttachment(false);
-                }}
-                className="p-1.5 hover:bg-muted rounded transition-colors"
-              >
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={handleAddLink}
+              className="shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* 추가된 링크 목록 */}
+          {attachments.length > 0 && (
+            <div className="space-y-2">
+              {attachments.map((attachment) => (
+                <div
+                  key={attachment.id}
+                  className="flex items-center justify-between px-4 py-2.5 border border-border rounded-lg bg-muted/30"
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Link2 className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-sm block truncate">{attachment.name}</span>
+                      <span className="text-xs text-muted-foreground block truncate">{attachment.url}</span>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => handleRemoveLink(attachment.id)}
+                    className="p-1.5 hover:bg-muted rounded transition-colors shrink-0 ml-2"
+                  >
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -279,7 +333,8 @@ export default function NoticeFormPage() {
         <div className="pt-4 border-t border-border">
           <div className="text-xs text-muted-foreground space-y-1">
             <p>• 공지사항은 대상자 로그인 시 팝업으로 표시됩니다 ("오늘 하루 보지 않기" 선택 가능)</p>
-            <p>• <strong>전체 발송</strong>: Super Admin 권한 필요 / <strong>예하 부대 발송</strong>: Admin 권한 이상</p>
+            <p>• <strong>전체 발송</strong>: 본부 관리자(HQ) 권한 필요 / <strong>예하 부대 발송</strong>: 사단급 이상 관리자</p>
+            <p>• 첨부 링크는 포털 사이트나 관련 문서 페이지의 URL을 입력합니다</p>
           </div>
         </div>
       </div>
