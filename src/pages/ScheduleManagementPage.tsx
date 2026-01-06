@@ -22,49 +22,50 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-// 훈련 일정 타입
-interface TrainingSchedule {
+// 일정 타입
+interface Schedule {
   id: string;
   title: string;
-  unit: string;
+  unit?: string;
   date: Date;
-  startTime: string;
-  endTime: string;
-  location: string;
-  type: '사격' | '기동' | '전술' | '체력' | '교육' | '점검';
-  riskLevel: 'low' | 'medium' | 'high';
-  participants: number;
+  startTime?: string;
+  endTime?: string;
+  location?: string;
+  type: '훈련' | '행사' | '점검' | '회의' | '휴가' | '기타';
+  riskLevel?: 'low' | 'medium' | 'high';
+  participants?: number;
+  memo?: string;
 }
 
 // 폼 값 타입
 interface ScheduleFormValues {
   title: string;
-  unit: string;
   date: string;
   startTime: string;
   endTime: string;
   location: string;
-  type: '사격' | '기동' | '전술' | '체력' | '교육' | '점검' | '';
+  type: '훈련' | '행사' | '점검' | '회의' | '휴가' | '기타' | '';
   riskLevel: 'low' | 'medium' | 'high';
   participants: number;
+  memo: string;
   [key: string]: unknown;
 }
 
 // 폼 스키마
 const scheduleFormSchema = z.object({
-  title: z.string().trim().min(1, { message: '훈련명을 입력해주세요.' }).max(200),
-  unit: z.string().trim().min(1, { message: '부대를 입력해주세요.' }),
+  title: z.string().trim().min(1, { message: '일정명을 입력해주세요.' }).max(200),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: '날짜를 선택해주세요.' }),
   startTime: z.string().optional().or(z.literal('')),
   endTime: z.string().optional().or(z.literal('')),
   location: z.string().max(200).optional().or(z.literal('')),
-  type: z.enum(['사격', '기동', '전술', '체력', '교육', '점검', '']),
+  type: z.enum(['훈련', '행사', '점검', '회의', '휴가', '기타', '']),
   riskLevel: z.enum(['low', 'medium', 'high']).optional(),
   participants: z.number().nonnegative().optional(),
+  memo: z.string().max(500).optional().or(z.literal('')),
 });
 
-// Mock 훈련 일정 데이터
-const generateMockSchedules = (): TrainingSchedule[] => {
+// Mock 일정 데이터
+const generateMockSchedules = (): Schedule[] => {
   const baseDate = new Date();
   return [
     {
@@ -75,109 +76,89 @@ const generateMockSchedules = (): TrainingSchedule[] => {
       startTime: '09:00',
       endTime: '12:00',
       location: '종합사격장',
-      type: '사격',
+      type: '훈련',
       riskLevel: 'high',
       participants: 120,
     },
     {
       id: '2',
-      title: '기초체력단련',
-      unit: '제7보병사단 신병교육대',
-      date: new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate()),
-      startTime: '06:00',
-      endTime: '08:00',
-      location: '연병장',
-      type: '체력',
-      riskLevel: 'low',
-      participants: 200,
-    },
-    {
-      id: '3',
-      title: '동절기 차량정비 점검',
-      unit: '수도기계화보병사단',
+      title: '분기 안전점검',
+      unit: '제7보병사단',
       date: new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate()),
       startTime: '14:00',
       endTime: '17:00',
-      location: '정비창',
+      location: '본부',
       type: '점검',
       riskLevel: 'medium',
-      participants: 45,
+    },
+    {
+      id: '3',
+      title: '지휘관 회의',
+      unit: '수도기계화보병사단',
+      date: new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate()),
+      startTime: '10:00',
+      endTime: '11:30',
+      location: '회의실',
+      type: '회의',
     },
     {
       id: '4',
-      title: '야간 기동훈련',
-      unit: '제3보병사단 기갑대대',
+      title: '창설기념행사',
+      unit: '제3보병사단',
       date: new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1),
-      startTime: '20:00',
-      endTime: '24:00',
-      location: '훈련장 A구역',
-      type: '기동',
-      riskLevel: 'high',
-      participants: 80,
+      startTime: '10:00',
+      endTime: '12:00',
+      location: '연병장',
+      type: '행사',
+      participants: 500,
     },
     {
       id: '5',
-      title: '안전교육 (동절기 안전수칙)',
+      title: '집중 휴가기간',
       unit: '제5보병사단',
       date: new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 2),
-      startTime: '10:00',
-      endTime: '12:00',
-      location: '대강당',
-      type: '교육',
-      riskLevel: 'low',
-      participants: 300,
+      type: '휴가',
+      memo: '하계 집중휴가 1차',
     },
     {
       id: '6',
-      title: '전술훈련 (소대공격)',
-      unit: '제1보병사단 2연대',
+      title: '야간 기동훈련',
+      unit: '제1보병사단 기갑대대',
       date: new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 3),
-      startTime: '08:00',
-      endTime: '18:00',
-      location: '전술훈련장',
-      type: '전술',
+      startTime: '20:00',
+      endTime: '24:00',
+      location: '훈련장 A구역',
+      type: '훈련',
       riskLevel: 'high',
-      participants: 150,
-    },
-    {
-      id: '7',
-      title: '장비정비 교육',
-      unit: '제7보병사단',
-      date: new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 4),
-      startTime: '09:00',
-      endTime: '11:00',
-      location: '정비교육장',
-      type: '교육',
-      riskLevel: 'low',
-      participants: 60,
+      participants: 80,
     },
   ];
 };
 
 const SCHEDULES = generateMockSchedules();
 
-// 훈련 타입별 스타일 (좌측 액센트 바 색상만)
+// 일정 타입별 스타일 (좌측 액센트 바 색상)
 const typeAccentColors: Record<string, string> = {
-  '사격': 'border-l-red-400',
-  '기동': 'border-l-amber-400',
-  '전술': 'border-l-violet-400',
-  '체력': 'border-l-emerald-400',
-  '교육': 'border-l-sky-400',
-  '점검': 'border-l-slate-400',
+  '훈련': 'border-l-red-400',
+  '행사': 'border-l-amber-400',
+  '점검': 'border-l-violet-400',
+  '회의': 'border-l-sky-400',
+  '휴가': 'border-l-emerald-400',
+  '기타': 'border-l-slate-400',
 };
 
 // 타입 도트 색상
 const typeDotColors: Record<string, string> = {
-  '사격': 'bg-red-400',
-  '기동': 'bg-amber-400',
-  '전술': 'bg-violet-400',
-  '체력': 'bg-emerald-400',
-  '교육': 'bg-sky-400',
-  '점검': 'bg-slate-400',
+  '훈련': 'bg-red-400',
+  '행사': 'bg-amber-400',
+  '점검': 'bg-violet-400',
+  '회의': 'bg-sky-400',
+  '휴가': 'bg-emerald-400',
+  '기타': 'bg-slate-400',
 };
 
 // 일정 카드 컴포넌트
-function ScheduleCard({ schedule, onClick }: { schedule: TrainingSchedule; onClick: () => void }) {
+function ScheduleCard({ schedule, onClick }: { schedule: Schedule; onClick: () => void }) {
   return (
     <div 
       onClick={onClick}
@@ -194,26 +175,34 @@ function ScheduleCard({ schedule, onClick }: { schedule: TrainingSchedule; onCli
           <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-red-400 mt-1" />
         )}
       </div>
-      <div className="space-y-1">
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-          <Clock className="w-3 h-3" />
-          <span>{schedule.startTime} - {schedule.endTime}</span>
+      {(schedule.startTime || schedule.location) && (
+        <div className="space-y-1">
+          {schedule.startTime && (
+            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+              <Clock className="w-3 h-3" />
+              <span>{schedule.startTime}{schedule.endTime ? ` - ${schedule.endTime}` : ''}</span>
+            </div>
+          )}
+          {schedule.location && (
+            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+              <MapPin className="w-3 h-3" />
+              <span className="truncate">{schedule.location}</span>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-          <MapPin className="w-3 h-3" />
-          <span className="truncate">{schedule.location}</span>
+      )}
+      {schedule.unit && (
+        <div className="mt-2 pt-1.5 border-t border-border/50 text-[10px] text-muted-foreground truncate">
+          {schedule.unit}
         </div>
-      </div>
-      <div className="mt-2 pt-1.5 border-t border-border/50 text-[10px] text-muted-foreground truncate">
-        {schedule.unit}
-      </div>
+      )}
     </div>
   );
 }
 
 // 일정 직접 입력 폼
 interface ScheduleFormProps {
-  schedule?: TrainingSchedule | null;
+  schedule?: Schedule | null;
   isEditing?: boolean;
   formState: ReturnType<typeof useFormValidation<ScheduleFormValues>>;
 }
@@ -227,14 +216,15 @@ function ScheduleForm({ schedule, isEditing = true, formState }: ScheduleFormPro
   
   return (
     <div className="space-y-4">
+      {/* 필수: 일정명 */}
       <InlineFormField 
-        label="훈련명" 
+        label="일정명" 
         required 
         error={getFieldError('title', errors, touched)}
       >
         <input
           type="text"
-          placeholder="K-2 소총 영점사격"
+          placeholder="예: 분기 안전점검, 지휘관 회의"
           value={values.title}
           onChange={(e) => handleChange('title', e.target.value)}
           onBlur={() => handleBlur('title')}
@@ -243,47 +233,8 @@ function ScheduleForm({ schedule, isEditing = true, formState }: ScheduleFormPro
         />
       </InlineFormField>
       
+      {/* 필수: 날짜 + 유형 */}
       <div className="grid grid-cols-2 gap-3">
-        <InlineFormField 
-          label="부대" 
-          required 
-          error={getFieldError('unit', errors, touched)}
-        >
-          <input
-            type="text"
-            placeholder="제1보병사단"
-            value={values.unit}
-            onChange={(e) => handleChange('unit', e.target.value)}
-            onBlur={() => handleBlur('unit')}
-            disabled={!isEditing}
-            className={inputClass}
-          />
-        </InlineFormField>
-        
-        <InlineFormField 
-          label="훈련 유형" 
-          required 
-          error={getFieldError('type', errors, touched)}
-        >
-          <select 
-            value={values.type}
-            onChange={(e) => handleChange('type', e.target.value)}
-            onBlur={() => handleBlur('type')}
-            disabled={!isEditing}
-            className={inputClass}
-          >
-            <option value="">선택</option>
-            <option value="사격">사격</option>
-            <option value="기동">기동</option>
-            <option value="전술">전술</option>
-            <option value="체력">체력</option>
-            <option value="교육">교육</option>
-            <option value="점검">점검</option>
-          </select>
-        </InlineFormField>
-      </div>
-      
-      <div className="grid grid-cols-3 gap-3">
         <InlineFormField 
           label="날짜" 
           required 
@@ -299,6 +250,30 @@ function ScheduleForm({ schedule, isEditing = true, formState }: ScheduleFormPro
           />
         </InlineFormField>
         
+        <InlineFormField 
+          label="유형" 
+          error={getFieldError('type', errors, touched)}
+        >
+          <select 
+            value={values.type}
+            onChange={(e) => handleChange('type', e.target.value)}
+            onBlur={() => handleBlur('type')}
+            disabled={!isEditing}
+            className={inputClass}
+          >
+            <option value="">선택 (선택사항)</option>
+            <option value="훈련">훈련</option>
+            <option value="행사">행사</option>
+            <option value="점검">점검</option>
+            <option value="회의">회의</option>
+            <option value="휴가">휴가</option>
+            <option value="기타">기타</option>
+          </select>
+        </InlineFormField>
+      </div>
+      
+      {/* 선택: 시간 */}
+      <div className="grid grid-cols-2 gap-3">
         <InlineFormField label="시작 시간">
           <input
             type="time"
@@ -320,29 +295,28 @@ function ScheduleForm({ schedule, isEditing = true, formState }: ScheduleFormPro
         </InlineFormField>
       </div>
       
-      <div className="grid grid-cols-2 gap-3">
-        <InlineFormField label="장소">
-          <input
-            type="text"
-            placeholder="종합사격장"
-            value={values.location}
-            onChange={(e) => handleChange('location', e.target.value)}
-            disabled={!isEditing}
-            className={inputClass}
-          />
-        </InlineFormField>
-        
-        <InlineFormField label="참여 인원">
-          <input
-            type="number"
-            placeholder="120"
-            value={values.participants || ''}
-            onChange={(e) => handleChange('participants', parseInt(e.target.value) || 0)}
-            disabled={!isEditing}
-            className={inputClass}
-          />
-        </InlineFormField>
-      </div>
+      {/* 선택: 장소 + 메모 */}
+      <InlineFormField label="장소">
+        <input
+          type="text"
+          placeholder="예: 회의실, 연병장"
+          value={values.location}
+          onChange={(e) => handleChange('location', e.target.value)}
+          disabled={!isEditing}
+          className={inputClass}
+        />
+      </InlineFormField>
+      
+      <InlineFormField label="메모">
+        <input
+          type="text"
+          placeholder="추가 정보 입력"
+          value={values.memo}
+          onChange={(e) => handleChange('memo', e.target.value)}
+          disabled={!isEditing}
+          className={inputClass}
+        />
+      </InlineFormField>
     </div>
   );
 }
@@ -364,8 +338,8 @@ function ScheduleBulkUploadForm({ onDownloadTemplate }: { onDownloadTemplate: ()
         템플릿 다운로드
       </button>
       <div className="text-[11px] text-muted-foreground space-y-0.5">
-        <p>• 필수 필드: 훈련명, 부대, 날짜, 훈련유형</p>
-        <p>• 선택 필드: 시작시간, 종료시간, 장소, 참여인원</p>
+        <p>• 필수 필드: 일정명, 날짜</p>
+        <p>• 선택 필드: 유형, 시작시간, 종료시간, 장소, 메모</p>
       </div>
     </div>
   );
@@ -375,18 +349,17 @@ export default function ScheduleManagementPage() {
   const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedSchedule, setSelectedSchedule] = useState<TrainingSchedule | null>(null);
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [scheduleToDelete, setScheduleToDelete] = useState<TrainingSchedule | null>(null);
+  const [scheduleToDelete, setScheduleToDelete] = useState<Schedule | null>(null);
   const isLoading = usePageLoading(800);
 
   // 폼 검증 훅
   const formState = useFormValidation<ScheduleFormValues>({
     initialValues: {
       title: '',
-      unit: '',
       date: '',
       startTime: '',
       endTime: '',
@@ -394,6 +367,7 @@ export default function ScheduleManagementPage() {
       type: '',
       riskLevel: 'low',
       participants: 0,
+      memo: '',
     },
     schema: scheduleFormSchema as z.ZodSchema<ScheduleFormValues>,
     validateOnChange: true,
@@ -412,7 +386,7 @@ export default function ScheduleManagementPage() {
     
     // DIV/BN은 접근 가능한 부대의 일정만
     return SCHEDULES.filter(schedule => 
-      accessibleUnits.some(unit => schedule.unit.includes(unit.name))
+      !schedule.unit || accessibleUnits.some(unit => schedule.unit?.includes(unit.name))
     );
   }, [user?.role, accessibleUnits]);
 
@@ -439,7 +413,7 @@ export default function ScheduleManagementPage() {
     return {
       total: weekSchedules.length,
       highRisk: weekSchedules.filter(s => s.riskLevel === 'high').length,
-      totalParticipants: weekSchedules.reduce((sum, s) => sum + s.participants, 0),
+      totalParticipants: weekSchedules.reduce((sum, s) => sum + (s.participants || 0), 0),
     };
   }, [filteredSchedules, weekStart, weekEnd]);
 
@@ -462,18 +436,18 @@ export default function ScheduleManagementPage() {
     formState.reset();
   }, [formState]);
 
-  const handleScheduleClick = useCallback((schedule: TrainingSchedule) => {
+  const handleScheduleClick = useCallback((schedule: Schedule) => {
     setSelectedSchedule(schedule);
     formState.setMultipleValues({
       title: schedule.title,
-      unit: schedule.unit,
       date: format(schedule.date, 'yyyy-MM-dd'),
-      startTime: schedule.startTime,
-      endTime: schedule.endTime,
-      location: schedule.location,
+      startTime: schedule.startTime || '',
+      endTime: schedule.endTime || '',
+      location: schedule.location || '',
       type: schedule.type,
-      riskLevel: schedule.riskLevel,
-      participants: schedule.participants,
+      riskLevel: schedule.riskLevel || 'low',
+      participants: schedule.participants || 0,
+      memo: schedule.memo || '',
     });
     setIsEditMode(false);
     setShowDetailModal(true);
@@ -582,7 +556,7 @@ export default function ScheduleManagementPage() {
     <div className="p-6 space-y-5 animate-page-enter">
       <PageHeader 
         title="일정 관리" 
-        description="부대별 훈련 일정 관리 및 조회"
+        description="훈련, 행사, 점검, 회의 등 부대 일정을 관리합니다."
         actions={
           <ActionButton label="일정 추가" onClick={handleAddModalOpen} />
         }
