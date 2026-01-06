@@ -4,15 +4,15 @@ import { Progress } from '@/components/ui/progress';
 import { AlertTriangle, Calendar, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// 주간 종합 위험도 데이터 (요일별 + 일정)
+// 주간 종합 위험도 데이터 (요일별 + 주요 위험요인)
 const WEEKLY_OVERVIEW = [
-  { day: '일', date: '1/5', risk: 18, grade: 'safe', schedule: '휴일' },
-  { day: '월', date: '1/6', risk: 45, grade: 'safe', schedule: '체력단련' },
-  { day: '화', date: '1/7', risk: 52, grade: 'caution', schedule: '사격훈련' },
-  { day: '수', date: '1/8', risk: 68, grade: 'caution', schedule: '야외훈련' },
-  { day: '목', date: '1/9', risk: 55, grade: 'caution', schedule: '정비점검' },
-  { day: '금', date: '1/10', risk: 42, grade: 'safe', schedule: '안전교육' },
-  { day: '토', date: '1/11', risk: 25, grade: 'safe', schedule: '휴일' },
+  { day: '일', date: '1/5', risk: 18, grade: 'safe', factor: '휴일' },
+  { day: '월', date: '1/6', risk: 48, grade: 'safe', factor: '주말 복귀' },
+  { day: '화', date: '1/7', risk: 52, grade: 'caution', factor: '훈련 피로' },
+  { day: '수', date: '1/8', risk: 68, grade: 'caution', factor: '피로 누적' },
+  { day: '목', date: '1/9', risk: 55, grade: 'caution', factor: '외박 대기' },
+  { day: '금', date: '1/10', risk: 62, grade: 'caution', factor: '외출/외박' },
+  { day: '토', date: '1/11', risk: 35, grade: 'safe', factor: '휴일' },
 ];
 
 // 사고유형별 주간 위험지수
@@ -33,20 +33,19 @@ const ACCIDENT_TYPE_RISK = [
   ]},
 ];
 
-// 계급별 주간 위험지수
+// 계급별 주간 위험지수 (대분류)
 const RANK_RISK = [
-  { rank: '병사', risk: 58 },
-  { rank: '부사관', risk: 35 },
-  { rank: '위관', risk: 22 },
-  { rank: '영관', risk: 12 },
-  { rank: '장관', risk: 5 },
+  { rank: '병', risk: 58 },
+  { rank: '부사관', risk: 32 },
+  { rank: '장교', risk: 18 },
+  { rank: '군무원', risk: 8 },
 ];
 
 // 주간 주의사항 (패턴 기반)
 const WEEKLY_NOTES = [
-  { type: 'warning', text: '수요일 야외훈련 시 안전사고 주의 (과거 동일 훈련 시 사고율 15% 상승)' },
-  { type: 'warning', text: '금요일 오후 외출/외박 이동 시 교통사고 주의' },
-  { type: 'info', text: '주말 간부 순찰 강화 권고 (영내 근무 인원 감소)' },
+  { type: 'warning', text: '금요일 외출/외박 이동량 증가로 교통사고 위험 상승' },
+  { type: 'warning', text: '수요일 피로 누적 시점, 병사 간 갈등 주의' },
+  { type: 'info', text: '주말 복귀 후 월요일 심리상태 점검 권고' },
 ];
 
 const getGradeStyle = (grade: string) => {
@@ -98,7 +97,7 @@ export default function WeeklyForecastTab() {
               <span className="text-2xl font-bold">{maxRiskDay.day}요일</span>
               <span className="text-sm text-muted-foreground">({maxRiskDay.date})</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5">{maxRiskDay.schedule} · {maxRiskDay.risk}%</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{maxRiskDay.factor} · {maxRiskDay.risk}%</p>
           </CardContent>
         </Card>
         <Card className="border-border">
@@ -174,10 +173,10 @@ export default function WeeklyForecastTab() {
                   ))}
                 </tr>
                 <tr>
-                  <td className="py-2 px-3 text-xs text-muted-foreground border-r border-border">일정</td>
+                  <td className="py-2 px-3 text-xs text-muted-foreground border-r border-border">요인</td>
                   {WEEKLY_OVERVIEW.map((d) => (
                     <td key={d.day} className="py-1.5 px-2 text-center border-r border-border last:border-r-0">
-                      <span className="text-[11px] text-muted-foreground">{d.schedule}</span>
+                      <span className="text-[11px] text-muted-foreground">{d.factor}</span>
                     </td>
                   ))}
                 </tr>
