@@ -19,9 +19,10 @@ const MOCK_INCIDENTS: IncidentItem[] = [
 
 interface IncidentTickerProps {
   onClickDetail?: () => void;
+  compact?: boolean;
 }
 
-export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
+export function IncidentTicker({ onClickDetail, compact = false }: IncidentTickerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -62,18 +63,20 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
   };
 
   return (
-    <div className="h-[78px] flex flex-col justify-between px-4 py-2">
-      {/* 상단: 타이틀 + 상세보기 버튼 */}
-      <div className="flex items-center justify-between shrink-0">
-        <span className="text-xs font-semibold text-foreground">일일사고사례</span>
-        <button 
-          onClick={onClickDetail}
-          className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <span>상세보기</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
+    <div className={cn("flex flex-col justify-between px-4", compact ? "h-[52px] py-1.5 gap-1" : "h-[78px] py-2")}>
+      {/* 상단: 타이틀 + 상세보기 버튼 (compact 모드에서는 숨김) */}
+      {!compact && (
+        <div className="flex items-center justify-between shrink-0">
+          <span className="text-xs font-semibold text-foreground">일일사고사례</span>
+          <button 
+            onClick={onClickDetail}
+            className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <span>상세보기</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* 중앙: 아이콘 + 카드 (세로 중간 배치) */}
       <div className="flex items-center gap-3 shrink-0">
@@ -83,11 +86,12 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
         {/* 사고 내용 */}
         <div 
           className={cn(
-            'flex-1 flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all duration-300 cursor-pointer hover:opacity-80',
+            'flex-1 flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all duration-300',
+            compact ? '' : 'cursor-pointer hover:opacity-80',
             getTypeStyle(currentIncident.type),
             isAnimating ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
           )}
-          onClick={onClickDetail}
+          onClick={compact ? undefined : onClickDetail}
         >
           <span className="text-xs font-medium whitespace-nowrap">{currentIncident.unit}</span>
           <span className="text-xs truncate">{currentIncident.title}</span>
