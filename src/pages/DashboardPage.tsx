@@ -9,7 +9,7 @@ import { TrendAnalysisPanel } from '@/components/dashboard/TrendAnalysisPanel';
 import { DashboardNoticeList } from '@/components/dashboard/DashboardNoticeList';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
-import { X, Filter, Search, User, LogOut } from 'lucide-react';
+import { X, Filter, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -93,7 +93,6 @@ export default function DashboardPage() {
                   className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
                   onClick={() => navigate('/system-settings')}
                 >
-                  <User className="w-3 h-3 mr-1" />
                   마이페이지
                 </Button>
                 <Button 
@@ -102,7 +101,6 @@ export default function DashboardPage() {
                   className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
                   onClick={() => logout?.()}
                 >
-                  <LogOut className="w-3 h-3 mr-1" />
                   로그아웃
                 </Button>
               </div>
