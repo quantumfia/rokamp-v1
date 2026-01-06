@@ -4,7 +4,7 @@ import { PageHeader, TabNavigation } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { useAuth } from '@/contexts/AuthContext';
 import { getSelectableUnitsForRole } from '@/lib/rbac';
-import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
+import { UnitPopoverSelect } from '@/components/unit/UnitPopoverSelect';
 import WeeklyForecastTab from '@/components/forecast/WeeklyForecastTab';
 import TrendAnalysisTab from '@/components/forecast/TrendAnalysisTab';
 
@@ -21,14 +21,22 @@ export default function ForecastPage() {
 
   // 역할 기반 초기 부대 설정
   useEffect(() => {
-    if (user) {
-      const { units, isFixed } = getSelectableUnitsForRole(user.role, user.unitId);
-      if (isFixed && units.length === 1) {
-        setSelectedUnit(units[0].id);
-      } else if (user.role === 'ROLE_HQ') {
-        setSelectedUnit('all');
-      }
+    if (!user) return;
+
+    const { units, isFixed } = getSelectableUnitsForRole(user.role, user.unitId);
+
+    if (isFixed && units.length === 1) {
+      setSelectedUnit(units[0].id);
+      return;
     }
+
+    if (user.role === 'ROLE_HQ') {
+      setSelectedUnit('all');
+      return;
+    }
+
+    // DIV 기본값: 본인 부대
+    setSelectedUnit(user.unitId);
   }, [user]);
 
   if (isLoading) {
@@ -37,40 +45,26 @@ export default function ForecastPage() {
 
   const { isFixed } = getSelectableUnitsForRole(user?.role, user?.unitId);
 
-  const handleUnitChange = (unitId: string) => {
-    setSelectedUnit(unitId || 'all');
-  };
-
   return (
     <div className="p-6 space-y-6 animate-page-enter">
-      <div className="flex items-start justify-between gap-6">
-        <PageHeader 
-          title="예보 분석" 
-          description="부대별 위험도 예보 및 사고 경향 분석" 
-        />
+      <PageHeader 
+        title="예보 분석" 
+        description="부대별 위험도 예보 및 사고 경향 분석" 
+      />
 
-        {/* 부대 선택 필터 - 캐스케이드 방식 */}
-        <div className="flex-shrink-0 w-[320px]">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-medium text-muted-foreground">분석 대상 부대</span>
-          </div>
-          {isFixed ? (
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <TabNavigation tabs={FORECAST_TABS} activeTab={activeTab} onChange={setActiveTab} />
+
+        {isFixed ? (
+          <div className="flex-shrink-0 w-[320px]">
             <div className="text-sm font-medium px-3 py-2 bg-muted/50 rounded-md border border-border">
               {user?.unit || '소속 부대'}
             </div>
-          ) : (
-            <UnitCascadeSelect
-              value={selectedUnit === 'all' ? '' : selectedUnit}
-              onChange={handleUnitChange}
-              placeholder="전체 부대 (전군)"
-              showFullPath={false}
-              showSubLevels={true}
-            />
-          )}
-        </div>
+          </div>
+        ) : (
+          <UnitPopoverSelect value={selectedUnit || 'all'} onChange={setSelectedUnit} />
+        )}
       </div>
-
-      <TabNavigation tabs={FORECAST_TABS} activeTab={activeTab} onChange={setActiveTab} />
 
       {/* 주간 예보 탭 */}
       {activeTab === 'weekly' && <WeeklyForecastTab selectedUnit={selectedUnit} />}
@@ -87,3 +81,4 @@ export default function ForecastPage() {
     </div>
   );
 }
+
