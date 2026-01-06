@@ -31,7 +31,7 @@ export function TrendAnalysisPanel() {
   const mainAccidentCount = 5;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="shrink-0 px-4 py-2 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -41,12 +41,12 @@ export function TrendAnalysisPanel() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-hidden p-4">
         <div className="grid grid-cols-2 gap-4 h-full">
           {/* Left: 주요사고 예보 + 주간 사고 유형별 발생 현황 */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 min-h-0">
             {/* 주요사고 예보 카드 */}
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+            <div className="shrink-0 bg-primary/5 border border-primary/20 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
                 <span className="text-xs text-muted-foreground">주간 사고 예보</span>
@@ -62,11 +62,11 @@ export function TrendAnalysisPanel() {
             </div>
 
             {/* 주간 사고 유형별 발생 현황 */}
-            <div className="flex-1 bg-muted/30 rounded-lg border border-border p-4">
-              <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            <div className="flex-1 min-h-0 bg-muted/30 rounded-lg border border-border p-4 flex flex-col">
+              <h4 className="shrink-0 text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-3">
                 주간 사고 유형별 발생 현황
               </h4>
-              <div className="h-[calc(100%-24px)]">
+              <div className="flex-1 min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={weeklyAccidentData} layout="vertical">
                     <XAxis type="number" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
@@ -94,8 +94,8 @@ export function TrendAnalysisPanel() {
           </div>
 
           {/* Right: 사고 유형별 순위 변동 분석 */}
-          <div className="bg-muted/30 rounded-lg border border-border p-4 flex flex-col">
-            <div className="flex items-center justify-between mb-3">
+          <div className="bg-muted/30 rounded-lg border border-border p-4 flex flex-col min-h-0">
+            <div className="shrink-0 flex items-center justify-between mb-3">
               <h4 className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
                 사고 유형별 순위 변동 분석
               </h4>
@@ -104,8 +104,8 @@ export function TrendAnalysisPanel() {
                 <span>전월대비 +12%</span>
               </div>
             </div>
-            <div className="flex-1 flex items-center">
-              <div className="w-1/2 h-full">
+            <div className="flex-1 min-h-0 flex items-center">
+              <div className="w-1/2 h-full min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -145,7 +145,7 @@ export function TrendAnalysisPanel() {
             </div>
 
             {/* 주의 메시지 */}
-            <div className="mt-4 flex items-start gap-2 bg-status-warning/10 border border-status-warning/20 rounded p-2">
+            <div className="shrink-0 mt-3 flex items-start gap-2 bg-status-warning/10 border border-status-warning/20 rounded p-2">
               <AlertTriangle className="w-4 h-4 text-status-warning shrink-0 mt-0.5" />
               <p className="text-[10px] text-foreground leading-relaxed">
                 금일 <span className="text-status-warning font-medium">훈련 관련 사고</span> 위험도가 상승하였습니다. 
