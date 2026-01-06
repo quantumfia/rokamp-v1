@@ -17,6 +17,23 @@ const MOCK_INCIDENTS: IncidentItem[] = [
   { id: '4', title: '야간훈련 정상 종료', unit: '제1사단 11연대', type: 'info', date: '2026-01-05' },
 ];
 
+// 현재 날짜/시간 포맷
+function formatDateTime(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const weekday = weekdays[date.getDay()];
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return {
+    date: `${year}.${month}.${day} (${weekday})`,
+    time: `${hours}:${minutes}:${seconds}`
+  };
+}
+
 interface IncidentTickerProps {
   onClickDetail?: () => void;
 }
@@ -24,6 +41,15 @@ interface IncidentTickerProps {
 export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // 실시간 시계
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // 자동 전환 (5초마다)
   useEffect(() => {
@@ -61,10 +87,21 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
     }
   };
 
+  const { date, time } = formatDateTime(currentTime);
+
   return (
     <div className="h-[78px] relative flex items-center px-4">
-      {/* 메인 행: 카드 + 상세보기 */}
+      {/* 메인 행: 날짜/시간 + 구분선 + 카드 + 상세보기 */}
       <div className="flex items-center gap-3 w-full">
+        {/* 날짜/시간 */}
+        <div className="shrink-0 flex flex-col items-center">
+          <span className="text-sm font-medium text-foreground">{date}</span>
+          <span className="text-lg font-bold text-foreground tabular-nums">{time}</span>
+        </div>
+
+        {/* 구분선 */}
+        <div className="h-10 w-px bg-border shrink-0" />
+
         {/* 아이콘 */}
         <AlertCircle className={cn('w-4 h-4 shrink-0', getIconColor(currentIncident.type))} />
 
