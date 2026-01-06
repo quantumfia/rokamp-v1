@@ -68,7 +68,9 @@ export function IncidentTicker({ onClickDetail, compact = false }: IncidentTicke
     setCurrentIndex(0);
   }, [user?.role, user?.unitId]);
 
-  const currentIncident = incidents[currentIndex];
+  // 안전한 인덱스 계산 (배열 범위 초과 방지)
+  const safeIndex = Math.min(currentIndex, incidents.length - 1);
+  const currentIncident = incidents[safeIndex] || incidents[0];
 
   const getTypeStyle = (type: string) => {
     switch (type) {
