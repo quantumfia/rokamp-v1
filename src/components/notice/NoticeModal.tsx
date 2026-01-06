@@ -249,7 +249,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                       : 'hover:bg-muted/50 border-l-2 border-l-transparent'
                   }`}
                 >
-                  <div className="flex items-center gap-1 text-[10px] mb-0.5">
+                  <div className="flex items-center gap-1 text-[10px] mb-0">
                     <span className={cn("font-medium", getTagStyle(notice.tag))}>
                       [{notice.tag}]
                     </span>
@@ -258,7 +258,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                   <div className="flex items-start gap-1">
                     <span className="text-xs text-foreground line-clamp-1 flex-1">{notice.title}</span>
                   </div>
-                  <div className="text-[10px] text-muted-foreground truncate mt-0.5">
+                  <div className="text-[10px] text-muted-foreground truncate mt-0">
                     {notice.department}
                   </div>
                 </button>
