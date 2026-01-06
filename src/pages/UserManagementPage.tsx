@@ -408,11 +408,8 @@ export default function UserManagementPage() {
           <UnitFilterSelect
             value={selectedUnitFilter}
             onChange={handleUnitFilterChange}
-            mode="cascade"
-            showLabel={true}
-            placeholder="전체"
-            inline={true}
-            showSubLevels={true}
+            mode="popover"
+            placeholder="전체 부대"
           />
         </div>
         <input
