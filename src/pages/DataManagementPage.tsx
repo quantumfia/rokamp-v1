@@ -337,8 +337,8 @@ const initialForecastData: ForecastData[] = [
 ];
 
 const DATA_TABS = [
-  { id: 'documents', label: '문서 관리' },
-  { id: 'news', label: '언론 기사 관리' },
+  { id: 'documents', label: '학습 문서' },
+  { id: 'news', label: '언론 기사' },
   { id: 'forecast', label: '예보 데이터' },
 ];
 
@@ -728,98 +728,40 @@ export default function DataManagementPage() {
 
       {/* 예보 데이터 탭 */}
       {activeTab === 'forecast' && (
-        <div className="space-y-6">
-          {/* 모델 상태 요약 */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="p-4 bg-muted/30 border border-border rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Database className="w-4 h-4 text-primary" />
-                <span className="text-xs text-muted-foreground">학습 데이터</span>
-              </div>
-              <p className="text-xl font-semibold">
-                {forecastDataList.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.recordCount, 0).toLocaleString()}건
-              </p>
-            </div>
-            <div className="p-4 bg-muted/30 border border-border rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="w-4 h-4 text-status-success" />
-                <span className="text-xs text-muted-foreground">모델 상태</span>
-              </div>
-              <p className="text-xl font-semibold text-status-success">학습 완료</p>
-            </div>
-            <div className="p-4 bg-muted/30 border border-border rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">마지막 학습</span>
-              </div>
-              <p className="text-xl font-semibold">2024-12-01</p>
-            </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-foreground">학습 현황</h2>
+            <span className="text-xs text-muted-foreground">
+              총 {forecastDataList.length}개 데이터셋 · {forecastDataList.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.recordCount, 0).toLocaleString()}건
+            </span>
           </div>
 
-          {/* 데이터 목록 */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium text-foreground">업로드된 데이터</h2>
-              <span className="text-xs text-muted-foreground">
-                총 {forecastDataList.length}개 데이터셋
-              </span>
-            </div>
-
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-xs">데이터명</TableHead>
-                  <TableHead className="text-xs w-28">기간</TableHead>
-                  <TableHead className="text-xs w-24 text-right">건수</TableHead>
-                  <TableHead className="text-xs w-36">업로드 일시</TableHead>
-                  <TableHead className="text-xs w-20">상태</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs">데이터명</TableHead>
+                <TableHead className="text-xs w-28">기간</TableHead>
+                <TableHead className="text-xs w-16">크기</TableHead>
+                <TableHead className="text-xs w-36">업로드 일시</TableHead>
+                <TableHead className="text-xs w-24 text-center">레코드 수</TableHead>
+                <TableHead className="text-xs w-16">상태</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {forecastDataList.map((data) => (
+                <TableRow key={data.id} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="text-sm font-medium">{data.name}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{data.period}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{data.fileSize}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground tabular-nums">{data.uploadedAt}</TableCell>
+                  <TableCell className="text-center text-muted-foreground">
+                    {data.status === 'completed' ? data.recordCount.toLocaleString() : '-'}
+                  </TableCell>
+                  <TableCell><StatusLabel status={data.status} /></TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {forecastDataList.map((data) => (
-                  <TableRow key={data.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">{data.name}</p>
-                          <p className="text-xs text-muted-foreground">{data.fileName} · {data.fileSize}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{data.period}</TableCell>
-                    <TableCell className="text-sm text-right tabular-nums">
-                      {data.status === 'completed' ? data.recordCount.toLocaleString() : '-'}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground tabular-nums">{data.uploadedAt}</TableCell>
-                    <TableCell>
-                      {data.status === 'completed' && (
-                        <Badge variant="outline" className="text-[10px] text-status-success border-status-success/30">완료</Badge>
-                      )}
-                      {data.status === 'processing' && (
-                        <Badge variant="outline" className="text-[10px] text-status-warning border-status-warning/30">처리중</Badge>
-                      )}
-                      {data.status === 'failed' && (
-                        <Badge variant="outline" className="text-[10px] text-status-error border-status-error/30">실패</Badge>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* 안내 */}
-          <div className="p-4 bg-muted/30 border border-border rounded-lg">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-4 h-4 text-muted-foreground mt-0.5" />
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p>• 새 데이터 업로드 시 기존 모델에 추가 학습됩니다.</p>
-                <p>• 지원 형식: Excel(.xlsx, .xls), CSV</p>
-                <p>• 필수 컬럼: 발생일자, 사고유형, 부대코드, 계급 등</p>
-              </div>
-            </div>
-          </div>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
 
