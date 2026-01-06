@@ -35,10 +35,10 @@ const getYoutubeEmbedUrl = (url: string): string => {
 const MOCK_NOTICES: Notice[] = [
   {
     id: '1',
-    number: '제2024-127호',
+    number: '제2025-127호',
     title: '야외훈련 간 사고예방 1분 안전학습',
     content: '야외훈련 시 발생할 수 있는 각종 안전사고 예방을 위한 1분 안전학습 영상입니다. 모든 부대는 훈련 전 본 영상을 시청하여 안전의식을 고취하시기 바랍니다.\n\n• 시청 대상: 전 장병\n• 시청 시기: 야외훈련 실시 전\n• 관련 규정: 육군 안전관리 규정 제45조',
-    date: '2024.12.15',
+    date: '2025.01.05',
     department: '육군본부 안전관리과',
     youtubeUrl: 'https://youtu.be/RJf8I1bpjbs?si=Fh0j2OvGx03flQ-T',
     attachments: [
@@ -48,10 +48,10 @@ const MOCK_NOTICES: Notice[] = [
   },
   {
     id: '2',
-    number: '제2024-126호',
+    number: '제2025-126호',
     title: '겨울철 안전사고 예방 강화 기간 운영 안내',
-    content: '2024년 12월 1일부터 2025년 2월 28일까지 겨울철 안전사고 예방 강화 기간으로 운영됩니다. 모든 부대는 동파 및 화재 예방에 각별히 유의하시기 바랍니다.\n\n주요 점검 사항:\n• 난방시설 점검 및 정비\n• 소화기 비치 현황 확인\n• 비상 연락망 최신화',
-    date: '2024.12.01',
+    content: '2025년 1월 1일부터 2025년 2월 28일까지 겨울철 안전사고 예방 강화 기간으로 운영됩니다. 모든 부대는 동파 및 화재 예방에 각별히 유의하시기 바랍니다.\n\n주요 점검 사항:\n• 난방시설 점검 및 정비\n• 소화기 비치 현황 확인\n• 비상 연락망 최신화',
+    date: '2025.01.02',
     department: '육군본부 안전관리과',
     attachments: [
       { id: 'a3', name: '동절기_안전관리_지침.pdf', size: '2.4MB', type: 'pdf' },
@@ -59,10 +59,10 @@ const MOCK_NOTICES: Notice[] = [
   },
   {
     id: '3',
-    number: '제2024-125호',
+    number: '제2025-125호',
     title: '시스템 정기 점검 시간 안내',
     content: '매주 일요일 02:00-04:00 시스템 정기 점검이 진행됩니다. 해당 시간에는 서비스 이용이 제한될 수 있습니다.',
-    date: '2024.11.28',
+    date: '2024.12.28',
     department: '정보체계관리단',
   },
 ];
@@ -128,7 +128,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                       : 'hover:bg-muted/50 border-l-2 border-l-transparent'
                   }`}
                 >
-                  <div className="text-[10px] text-muted-foreground mb-1">{notice.number}</div>
+                  <div className="text-[10px] text-muted-foreground mb-1">{notice.date}</div>
                   <div className="text-xs text-foreground line-clamp-2 leading-relaxed">{notice.title}</div>
                 </button>
               ))}
