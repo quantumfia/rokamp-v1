@@ -59,13 +59,17 @@ const AUDIT_LOGS = [
 interface AllowedIP {
   id: string;
   ip: string;
-  desc: string;
+  unit: string;
 }
 
 const INITIAL_ALLOWED_IPS: AllowedIP[] = [
-  { id: '1', ip: '10.10.0.0/16', desc: '본부 네트워크' },
-  { id: '2', ip: '10.20.0.0/16', desc: '사단급 네트워크' },
-  { id: '3', ip: '10.30.0.0/16', desc: '대대급 네트워크' },
+  { id: '1', ip: '10.10.0.0/16', unit: '육군본부' },
+  { id: '2', ip: '10.20.0.0/16', unit: '제1군단' },
+  { id: '3', ip: '10.30.0.0/16', unit: '제2군단' },
+  { id: '4', ip: '10.40.0.0/16', unit: '제3군단' },
+  { id: '5', ip: '10.50.0.0/16', unit: '수도군단' },
+  { id: '6', ip: '10.60.0.0/16', unit: '제5군단' },
+  { id: '7', ip: '10.70.0.0/16', unit: '제7군단' },
 ];
 
 export default function SystemSettingsPage() {
@@ -78,7 +82,7 @@ export default function SystemSettingsPage() {
   // IP 추가/수정 모달
   const [showIPModal, setShowIPModal] = useState(false);
   const [editingIP, setEditingIP] = useState<AllowedIP | null>(null);
-  const [ipForm, setIpForm] = useState({ ip: '', desc: '' });
+  const [ipForm, setIpForm] = useState({ ip: '', unit: '' });
   
   // IP 삭제 다이얼로그
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -115,14 +119,14 @@ export default function SystemSettingsPage() {
   // IP 추가 모달 열기
   const handleAddIP = () => {
     setEditingIP(null);
-    setIpForm({ ip: '', desc: '' });
+    setIpForm({ ip: '', unit: '' });
     setShowIPModal(true);
   };
 
   // IP 수정 모달 열기
   const handleEditIP = (ipItem: AllowedIP) => {
     setEditingIP(ipItem);
-    setIpForm({ ip: ipItem.ip, desc: ipItem.desc });
+    setIpForm({ ip: ipItem.ip, unit: ipItem.unit });
     setShowIPModal(true);
   };
 
@@ -140,7 +144,7 @@ export default function SystemSettingsPage() {
     if (editingIP) {
       setAllowedIPs(prev => prev.map(item => 
         item.id === editingIP.id 
-          ? { ...item, ip: ipForm.ip, desc: ipForm.desc }
+          ? { ...item, ip: ipForm.ip, unit: ipForm.unit }
           : item
       ));
       toast({
@@ -151,7 +155,7 @@ export default function SystemSettingsPage() {
       const newIP: AllowedIP = {
         id: Date.now().toString(),
         ip: ipForm.ip,
-        desc: ipForm.desc,
+        unit: ipForm.unit,
       };
       setAllowedIPs(prev => [...prev, newIP]);
       toast({
@@ -161,7 +165,7 @@ export default function SystemSettingsPage() {
     }
 
     setShowIPModal(false);
-    setIpForm({ ip: '', desc: '' });
+    setIpForm({ ip: '', unit: '' });
     setEditingIP(null);
   };
 
@@ -187,7 +191,7 @@ export default function SystemSettingsPage() {
   // IP 필터링 및 페이지네이션
   const filteredIPs = allowedIPs.filter((ip) =>
     ip.ip.includes(ipSearchQuery) || 
-    ip.desc.includes(ipSearchQuery)
+    ip.unit.includes(ipSearchQuery)
   );
   const ipTotalPages = Math.ceil(filteredIPs.length / ipItemsPerPage);
   const ipStartIndex = (ipCurrentPage - 1) * ipItemsPerPage;
@@ -292,7 +296,7 @@ export default function SystemSettingsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="text-xs w-48">IP 대역</TableHead>
-                <TableHead className="text-xs">설명</TableHead>
+                <TableHead className="text-xs">부대</TableHead>
                 <TableHead className="text-xs w-24 text-center">관리</TableHead>
               </TableRow>
             </TableHeader>
@@ -307,7 +311,7 @@ export default function SystemSettingsPage() {
                 paginatedIPs.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-mono text-sm">{item.ip}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{item.desc}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{item.unit}</TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-1">
                         <button
@@ -598,11 +602,11 @@ export default function SystemSettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-xs text-muted-foreground mb-1.5">설명</label>
+              <label className="block text-xs text-muted-foreground mb-1.5">부대</label>
               <Input
-                placeholder="예: 본부 네트워크"
-                value={ipForm.desc}
-                onChange={(e) => setIpForm(prev => ({ ...prev, desc: e.target.value }))}
+                placeholder="예: 육군본부"
+                value={ipForm.unit}
+                onChange={(e) => setIpForm(prev => ({ ...prev, unit: e.target.value }))}
               />
             </div>
           </div>
@@ -623,7 +627,7 @@ export default function SystemSettingsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>IP 대역 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              {ipToDelete?.ip} ({ipToDelete?.desc})을(를) 삭제하시겠습니까?
+              {ipToDelete?.ip} ({ipToDelete?.unit})을(를) 삭제하시겠습니까?
               <br />
               삭제 후에는 해당 IP 대역에서의 접속이 차단될 수 있습니다.
             </AlertDialogDescription>
