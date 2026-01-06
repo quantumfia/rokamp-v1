@@ -50,6 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // 역할 전환 (프론트엔드 테스트용)
+  // 실제 부대 목데이터 기반 설정:
+  // - ROLE_HQ: 육군본부 (hq)
+  // - ROLE_DIV: 제1군단 제9보병사단 (corps-1-div-9) - 예하에 다른 사단/여단이 없어 자체 테스트용
+  // - ROLE_BN: 제1군단 제11화생방대대 (corps-1-bn-cbrn-11) - 군단 직할 대대
   const switchRole = useCallback((role: UserRole) => {
     const roleUserData: Record<UserRole, Partial<User>> = {
       'ROLE_HQ': {
@@ -60,15 +64,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       'ROLE_DIV': {
         name: '이사단',
-        rank: '준장',
-        unit: '제1보병사단',
-        unitId: 'corps-1-div-1', // 제1군단 > 제1보병사단
+        rank: '소장',
+        unit: '제9보병사단',
+        unitId: 'corps-1-div-9', // 제1군단 > 제9보병사단 (경기 연천)
       },
       'ROLE_BN': {
         name: '박대대',
         rank: '중령',
-        unit: '제1보병사단 제11연대 제1대대',
-        unitId: 'corps-1-div-1-reg-11-bn-1', // 가상의 대대 ID (실제 데이터에 없으면 상위 부대로 처리)
+        unit: '제11화생방대대',
+        unitId: 'corps-1-bn-cbrn-11', // 제1군단 직할 제11화생방대대
       },
     };
 
