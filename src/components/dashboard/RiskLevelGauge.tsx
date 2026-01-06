@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Settings2 } from 'lucide-react';
+import { Settings2, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 // 기본 위험도 단계 설정
 interface RiskLevel {
@@ -13,33 +13,21 @@ interface RiskLevel {
   label: string;
 }
 
-const DEFAULT_RISK_LEVELS: RiskLevel[] = [
-  { min: 0, max: 29, color: 'hsl(142, 76%, 36%)', label: '안전' },
-  { min: 30, max: 59, color: 'hsl(48, 96%, 50%)', label: '주의' },
-  { min: 60, max: 100, color: 'hsl(0, 84%, 60%)', label: '위험' },
+const COLORS = [
+  'hsl(142, 76%, 36%)', // 초록
+  'hsl(100, 60%, 45%)', // 연두
+  'hsl(48, 96%, 50%)',  // 노랑
+  'hsl(25, 95%, 53%)',  // 주황
+  'hsl(0, 84%, 60%)',   // 빨강
 ];
 
-// 단계별 프리셋
-const PRESET_LEVELS: Record<3 | 4 | 5, RiskLevel[]> = {
-  3: [
-    { min: 0, max: 29, color: 'hsl(142, 76%, 36%)', label: '안전' },
-    { min: 30, max: 59, color: 'hsl(48, 96%, 50%)', label: '주의' },
-    { min: 60, max: 100, color: 'hsl(0, 84%, 60%)', label: '위험' },
-  ],
-  4: [
-    { min: 0, max: 24, color: 'hsl(142, 76%, 36%)', label: '안전' },
-    { min: 25, max: 49, color: 'hsl(80, 70%, 45%)', label: '관심' },
-    { min: 50, max: 74, color: 'hsl(48, 96%, 50%)', label: '주의' },
-    { min: 75, max: 100, color: 'hsl(0, 84%, 60%)', label: '위험' },
-  ],
-  5: [
-    { min: 0, max: 19, color: 'hsl(142, 76%, 36%)', label: '안전' },
-    { min: 20, max: 39, color: 'hsl(100, 60%, 45%)', label: '관심' },
-    { min: 40, max: 59, color: 'hsl(48, 96%, 50%)', label: '주의' },
-    { min: 60, max: 79, color: 'hsl(25, 95%, 53%)', label: '경고' },
-    { min: 80, max: 100, color: 'hsl(0, 84%, 60%)', label: '위험' },
-  ],
-};
+const DEFAULT_LABELS = ['안전', '관심', '주의', '경고', '위험'];
+
+const DEFAULT_RISK_LEVELS: RiskLevel[] = [
+  { min: 0, max: 29, color: COLORS[0], label: '안전' },
+  { min: 30, max: 59, color: COLORS[2], label: '주의' },
+  { min: 60, max: 100, color: COLORS[4], label: '위험' },
+];
 
 // 위험도 설정 컨텍스트 (전역 상태)
 let globalRiskLevels = [...DEFAULT_RISK_LEVELS];
@@ -89,7 +77,6 @@ export function RiskScoreGauge({ score, label }: RiskScoreGaugeProps) {
   // 반원 게이지 계산
   const totalSteps = levels.length;
   const currentStepIndex = levels.findIndex(l => score >= l.min && score <= l.max);
-  const progressWithinStep = (score - currentLevel.min) / (currentLevel.max - currentLevel.min + 1);
   const segmentAngle = 180 / totalSteps;
   
   return (
@@ -148,40 +135,101 @@ export function RiskScoreGauge({ score, label }: RiskScoreGaugeProps) {
 // 위험도 설정 팝오버
 function RiskSettingsPopover() {
   const { levels, setLevels } = useRiskLevels();
-  const [stepCount, setStepCount] = useState<3 | 4 | 5>(levels.length as 3 | 4 | 5);
   const [tempLevels, setTempLevels] = useState<RiskLevel[]>(levels);
   const [isOpen, setIsOpen] = useState(false);
   
-  const handleStepCountChange = (count: 3 | 4 | 5) => {
-    setStepCount(count);
-    setTempLevels(PRESET_LEVELS[count]);
+  const handleLabelChange = (index: number, label: string) => {
+    const newLevels = [...tempLevels];
+    newLevels[index] = { ...newLevels[index], label };
+    setTempLevels(newLevels);
   };
   
-  const handleThresholdChange = (index: number, value: number) => {
+  const handleMinChange = (index: number, value: string) => {
+    const numValue = parseInt(value) || 0;
     const newLevels = [...tempLevels];
-    // 현재 레벨의 max 값 업데이트
-    newLevels[index] = { ...newLevels[index], max: value };
-    // 다음 레벨의 min 값 업데이트
-    if (index < newLevels.length - 1) {
-      newLevels[index + 1] = { ...newLevels[index + 1], min: value + 1 };
+    newLevels[index] = { ...newLevels[index], min: Math.max(0, Math.min(100, numValue)) };
+    // 이전 레벨의 max도 자동 조정
+    if (index > 0) {
+      newLevels[index - 1] = { ...newLevels[index - 1], max: numValue - 1 };
     }
     setTempLevels(newLevels);
   };
   
+  const handleMaxChange = (index: number, value: string) => {
+    const numValue = parseInt(value) || 0;
+    const newLevels = [...tempLevels];
+    newLevels[index] = { ...newLevels[index], max: Math.max(0, Math.min(100, numValue)) };
+    // 다음 레벨의 min도 자동 조정
+    if (index < newLevels.length - 1) {
+      newLevels[index + 1] = { ...newLevels[index + 1], min: numValue + 1 };
+    }
+    setTempLevels(newLevels);
+  };
+  
+  const handleAddLevel = () => {
+    if (tempLevels.length >= 5) return;
+    const lastLevel = tempLevels[tempLevels.length - 1];
+    const newMin = Math.floor((lastLevel.min + lastLevel.max) / 2) + 1;
+    
+    const newLevels = [...tempLevels];
+    // 마지막 레벨의 max 조정
+    newLevels[newLevels.length - 1] = { ...lastLevel, max: newMin - 1 };
+    // 새 레벨 추가
+    newLevels.push({
+      min: newMin,
+      max: 100,
+      color: COLORS[Math.min(newLevels.length, COLORS.length - 1)],
+      label: DEFAULT_LABELS[Math.min(newLevels.length, DEFAULT_LABELS.length - 1)],
+    });
+    setTempLevels(newLevels);
+  };
+  
+  const handleRemoveLevel = (index: number) => {
+    if (tempLevels.length <= 2) return;
+    const newLevels = tempLevels.filter((_, i) => i !== index);
+    // 범위 재조정
+    if (index === 0 && newLevels.length > 0) {
+      newLevels[0] = { ...newLevels[0], min: 0 };
+    } else if (index === tempLevels.length - 1 && newLevels.length > 0) {
+      newLevels[newLevels.length - 1] = { ...newLevels[newLevels.length - 1], max: 100 };
+    } else if (index > 0 && index < newLevels.length) {
+      // 중간 삭제 시 이전 레벨의 max를 다음 레벨의 min-1로
+      newLevels[index - 1] = { ...newLevels[index - 1], max: newLevels[index].min - 1 };
+    }
+    // 색상 재할당
+    newLevels.forEach((level, i) => {
+      const colorIndex = Math.floor((i / (newLevels.length - 1)) * (COLORS.length - 1));
+      level.color = COLORS[colorIndex];
+    });
+    setTempLevels(newLevels);
+  };
+  
   const handleApply = () => {
-    setLevels(tempLevels);
-    setIsOpen(false);
+    // 유효성 검사
+    let isValid = true;
+    for (let i = 0; i < tempLevels.length - 1; i++) {
+      if (tempLevels[i].max >= tempLevels[i + 1].min) {
+        isValid = false;
+        break;
+      }
+    }
+    if (tempLevels[0].min !== 0 || tempLevels[tempLevels.length - 1].max !== 100) {
+      isValid = false;
+    }
+    
+    if (isValid) {
+      setLevels(tempLevels);
+      setIsOpen(false);
+    }
   };
   
   const handleReset = () => {
-    setStepCount(3);
-    setTempLevels(PRESET_LEVELS[3]);
+    setTempLevels([...DEFAULT_RISK_LEVELS]);
   };
   
   useEffect(() => {
     if (isOpen) {
-      setTempLevels(levels);
-      setStepCount(levels.length as 3 | 4 | 5);
+      setTempLevels([...levels]);
     }
   }, [isOpen, levels]);
   
@@ -192,61 +240,82 @@ function RiskSettingsPopover() {
           <Settings2 className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-72 p-4" align="end">
+      <PopoverContent className="w-80 p-4" align="end">
         <div className="space-y-4">
-          <h4 className="text-sm font-semibold">위험도 단계 설정</h4>
-          
-          {/* 단계 수 선택 */}
-          <div className="space-y-2">
-            <label className="text-xs text-muted-foreground">단계 수</label>
-            <div className="flex gap-2">
-              {([3, 4, 5] as const).map(count => (
-                <button
-                  key={count}
-                  onClick={() => handleStepCountChange(count)}
-                  className={cn(
-                    'flex-1 py-1.5 text-sm rounded-md border transition-colors',
-                    stepCount === count 
-                      ? 'bg-primary text-primary-foreground border-primary' 
-                      : 'bg-background border-border hover:bg-muted'
-                  )}
-                >
-                  {count}단계
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-semibold">위험도 단계 설정</h4>
+            <span className="text-xs text-muted-foreground">{tempLevels.length}단계</span>
           </div>
           
-          {/* 각 단계별 범위 설정 */}
-          <div className="space-y-3">
-            <label className="text-xs text-muted-foreground">단계별 범위</label>
+          {/* 각 단계별 설정 */}
+          <div className="space-y-2">
             {tempLevels.map((level, idx) => (
-              <div key={idx} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-sm" 
-                      style={{ backgroundColor: level.color }} 
-                    />
-                    <span className="text-xs font-medium">{level.label}</span>
-                  </div>
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    {level.min} ~ {level.max}
-                  </span>
-                </div>
-                {idx < tempLevels.length - 1 && (
-                  <Slider
-                    value={[level.max]}
-                    min={level.min + 5}
-                    max={tempLevels[idx + 1].max - 5}
-                    step={1}
-                    onValueChange={([value]) => handleThresholdChange(idx, value)}
-                    className="py-1"
-                  />
-                )}
+              <div key={idx} className="flex items-center gap-2 p-2 rounded-md bg-muted/30">
+                {/* 색상 표시 */}
+                <div 
+                  className="w-3 h-8 rounded-sm shrink-0" 
+                  style={{ backgroundColor: level.color }} 
+                />
+                
+                {/* 라벨 입력 */}
+                <Input
+                  value={level.label}
+                  onChange={(e) => handleLabelChange(idx, e.target.value)}
+                  className="w-16 h-7 text-xs px-2"
+                  placeholder="라벨"
+                />
+                
+                {/* Min 입력 */}
+                <Input
+                  type="number"
+                  value={level.min}
+                  onChange={(e) => handleMinChange(idx, e.target.value)}
+                  className="w-14 h-7 text-xs px-2 text-center tabular-nums"
+                  min={0}
+                  max={100}
+                  disabled={idx === 0}
+                />
+                
+                <span className="text-xs text-muted-foreground">~</span>
+                
+                {/* Max 입력 */}
+                <Input
+                  type="number"
+                  value={level.max}
+                  onChange={(e) => handleMaxChange(idx, e.target.value)}
+                  className="w-14 h-7 text-xs px-2 text-center tabular-nums"
+                  min={0}
+                  max={100}
+                  disabled={idx === tempLevels.length - 1}
+                />
+                
+                {/* 삭제 버튼 */}
+                <button
+                  onClick={() => handleRemoveLevel(idx)}
+                  disabled={tempLevels.length <= 2}
+                  className={cn(
+                    'p-1 rounded transition-colors shrink-0',
+                    tempLevels.length <= 2 
+                      ? 'text-muted-foreground/30 cursor-not-allowed' 
+                      : 'text-muted-foreground hover:text-destructive hover:bg-destructive/10'
+                  )}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             ))}
           </div>
+          
+          {/* 단계 추가 버튼 */}
+          {tempLevels.length < 5 && (
+            <button
+              onClick={handleAddLevel}
+              className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground border border-dashed border-border rounded-md hover:border-foreground/30 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              단계 추가
+            </button>
+          )}
           
           {/* 버튼들 */}
           <div className="flex gap-2 pt-2">
