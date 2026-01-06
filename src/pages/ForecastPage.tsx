@@ -49,7 +49,7 @@ export default function ForecastPage() {
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
         title="예보 분석" 
-        description="부대별 위험도 예보 및 사고 경향 분석" 
+        description="군 사고 및 안전 데이터를 실시간으로 시각화하여 사고 현황과 위험요소를 한눈에 파악할 수 있습니다. 부대별·유형별 통계와 위험징후 분석을 통해 선제적 대응을 지원합니다." 
       />
 
       <div className="flex items-center justify-between gap-4 flex-wrap">

@@ -136,7 +136,7 @@ export default function ReportsPage() {
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
         title="보고서" 
-        description="사고 보고서 및 통계 보고서 조회·작성"
+        description="안전 점검 결과와 사고 데이터를 기반으로 맞춤형 보고서를 생성합니다. 반복되는 위험 패턴 식별 및 예방 조치를 제안하며, 신속한 상황 보고서 작성을 지원합니다."
         actions={
           !showGenerator ? (
             activeTab === 'accident' ? (
