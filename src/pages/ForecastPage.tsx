@@ -4,9 +4,7 @@ import { PageHeader, TabNavigation } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { useAuth } from '@/contexts/AuthContext';
 import { getSelectableUnitsForRole } from '@/lib/rbac';
-import { UnitTreeSelect } from '@/components/unit/UnitTreeSelect';
-import { Card } from '@/components/ui/card';
-import { Building2 } from 'lucide-react';
+import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import WeeklyForecastTab from '@/components/forecast/WeeklyForecastTab';
 import TrendAnalysisTab from '@/components/forecast/TrendAnalysisTab';
 
@@ -38,50 +36,38 @@ export default function ForecastPage() {
   }
 
   const { isFixed } = getSelectableUnitsForRole(user?.role, user?.unitId);
-  const showAllOption = user?.role === 'ROLE_HQ';
+
+  const handleUnitChange = (unitId: string) => {
+    setSelectedUnit(unitId || 'all');
+  };
 
   return (
     <div className="p-6 space-y-6 animate-page-enter">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-6">
         <PageHeader 
           title="예보 분석" 
           description="부대별 위험도 예보 및 사고 경향 분석" 
         />
 
-        {/* 부대 선택 필터 */}
-        <Card className="p-3 border-border w-[280px] flex-shrink-0">
+        {/* 부대 선택 필터 - 캐스케이드 방식 */}
+        <div className="flex-shrink-0 w-[320px]">
           <div className="flex items-center gap-2 mb-2">
-            <Building2 className="w-4 h-4 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground">분석 대상 부대</span>
           </div>
           {isFixed ? (
-            <div className="text-sm font-medium px-2 py-1.5 bg-muted/50 rounded">
+            <div className="text-sm font-medium px-3 py-2 bg-muted/50 rounded-md border border-border">
               {user?.unit || '소속 부대'}
             </div>
           ) : (
-            <div className="space-y-2">
-              {showAllOption && (
-                <button
-                  onClick={() => setSelectedUnit('all')}
-                  className={`w-full text-left text-sm px-2 py-1.5 rounded transition-colors ${
-                    selectedUnit === 'all' 
-                      ? 'bg-primary/10 text-primary font-medium' 
-                      : 'hover:bg-muted/50'
-                  }`}
-                >
-                  전체 부대 (전군)
-                </button>
-              )}
-              <div className="max-h-[200px] overflow-y-auto border border-border/50 rounded-md">
-                <UnitTreeSelect 
-                  value={selectedUnit === 'all' ? '' : selectedUnit} 
-                  onChange={setSelectedUnit}
-                  useRoleFilter={true}
-                />
-              </div>
-            </div>
+            <UnitCascadeSelect
+              value={selectedUnit === 'all' ? '' : selectedUnit}
+              onChange={handleUnitChange}
+              placeholder="전체 부대 (전군)"
+              showFullPath={false}
+              showSubLevels={true}
+            />
           )}
-        </Card>
+        </div>
       </div>
 
       <TabNavigation tabs={FORECAST_TABS} activeTab={activeTab} onChange={setActiveTab} />
