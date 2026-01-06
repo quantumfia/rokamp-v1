@@ -42,23 +42,24 @@ function TreeNode({ unit, level, selectedId, expandedIds, accessibleIds, onSelec
             : "hover:bg-muted/50 text-foreground"
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
-        onClick={() => onSelect(unit.id)}
+        onClick={() => {
+          // 하위가 있으면 펼침/접기, 없으면 선택
+          if (hasChildren) {
+            onToggle(unit.id);
+          } else {
+            onSelect(unit.id);
+          }
+        }}
       >
-        {/* 펼침/접기 버튼 */}
+        {/* 펼침/접기 아이콘 */}
         {hasChildren ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle(unit.id);
-            }}
-            className="p-0.5 hover:bg-muted rounded transition-colors"
-          >
+          <span className="p-0.5">
             {isExpanded ? (
               <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
             ) : (
               <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             )}
-          </button>
+          </span>
         ) : (
           <span className="w-4.5" />
         )}
@@ -68,8 +69,26 @@ function TreeNode({ unit, level, selectedId, expandedIds, accessibleIds, onSelec
           {unit.name}
         </span>
         
-        {/* 선택 표시 */}
-        {isSelected && (
+        {/* 선택 버튼 (하위가 있는 부대용) */}
+        {hasChildren && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(unit.id);
+            }}
+            className={cn(
+              "px-2 py-0.5 text-xs rounded transition-colors",
+              isSelected 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
+            )}
+          >
+            선택
+          </button>
+        )}
+        
+        {/* 선택 표시 (하위 없는 부대용) */}
+        {!hasChildren && isSelected && (
           <Check className="w-4 h-4 text-primary" />
         )}
       </div>
