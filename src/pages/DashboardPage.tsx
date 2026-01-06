@@ -109,61 +109,64 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Section - 부대 리스트 (전체의 50%) */}
-        <div className="w-1/2 flex flex-col bg-background overflow-hidden">
-          {/* 필터 버튼 + 검색창 툴바 */}
-          <div className="flex items-center gap-2 p-2 border-b border-border bg-card/50">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 shrink-0"
-              onClick={() => setShowLeftPanel(!showLeftPanel)}
-            >
-              <Filter className="w-4 h-4 mr-1.5" />
-              필터
-            </Button>
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="부대 검색..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-8 text-sm"
-              />
+        <div className="w-1/2 flex bg-background overflow-hidden relative">
+          {/* 부대 리스트 메인 영역 */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* 필터 버튼 + 검색창 툴바 */}
+            <div className="flex items-center gap-2 p-2 border-b border-border bg-card/50">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 shrink-0"
+                onClick={() => setShowLeftPanel(!showLeftPanel)}
+              >
+                <Filter className="w-4 h-4 mr-1.5" />
+                필터
+              </Button>
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="부대 검색..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 h-8 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* 부대 리스트 */}
+            <div className="flex-1 overflow-hidden">
+              {isLoading ? (
+                <div className="p-4 space-y-2">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="h-14 bg-muted/50 rounded animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <UnitListCompact
+                  onUnitClick={handleUnitClick}
+                  selectedUnitId={selectedUnitId}
+                  filters={filters}
+                  searchQuery={searchQuery}
+                />
+              )}
             </div>
           </div>
 
-          {/* 필터 패널 (위에서 아래로 열림) */}
+          {/* 필터 패널 (우측에서 열림) */}
           {showLeftPanel && (
-            <div className="border-b border-border bg-card animate-in slide-in-from-top duration-200">
+            <div className="w-64 border-l border-border bg-card animate-in slide-in-from-right duration-200 flex flex-col">
               <div className="flex items-center justify-between px-3 py-2 border-b border-border">
                 <span className="text-xs font-medium text-foreground">필터</span>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowLeftPanel(false)}>
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-              <div className="max-h-64 overflow-auto">
+              <div className="flex-1 overflow-auto">
                 {isLoading ? <RiskSummarySkeleton /> : <UnitFilterPanel onFilterChange={setFilters} />}
               </div>
             </div>
           )}
-
-          {/* 부대 리스트 */}
-          <div className="flex-1 overflow-hidden">
-            {isLoading ? (
-              <div className="p-4 space-y-2">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="h-14 bg-muted/50 rounded animate-pulse" />
-                ))}
-              </div>
-            ) : (
-              <UnitListCompact
-                onUnitClick={handleUnitClick}
-                selectedUnitId={selectedUnitId}
-                filters={filters}
-                searchQuery={searchQuery}
-              />
-            )}
-          </div>
         </div>
       </div>
     </div>
