@@ -91,7 +91,7 @@ export function TrendAnalysisPanel() {
       </div>
 
       {/* 하단 2컬럼 */}
-      <div className="flex-1 overflow-hidden flex gap-4 px-5 pb-5">
+      <div className="flex-1 overflow-hidden flex gap-8 px-5 pb-5">
         {/* 좌측 - 예측 위험 요인 도넛 차트 */}
         <div className="w-1/2 flex flex-col min-h-0">
           <h4 className="text-sm font-semibold text-foreground mb-4">예측 위험 요인</h4>
