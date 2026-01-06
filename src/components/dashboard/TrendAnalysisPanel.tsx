@@ -27,7 +27,11 @@ const chartTooltipStyle = {
 };
 
 export function TrendAnalysisPanel() {
-  const mainAccidentCount = 5;
+  // 가장 많은 사고 유형 찾기
+  const topAccident = weeklyAccidentData.reduce((max, item) => 
+    item.count > max.count ? item : max, weeklyAccidentData[0]
+  );
+  const totalCount = weeklyAccidentData.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-card">
@@ -40,15 +44,15 @@ export function TrendAnalysisPanel() {
       <div className="flex-1 overflow-hidden flex">
         {/* Left Column - 핵심 숫자 + 바 차트 */}
         <div className="w-1/2 border-r border-border flex flex-col">
-          {/* 주요사고 예보 - 큰 숫자 강조 */}
+          {/* 주요 사고 유형 - 가장 많은 유형 강조 */}
           <div className="px-5 py-4 border-b border-border">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm text-muted-foreground">주요사고 예보</span>
+              <span className="text-sm text-muted-foreground">주요 사고 유형</span>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-5xl font-bold text-primary tracking-tight">{mainAccidentCount}</span>
-              <span className="text-lg text-muted-foreground">건</span>
+            <div className="flex items-baseline gap-3">
+              <span className="text-4xl font-bold text-primary tracking-tight">{topAccident.type}</span>
+              <span className="text-lg text-muted-foreground">{topAccident.count}건 / 총 {totalCount}건</span>
             </div>
           </div>
 
