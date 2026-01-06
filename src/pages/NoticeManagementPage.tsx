@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Video, Paperclip, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, AlertTriangle, Pencil, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import {
 import { PageHeader, ActionButton, TabNavigation } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { useAuth } from '@/contexts/AuthContext';
-import { canEditContent, canDeleteContent } from '@/lib/rbac';
+import { canEditContent, canDeleteContent, getAccessibleUnits } from '@/lib/rbac';
 import { cn } from '@/lib/utils';
 
 type ActiveTab = 'notices' | 'incidents';
@@ -213,6 +213,11 @@ export default function NoticeManagementPage() {
   const canEdit = (authorName: string) => canEditContent(user?.role, authorName, user?.name || '');
   const canDelete = (authorName: string) => canDeleteContent(user?.role, authorName, user?.name || '');
 
+  // 역할 기반 접근 가능 부대 목록
+  const accessibleUnits = useMemo(() => {
+    return getAccessibleUnits(user?.role, user?.unitId);
+  }, [user?.role, user?.unitId]);
+
   useEffect(() => {
     if (tabFromUrl === 'incidents') {
       setActiveTab('incidents');
@@ -224,22 +229,39 @@ export default function NoticeManagementPage() {
     setSearchParams(tabId === 'incidents' ? { tab: 'incidents' } : {});
   };
 
-  // 필터링된 공지사항 목록
-  const filteredNotices = NOTICES.filter((notice) => {
-    const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         notice.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         notice.author.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || notice.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // 역할 기반 + 필터링된 공지사항 목록
+  const filteredNotices = useMemo(() => {
+    return NOTICES.filter((notice) => {
+      // 역할 기반 필터링: HQ는 전체, DIV는 전체 대상 또는 예하 부대 대상만
+      const hasAccess = user?.role === 'ROLE_HQ' || 
+        notice.target === 'all' || 
+        accessibleUnits.some(unit => notice.targetLabel.includes(unit.name));
+      
+      if (!hasAccess) return false;
 
-  // 필터링된 일일 사고사례 목록
-  const filteredIncidents = INCIDENTS.filter((incident) => {
-    const matchesSearch = incident.title.toLowerCase().includes(incidentSearchQuery.toLowerCase()) ||
-                         incident.description.toLowerCase().includes(incidentSearchQuery.toLowerCase()) ||
-                         incident.location.toLowerCase().includes(incidentSearchQuery.toLowerCase());
-    return matchesSearch;
-  });
+      const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           notice.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           notice.author.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || notice.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [user?.role, accessibleUnits, searchQuery, statusFilter]);
+
+  // 역할 기반 + 필터링된 일일 사고사례 목록
+  const filteredIncidents = useMemo(() => {
+    return INCIDENTS.filter((incident) => {
+      // 역할 기반 필터링: HQ는 전체, DIV는 예하 부대 장소만
+      const hasAccess = user?.role === 'ROLE_HQ' || 
+        accessibleUnits.some(unit => incident.location.includes(unit.name));
+      
+      if (!hasAccess) return false;
+
+      const matchesSearch = incident.title.toLowerCase().includes(incidentSearchQuery.toLowerCase()) ||
+                           incident.description.toLowerCase().includes(incidentSearchQuery.toLowerCase()) ||
+                           incident.location.toLowerCase().includes(incidentSearchQuery.toLowerCase());
+      return matchesSearch;
+    });
+  }, [user?.role, accessibleUnits, incidentSearchQuery]);
 
   // 페이지네이션 계산 - 공지사항
   const totalPages = Math.ceil(filteredNotices.length / itemsPerPage);
