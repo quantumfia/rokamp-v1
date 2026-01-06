@@ -21,7 +21,7 @@ export function MainLayout() {
   const [showNotice, setShowNotice] = useState(false);
   const [showNotificationPanel, setShowNotificationPanel] = useState(false);
   const [selectedUnitFromSearch, setSelectedUnitFromSearch] = useState<string | null>(null);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const location = useLocation();
   const isDashboard = location.pathname === '/dashboard';
   const isChatbot = location.pathname === '/chatbot';
