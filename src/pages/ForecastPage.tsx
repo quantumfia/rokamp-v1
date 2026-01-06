@@ -4,7 +4,7 @@ import { PageHeader, TabNavigation } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { useAuth } from '@/contexts/AuthContext';
 import { getSelectableUnitsForRole } from '@/lib/rbac';
-import { UnitPopoverSelect } from '@/components/unit/UnitPopoverSelect';
+import { UnitFilterSelect } from '@/components/unit';
 import WeeklyForecastTab from '@/components/forecast/WeeklyForecastTab';
 import TrendAnalysisTab from '@/components/forecast/TrendAnalysisTab';
 
@@ -62,7 +62,7 @@ export default function ForecastPage() {
             </div>
           </div>
         ) : (
-          <UnitPopoverSelect value={selectedUnit || 'all'} onChange={setSelectedUnit} />
+          <UnitFilterSelect value={selectedUnit || 'all'} onChange={setSelectedUnit} showLabel={true} label="분석 대상 부대" />
         )}
       </div>
 

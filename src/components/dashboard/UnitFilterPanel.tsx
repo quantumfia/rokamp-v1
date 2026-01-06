@@ -8,7 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { UnitTreeSelect } from '@/components/unit/UnitTreeSelect';
+import { UnitTreeSelect } from '@/components/unit';
 interface FilterOption {
   id: string;
   label: string;

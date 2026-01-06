@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Pencil } from 'lucide-react';
-import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
+import { UnitFilterSelect, UnitFormSelect } from '@/components/unit';
 import { getUnitById, getAllDescendants, getUnitFullName } from '@/data/armyUnits';
 import { toast } from '@/hooks/use-toast';
 import { UserManagementSkeleton } from '@/components/skeletons';
@@ -124,12 +124,11 @@ function UserForm({ form, onChange }: { form: Partial<User>; onChange: (form: Pa
       </div>
       <div>
         <label className="block text-xs text-muted-foreground mb-1.5">소속 부대 *</label>
-        <UnitCascadeSelect
+        <UnitFormSelect
           value={form.unitId || ''}
           onChange={(value) => onChange({ ...form, unitId: value })}
           placeholder="부대 선택"
           showFullPath={true}
-          spanFullWidth={true}
         />
       </div>
       <div>
@@ -406,17 +405,15 @@ export default function UserManagementPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h2 className="text-sm font-medium text-foreground">사용자 목록</h2>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">부대:</span>
-            <UnitCascadeSelect
-              value={selectedUnitFilter}
-              onChange={handleUnitFilterChange}
-              placeholder="전체"
-              showFullPath={false}
-              showSubLevels={true}
-              inline={true}
-            />
-          </div>
+          <UnitFilterSelect
+            value={selectedUnitFilter}
+            onChange={handleUnitFilterChange}
+            mode="cascade"
+            showLabel={true}
+            placeholder="전체"
+            inline={true}
+            showSubLevels={true}
+          />
         </div>
         <input
           placeholder="이름, 계정 ID, 군번, 부대 검색..."
@@ -614,7 +611,7 @@ export default function UserManagementPage() {
             <div>
               <label className="block text-xs text-muted-foreground mb-1.5">소속 부대</label>
               {isEditMode ? (
-                <UnitCascadeSelect
+                <UnitFormSelect
                   value={editForm.unitId || ''}
                   onChange={(value) => setEditForm({ ...editForm, unitId: value })}
                   placeholder="부대 선택"

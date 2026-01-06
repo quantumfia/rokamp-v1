@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FileText } from 'lucide-react';
-import { UnitPopoverSelect } from '@/components/unit/UnitPopoverSelect';
+import { UnitFilterSelect } from '@/components/unit';
 import { getUnitById } from '@/data/armyUnits';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths, subQuarters, startOfQuarter, endOfQuarter } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -1278,7 +1278,7 @@ export function StatisticsReportList({ showModal = false, onCloseModal }: Statis
               {user?.unit || '소속 부대'}
             </div>
           ) : (
-            <UnitPopoverSelect
+            <UnitFilterSelect
               value={createForm.unitId || 'all'}
               onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value === 'all' ? '' : value }))}
               placeholder="부대 선택"
