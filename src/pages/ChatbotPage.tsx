@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, Shield, Car, Flame, Mountain, RotateCcw, ChevronDown, X } from "lucide-react";
+import { Send, Sparkles, Shield, Car, Flame, Mountain, RotateCcw, ChevronDown, X, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatbotSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,18 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import rokaLogo from "@/assets/roka-logo.svg";
+
+// 사용 가능한 AI 모델
+const AI_MODELS = [
+  { id: "llama-3.3-70b", label: "Llama 3.3 70B", description: "고성능 대형 모델" },
+  { id: "qwen2.5-7b", label: "Qwen2.5-7B", description: "균형잡힌 중형 모델" },
+  { id: "llama-3.1-8b", label: "Llama-3.1-8B", description: "빠른 경량 모델" },
+];
 
 interface Message {
   id: string;
@@ -49,6 +58,7 @@ export default function ChatbotPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [selectedSources, setSelectedSources] = useState<string[]>(["all"]);
+  const [selectedModel, setSelectedModel] = useState("llama-3.3-70b");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -78,6 +88,7 @@ export default function ChatbotPage() {
     setMessages([]);
     setInput("");
     setSelectedSources(["all"]);
+    setSelectedModel("llama-3.3-70b");
     inputRef.current?.focus();
   };
 
@@ -286,7 +297,33 @@ export default function ChatbotPage() {
       <div className="relative flex-1 flex flex-col min-h-0">
         {!hasConversation ? (
           /* Welcome Screen */
-          <div className="flex-1 flex flex-col items-center justify-center px-4 animate-page-enter">
+          <div className="flex-1 flex flex-col px-4 animate-page-enter">
+            {/* 좌측 상단 모델 선택 */}
+            <div className="py-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                    <Bot className="w-3.5 h-3.5 text-primary" />
+                    <span className="font-medium">{AI_MODELS.find(m => m.id === selectedModel)?.label}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-52 bg-popover z-50">
+                  <DropdownMenuRadioGroup value={selectedModel} onValueChange={setSelectedModel}>
+                    {AI_MODELS.map((model) => (
+                      <DropdownMenuRadioItem key={model.id} value={model.id}>
+                        <div>
+                          <p className="font-medium text-sm">{model.label}</p>
+                          <p className="text-xs text-muted-foreground">{model.description}</p>
+                        </div>
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className="flex-1 flex flex-col items-center justify-center -mt-12">
             <div className="flex flex-col items-center mb-8">
               <div className="relative mb-4">
                 <div
@@ -397,6 +434,7 @@ export default function ChatbotPage() {
                 AI가 생성한 답변은 참고용이며, 정확한 규정은 원문을 확인하세요.
               </p>
             </div>
+            </div>
           </div>
         ) : (
           /* Conversation View - Fixed header/footer */
@@ -404,12 +442,39 @@ export default function ChatbotPage() {
             {/* Fixed Header */}
             <div className="absolute top-0 left-0 right-0 z-10">
               <div className="flex items-center justify-between px-4 py-3 bg-background/70 backdrop-blur-md">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">대화 중</span>
-                  {messages.length > 0 && (
-                    <span className="text-xs text-muted-foreground">· {Math.ceil(messages.length / 2)}개 질문</span>
-                  )}
+                <div className="flex items-center gap-3">
+                  {/* 모델 선택 드롭다운 */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                        <Bot className="w-3.5 h-3.5 text-primary" />
+                        <span className="font-medium">{AI_MODELS.find(m => m.id === selectedModel)?.label}</span>
+                        <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-52 bg-popover z-50">
+                      <DropdownMenuRadioGroup value={selectedModel} onValueChange={setSelectedModel}>
+                        {AI_MODELS.map((model) => (
+                          <DropdownMenuRadioItem key={model.id} value={model.id}>
+                            <div>
+                              <p className="font-medium text-sm">{model.label}</p>
+                              <p className="text-xs text-muted-foreground">{model.description}</p>
+                            </div>
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <div className="h-4 w-px bg-border" />
+
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">대화 중</span>
+                    {messages.length > 0 && (
+                      <span className="text-xs text-muted-foreground">· {Math.ceil(messages.length / 2)}개 질문</span>
+                    )}
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
