@@ -318,19 +318,17 @@ export default function ChatbotPage() {
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuContent align="start" className="w-52 z-[100]">
-                    {AI_MODELS.map((model) => (
-                      <DropdownMenuCheckboxItem
-                        key={model.id}
-                        checked={selectedModel === model.id}
-                        onCheckedChange={() => setSelectedModel(model.id)}
-                      >
-                        {model.label}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenuPortal>
+                <DropdownMenuContent align="start" className="w-52">
+                  {AI_MODELS.map((model) => (
+                    <DropdownMenuCheckboxItem
+                      key={model.id}
+                      checked={selectedModel === model.id}
+                      onCheckedChange={() => setSelectedModel(model.id)}
+                    >
+                      {model.label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
