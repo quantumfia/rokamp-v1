@@ -129,14 +129,9 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
             </div>
           </button>
 
-          <div className="hidden lg:flex items-center ml-3 gap-3">
-            <span className="text-xs text-sidebar-muted px-2 py-1 rounded bg-sidebar-accent">
-              안전사고 예측 시스템
-            </span>
-            <div className="flex items-center gap-2 text-xs text-sidebar-muted">
-              <span>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' })}</span>
-              <HeaderClock />
-            </div>
+          <div className="hidden lg:flex items-center ml-3 gap-2 text-xs text-sidebar-muted">
+            <span>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' })}</span>
+            <HeaderClock />
           </div>
         </div>
 
