@@ -142,9 +142,9 @@ export function TrendAnalysisPanel() {
         {/* 우측 - 발생사고 현황 바 차트 */}
         <div className="w-1/2 flex flex-col min-h-0">
           <h4 className="text-sm font-semibold text-foreground mb-4">발생사고 현황</h4>
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0" style={{ minHeight: `${accidentData.length * 28 + 40}px` }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={accidentData} layout="vertical" barCategoryGap="20%">
+              <BarChart data={accidentData} layout="vertical" barCategoryGap="12%" margin={{ top: 5, right: 10, bottom: 5, left: 0 }}>
                 <XAxis 
                   type="number" 
                   tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
@@ -158,7 +158,7 @@ export function TrendAnalysisPanel() {
                   tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }} 
                   axisLine={false} 
                   tickLine={false}
-                  width={80}
+                  width={70}
                 />
                 <Tooltip 
                   contentStyle={chartTooltipStyle}
@@ -169,6 +169,7 @@ export function TrendAnalysisPanel() {
                   dataKey="count" 
                   fill="hsl(var(--status-warning))"
                   radius={[0, 6, 6, 0]}
+                  barSize={16}
                 />
               </BarChart>
             </ResponsiveContainer>
