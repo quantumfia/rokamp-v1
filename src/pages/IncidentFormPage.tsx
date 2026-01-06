@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Save, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { FormField } from '@/components/common';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +17,13 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { useFormValidation, getFieldError } from '@/hooks/useFormValidation';
+import { incidentSchema } from '@/lib/validation';
 import { cn } from '@/lib/utils';
+import { z } from 'zod';
+
+// 폼 데이터 타입
+type IncidentFormValues = z.infer<typeof incidentSchema>;
 
 // Mock 데이터 (실제 구현 시 API에서 가져옴)
 interface Incident {
@@ -63,51 +69,62 @@ export default function IncidentFormPage() {
   const isLoading = usePageLoading(500);
   const isEditMode = !!id;
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [incidentDate, setIncidentDate] = useState('');
-  const [location, setLocation] = useState('');
-  const [category, setCategory] = useState('훈련');
-  const [severity, setSeverity] = useState<'low' | 'medium' | 'high'>('low');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // 폼 검증 훅 사용
+  const {
+    values,
+    errors,
+    touched,
+    isValid,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    setMultipleValues,
+  } = useFormValidation<IncidentFormValues>({
+    initialValues: {
+      title: '',
+      description: '',
+      incidentDate: '',
+      location: '',
+      category: '훈련',
+      severity: 'low',
+    },
+    schema: incidentSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async () => {
+      if (isEditMode) {
+        toast({
+          title: '사고사례 수정 완료',
+          description: '일일 사고사례가 수정되었습니다.',
+        });
+      } else {
+        toast({
+          title: '사고사례 등록 완료',
+          description: '일일 사고사례가 등록되었습니다.',
+        });
+      }
+      navigate('/admin/notice?tab=incidents');
+    },
+  });
 
   useEffect(() => {
     if (id) {
       const incident = INCIDENTS.find(i => i.id === parseInt(id));
       if (incident) {
-        setTitle(incident.title);
-        setDescription(incident.description);
-        setIncidentDate(incident.incidentDate);
-        setLocation(incident.location);
-        setCategory(incident.category);
-        setSeverity(incident.severity);
+        setMultipleValues({
+          title: incident.title,
+          description: incident.description,
+          incidentDate: incident.incidentDate,
+          location: incident.location,
+          category: incident.category,
+          severity: incident.severity,
+        });
       }
     }
-  }, [id]);
-
-  const handleSubmit = () => {
-    if (!title.trim() || !description.trim()) {
-      toast({
-        title: '입력 오류',
-        description: '제목과 내용을 모두 입력해주세요.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (isEditMode) {
-      toast({
-        title: '사고사례 수정 완료',
-        description: '일일 사고사례가 수정되었습니다.',
-      });
-    } else {
-      toast({
-        title: '사고사례 등록 완료',
-        description: '일일 사고사례가 등록되었습니다.',
-      });
-    }
-    navigate('/admin/notice?tab=incidents');
-  };
+  }, [id, setMultipleValues]);
 
   const handleDelete = () => {
     toast({
@@ -167,7 +184,11 @@ export default function IncidentFormPage() {
               삭제
             </Button>
           )}
-          <Button size="sm" onClick={handleSubmit}>
+          <Button 
+            size="sm" 
+            onClick={handleSubmit}
+            disabled={!isValid || isSubmitting}
+          >
             <Save className="w-4 h-4 mr-1.5" />
             {isEditMode ? '저장' : '등록'}
           </Button>
@@ -176,59 +197,79 @@ export default function IncidentFormPage() {
 
       {/* 폼 */}
       <div className="bg-card border border-border rounded-lg p-6 space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="title" className="text-sm font-medium">제목 *</Label>
+        <FormField 
+          label="제목" 
+          required 
+          error={getFieldError('title', errors, touched)}
+        >
           <Input
             id="title"
             placeholder="사고사례 제목을 입력하세요"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={values.title}
+            onChange={(e) => handleChange('title', e.target.value)}
+            onBlur={() => handleBlur('title')}
             className="bg-background"
           />
-        </div>
+        </FormField>
 
-        <div className="space-y-2">
-          <Label htmlFor="description" className="text-sm font-medium">내용 *</Label>
+        <FormField 
+          label="내용" 
+          required 
+          error={getFieldError('description', errors, touched)}
+        >
           <Textarea
             id="description"
             placeholder="사고 발생 경위, 피해 상황, 조치 내용 등을 상세히 작성하세요"
             rows={8}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={values.description}
+            onChange={(e) => handleChange('description', e.target.value)}
+            onBlur={() => handleBlur('description')}
             className="bg-background resize-none"
           />
-        </div>
+        </FormField>
 
         <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="incident-date" className="text-sm font-medium">발생일</Label>
+          <FormField 
+            label="발생일" 
+            required
+            error={getFieldError('incidentDate', errors, touched)}
+          >
             <Input
               id="incident-date"
               type="date"
-              value={incidentDate}
-              onChange={(e) => setIncidentDate(e.target.value)}
+              value={values.incidentDate}
+              onChange={(e) => handleChange('incidentDate', e.target.value)}
+              onBlur={() => handleBlur('incidentDate')}
               className="bg-background"
             />
-          </div>
+          </FormField>
 
-          <div className="space-y-2">
-            <Label htmlFor="location" className="text-sm font-medium">발생장소</Label>
+          <FormField 
+            label="발생장소" 
+            required
+            error={getFieldError('location', errors, touched)}
+          >
             <Input
               id="location"
               placeholder="사고 발생 장소"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              value={values.location}
+              onChange={(e) => handleChange('location', e.target.value)}
+              onBlur={() => handleBlur('location')}
               className="bg-background"
             />
-          </div>
+          </FormField>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">분류</Label>
+          <FormField 
+            label="분류" 
+            required
+            error={getFieldError('category', errors, touched)}
+          >
             <select 
-              value={category} 
-              onChange={(e) => setCategory(e.target.value)}
+              value={values.category} 
+              onChange={(e) => handleChange('category', e.target.value)}
+              onBlur={() => handleBlur('category')}
               className="w-full h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="훈련">훈련</option>
@@ -238,19 +279,22 @@ export default function IncidentFormPage() {
               <option value="작업">작업</option>
               <option value="기타">기타</option>
             </select>
-          </div>
+          </FormField>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">심각도</Label>
+          <FormField 
+            label="심각도" 
+            required
+            error={getFieldError('severity', errors, touched)}
+          >
             <div className="flex gap-2">
               {(['low', 'medium', 'high'] as const).map((sev) => (
                 <button
                   key={sev}
                   type="button"
-                  onClick={() => setSeverity(sev)}
+                  onClick={() => handleChange('severity', sev)}
                   className={cn(
                     "flex-1 flex items-center justify-center gap-2 h-10 px-3 text-sm border rounded-md transition-colors",
-                    severity === sev
+                    values.severity === sev
                       ? getSeverityColor(sev)
                       : "border-border bg-background hover:bg-muted"
                   )}
@@ -260,7 +304,7 @@ export default function IncidentFormPage() {
                 </button>
               ))}
             </div>
-          </div>
+          </FormField>
         </div>
 
         {/* 안내 */}
@@ -279,7 +323,7 @@ export default function IncidentFormPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>사고사례 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              "{title}" 사고사례를 삭제하시겠습니까?<br />
+              "{values.title}" 사고사례를 삭제하시겠습니까?<br />
               삭제된 사고사례는 복구할 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
