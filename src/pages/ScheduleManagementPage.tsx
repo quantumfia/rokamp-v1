@@ -58,7 +58,7 @@ const scheduleFormSchema = z.object({
   startTime: z.string().optional().or(z.literal('')),
   endTime: z.string().optional().or(z.literal('')),
   location: z.string().max(200).optional().or(z.literal('')),
-  type: z.enum(['훈련', '행사', '점검', '회의', '휴가', '기타', '']),
+  type: z.enum(['훈련', '행사', '점검', '회의', '휴가', '기타', '']).optional().or(z.literal('')),
   riskLevel: z.enum(['low', 'medium', 'high']).optional(),
   participants: z.number().nonnegative().optional(),
   memo: z.string().max(500).optional().or(z.literal('')),
