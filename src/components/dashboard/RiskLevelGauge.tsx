@@ -112,56 +112,56 @@ export function RiskScoreGauge({ score, label }: RiskScoreGaugeProps) {
   const { getLevelForScore, levels } = useRiskLevels();
   const currentLevel = getLevelForScore(score);
   
-  // 반원 게이지 계산
-  const totalSteps = levels.length;
-  const currentStepIndex = levels.findIndex(l => score >= l.min && score <= l.max);
-  const segmentAngle = 180 / totalSteps;
+  // 전체 범위에서 현재 점수의 비율 계산 (0~100 → 0~1)
+  const progress = score / 100;
+  const circumference = 2 * Math.PI * 38;
+  const strokeDashoffset = circumference - progress * circumference;
   
   return (
     <div className="flex flex-col items-center gap-1">
-      {/* 반원 게이지 */}
-      <div className="relative w-16 h-9">
-        <svg viewBox="0 0 100 55" className="w-full h-full">
-          {/* 세그먼트들 */}
-          {levels.map((level, idx) => {
-            const startAngle = 180 - idx * segmentAngle;
-            const endAngle = 180 - (idx + 1) * segmentAngle;
-            const startRad = (startAngle * Math.PI) / 180;
-            const endRad = (endAngle * Math.PI) / 180;
-            
-            const x1 = 50 + 40 * Math.cos(startRad);
-            const y1 = 50 - 40 * Math.sin(startRad);
-            const x2 = 50 + 40 * Math.cos(endRad);
-            const y2 = 50 - 40 * Math.sin(endRad);
-            
-            const isActive = idx <= currentStepIndex;
-            
-            return (
-              <path
-                key={idx}
-                d={`M 50 50 L ${x1} ${y1} A 40 40 0 0 0 ${x2} ${y2} Z`}
-                fill={isActive ? level.color : 'hsl(220, 10%, 85%)'}
-                stroke="white"
-                strokeWidth="1"
-                opacity={isActive ? 1 : 0.4}
-              />
-            );
-          })}
-          
-          {/* 중앙 원 */}
-          <circle cx="50" cy="50" r="14" fill="white" stroke="hsl(220, 10%, 80%)" strokeWidth="1" />
-          
-          {/* 점수 텍스트 */}
-          <text
-            x="50"
-            y="54"
-            textAnchor="middle"
-            className="text-[12px] font-bold"
-            fill={currentLevel.color}
+      {/* 원형 게이지 */}
+      <div className="relative w-16 h-16">
+        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+          {/* 배경 원 */}
+          <circle
+            cx="50"
+            cy="50"
+            r="38"
+            fill="none"
+            strokeWidth="8"
+            stroke="hsl(220, 10%, 90%)"
+          />
+          {/* 진행 원 */}
+          <circle
+            cx="50"
+            cy="50"
+            r="38"
+            fill="none"
+            strokeWidth="8"
+            strokeLinecap="round"
+            stroke={currentLevel.color}
+            className="transition-all duration-500"
+            style={{
+              strokeDasharray: circumference,
+              strokeDashoffset,
+            }}
+          />
+        </svg>
+        {/* 중앙 텍스트 */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span 
+            className="text-lg font-bold tabular-nums leading-none"
+            style={{ color: currentLevel.color }}
           >
             {Math.round(score)}
-          </text>
-        </svg>
+          </span>
+          <span 
+            className="text-[9px] font-semibold mt-0.5"
+            style={{ color: currentLevel.color }}
+          >
+            {currentLevel.label}
+          </span>
+        </div>
       </div>
       
       {/* 라벨 */}
@@ -186,25 +186,37 @@ function RiskSettingsPopover() {
   const [tempLevels, setTempLevels] = useState<RiskLevel[]>(levels);
   const [isOpen, setIsOpen] = useState(false);
   
-  const handleMinChange = (index: number, value: string) => {
-    const numValue = parseInt(value) || 0;
-    const newLevels = [...tempLevels];
-    newLevels[index] = { ...newLevels[index], min: Math.max(0, Math.min(100, numValue)) };
-    // 이전 레벨의 max도 자동 조정
-    if (index > 0) {
-      newLevels[index - 1] = { ...newLevels[index - 1], max: numValue - 1 };
-    }
-    setTempLevels(newLevels);
-  };
-  
+  // max 변경 시: 현재 레벨의 max를 변경하고, 다음 레벨의 min을 자동 조정
   const handleMaxChange = (index: number, value: string) => {
-    const numValue = parseInt(value) || 0;
+    const numValue = parseInt(value);
+    if (isNaN(numValue)) return;
+    
     const newLevels = [...tempLevels];
-    newLevels[index] = { ...newLevels[index], max: Math.max(0, Math.min(100, numValue)) };
-    // 다음 레벨의 min도 자동 조정
+    const currentLevel = newLevels[index];
+    
+    // max는 현재 min 이상이어야 함
+    let newMax = Math.max(currentLevel.min, Math.min(99, numValue));
+    
+    // 마지막 단계가 아니면 다음 단계 min을 위한 여유 공간 확보
     if (index < newLevels.length - 1) {
-      newLevels[index + 1] = { ...newLevels[index + 1], min: numValue + 1 };
+      // 다음 단계들의 최소 필요 공간 계산 (각 단계당 최소 1씩 필요)
+      const remainingSteps = newLevels.length - index - 1;
+      const maxAllowed = 100 - remainingSteps;
+      newMax = Math.min(newMax, maxAllowed);
     }
+    
+    newLevels[index] = { ...currentLevel, max: newMax };
+    
+    // 다음 레벨의 min 자동 조정
+    if (index < newLevels.length - 1) {
+      newLevels[index + 1] = { ...newLevels[index + 1], min: newMax + 1 };
+      
+      // 다음 레벨의 max가 min보다 작으면 조정
+      if (newLevels[index + 1].max < newLevels[index + 1].min) {
+        newLevels[index + 1] = { ...newLevels[index + 1], max: newLevels[index + 1].min };
+      }
+    }
+    
     setTempLevels(newLevels);
   };
   
@@ -306,29 +318,28 @@ function RiskSettingsPopover() {
                 {/* 라벨 (읽기 전용) */}
                 <span className="w-12 text-xs font-medium shrink-0">{level.label}</span>
                 
-                {/* Min 입력 */}
-                <Input
-                  type="number"
-                  value={level.min}
-                  onChange={(e) => handleMinChange(idx, e.target.value)}
-                  className="w-14 h-7 text-xs px-2 text-center tabular-nums"
-                  min={0}
-                  max={100}
-                  disabled={idx === 0}
-                />
+                {/* Min 표시 (읽기 전용 - 자동 계산됨) */}
+                <span className="w-10 h-7 text-xs text-center tabular-nums flex items-center justify-center bg-muted/50 rounded text-muted-foreground">
+                  {level.min}
+                </span>
                 
                 <span className="text-xs text-muted-foreground">~</span>
                 
-                {/* Max 입력 */}
-                <Input
-                  type="number"
-                  value={level.max}
-                  onChange={(e) => handleMaxChange(idx, e.target.value)}
-                  className="w-14 h-7 text-xs px-2 text-center tabular-nums"
-                  min={0}
-                  max={100}
-                  disabled={idx === tempLevels.length - 1}
-                />
+                {/* Max 입력 (마지막 단계는 항상 100 고정) */}
+                {idx === tempLevels.length - 1 ? (
+                  <span className="w-10 h-7 text-xs text-center tabular-nums flex items-center justify-center bg-muted/50 rounded text-muted-foreground">
+                    100
+                  </span>
+                ) : (
+                  <Input
+                    type="number"
+                    value={level.max}
+                    onChange={(e) => handleMaxChange(idx, e.target.value)}
+                    className="w-10 h-7 text-xs px-1 text-center tabular-nums"
+                    min={level.min}
+                    max={99}
+                  />
+                )}
                 
                 {/* 삭제 버튼 */}
                 <button
