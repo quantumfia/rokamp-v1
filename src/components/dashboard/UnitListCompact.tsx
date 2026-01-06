@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Search, Info, ChevronUp, ChevronDown } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Info, ChevronUp, ChevronDown } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 import { 
   ARMY_UNITS, 
@@ -16,7 +16,6 @@ interface UnitListCompactProps {
   selectedUnitId?: string | null;
   filters?: FilterState;
   searchQuery?: string;
-  onSearchChange?: (query: string) => void;
 }
 
 type SortField = 'name' | 'risk';
@@ -43,15 +42,10 @@ export function UnitListCompact({
   onUnitClick, 
   selectedUnitId, 
   filters,
-  searchQuery = '',
-  onSearchChange
+  searchQuery = ''
 }: UnitListCompactProps) {
-  const [localSearch, setLocalSearch] = useState('');
   const [sortField, setSortField] = useState<SortField>('risk');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-
-  const search = searchQuery || localSearch;
-  const handleSearchChange = onSearchChange || setLocalSearch;
 
   const allUnits = useMemo(() => getDisplayUnits(), []);
 
@@ -59,8 +53,8 @@ export function UnitListCompact({
   const filteredUnits = useMemo(() => {
     return allUnits.filter((unit) => {
       // 검색 필터
-      if (search) {
-        const searchLower = search.toLowerCase();
+      if (searchQuery) {
+        const searchLower = searchQuery.toLowerCase();
         if (!unit.name.toLowerCase().includes(searchLower) && 
             !unit.fullPath.toLowerCase().includes(searchLower)) {
           return false;
@@ -93,7 +87,7 @@ export function UnitListCompact({
 
       return true;
     });
-  }, [allUnits, search, filters]);
+  }, [allUnits, searchQuery, filters]);
 
   // 정렬
   const sortedUnits = useMemo(() => {
@@ -137,18 +131,6 @@ export function UnitListCompact({
 
   return (
     <div className="h-full flex flex-col">
-      {/* 검색창 */}
-      <div className="p-3 border-b border-border">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="부대 검색..."
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="pl-9 h-9 text-sm"
-          />
-        </div>
-      </div>
 
       {/* 테이블 헤더 */}
       <div className="flex items-center justify-between px-4 py-2 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground">

@@ -9,7 +9,8 @@ import { TrendAnalysisPanel } from '@/components/dashboard/TrendAnalysisPanel';
 import { DashboardNoticeList } from '@/components/dashboard/DashboardNoticeList';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
-import { X, Filter } from 'lucide-react';
+import { X, Filter, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -104,17 +105,26 @@ export default function DashboardPage() {
 
         {/* Left Section - 부대 리스트 (전체의 50%) */}
         <div className="w-1/2 flex flex-col border-r border-border bg-background overflow-hidden">
-          {/* 필터 버튼 툴바 */}
+          {/* 필터 버튼 + 검색창 툴바 */}
           <div className="flex items-center gap-2 p-2 border-b border-border bg-card/50">
             <Button
               variant="outline"
               size="sm"
-              className="h-8"
+              className="h-8 shrink-0"
               onClick={() => setShowLeftPanel(true)}
             >
               <Filter className="w-4 h-4 mr-1.5" />
               필터
             </Button>
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="부대 검색..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-8 text-sm"
+              />
+            </div>
           </div>
 
           {/* 부대 리스트 */}
@@ -131,7 +141,6 @@ export default function DashboardPage() {
                 selectedUnitId={selectedUnitId}
                 filters={filters}
                 searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
               />
             )}
           </div>
