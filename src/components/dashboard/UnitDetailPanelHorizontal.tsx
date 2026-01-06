@@ -96,13 +96,13 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
       {/* Content - 세로 스크롤 레이아웃 */}
       <div className="flex-1 overflow-y-auto p-5 space-y-6">
         {/* 현재 위험도 - 대형 표시 */}
-        <div className="bg-muted/40 rounded-xl p-6">
-          <p className="text-sm font-medium text-muted-foreground mb-3">현재 위험도</p>
-          <div className="flex items-end gap-4">
-            <span className={`text-6xl font-bold tabular-nums ${getRiskColor(riskValue)}`}>
+        <div className="bg-muted/40 rounded-xl p-5">
+          <p className="text-sm font-medium text-muted-foreground mb-2">현재 위험도</p>
+          <div className="flex items-end gap-3">
+            <span className={`text-3xl font-bold tabular-nums ${getRiskColor(riskValue)}`}>
               {riskValue}%
             </span>
-            <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold text-white mb-2 ${getRiskBg(riskValue)}`}>
+            <span className={`px-2 py-1 rounded-lg text-xs font-semibold text-white mb-0.5 ${getRiskBg(riskValue)}`}>
               {getRiskLabel(riskValue)}
             </span>
           </div>
