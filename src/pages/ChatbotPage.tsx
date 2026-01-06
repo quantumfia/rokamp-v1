@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, RotateCcw, ChevronDown, X, Bot, Sparkles, FileText } from "lucide-react";
+import { Send, RotateCcw, ChevronDown, X, Sparkles, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatbotSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuTrigger,
-  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import rokaLogo from "@/assets/roka-logo.svg";
 import { DEFAULT_STARTER_QUESTIONS, ICON_MAP } from "@/data/starterQuestions";
@@ -315,22 +312,22 @@ export default function ChatbotPage() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
-                    <Bot className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-muted-foreground">모델:</span>
                     <span className="font-medium">{AI_MODELS.find(m => m.id === selectedModel)?.label}</span>
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuContent align="start" className="w-52 bg-popover z-[100]" sideOffset={5}>
-                    <DropdownMenuRadioGroup value={selectedModel} onValueChange={setSelectedModel}>
-                      {AI_MODELS.map((model) => (
-                        <DropdownMenuRadioItem key={model.id} value={model.id} className="cursor-pointer">
-                          {model.label}
-                        </DropdownMenuRadioItem>
-                      ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                </DropdownMenuPortal>
+                <DropdownMenuContent align="start" className="w-52">
+                  {AI_MODELS.map((model) => (
+                    <DropdownMenuCheckboxItem
+                      key={model.id}
+                      checked={selectedModel === model.id}
+                      onCheckedChange={() => setSelectedModel(model.id)}
+                    >
+                      {model.label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
@@ -458,22 +455,22 @@ export default function ChatbotPage() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
-                        <Bot className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-muted-foreground">모델:</span>
                         <span className="font-medium">{AI_MODELS.find(m => m.id === selectedModel)?.label}</span>
                         <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuContent align="start" className="w-52 bg-popover z-[100]" sideOffset={5}>
-                        <DropdownMenuRadioGroup value={selectedModel} onValueChange={setSelectedModel}>
-                          {AI_MODELS.map((model) => (
-                            <DropdownMenuRadioItem key={model.id} value={model.id} className="cursor-pointer">
-                              {model.label}
-                            </DropdownMenuRadioItem>
-                          ))}
-                        </DropdownMenuRadioGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenuPortal>
+                    <DropdownMenuContent align="start" className="w-52">
+                      {AI_MODELS.map((model) => (
+                        <DropdownMenuCheckboxItem
+                          key={model.id}
+                          checked={selectedModel === model.id}
+                          onCheckedChange={() => setSelectedModel(model.id)}
+                        >
+                          {model.label}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                    </DropdownMenuContent>
                   </DropdownMenu>
 
                   <div className="h-4 w-px bg-border" />
