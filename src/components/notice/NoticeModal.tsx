@@ -177,11 +177,11 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
     window.open('https://portal.cstec.kr/auth/login', '_blank');
   };
 
-  // 필터링된 공지사항 (6개로 제한)
+  // 필터링된 공지사항 (5개로 제한)
   const filteredNotices = (activeFilter === '전체' 
     ? MOCK_NOTICES 
     : MOCK_NOTICES.filter(notice => notice.tag === activeFilter)
-  ).slice(0, 6);
+  ).slice(0, 5);
 
   // 선택된 공지가 필터된 목록에 없으면 첫 번째 공지 선택
   useEffect(() => {
@@ -195,7 +195,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 dark:bg-black/80" onClick={handleClose} />
       {/* Modal - Fixed size */}
-      <div className="relative w-full max-w-3xl h-[520px] min-h-[520px] max-h-[520px] bg-background border border-border shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-3xl h-[480px] min-h-[480px] max-h-[480px] bg-background border border-border shadow-2xl overflow-hidden flex flex-col">
         {/* Header Bar */}
         <div className="flex items-center justify-between h-10 px-4 bg-muted/50 border-b border-border">
           <div className="flex items-center gap-2">
