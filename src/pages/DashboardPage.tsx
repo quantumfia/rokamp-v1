@@ -12,7 +12,6 @@ import { useSearchContext } from '@/components/layout/MainLayout';
 import { X, Filter, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   RiskSummarySkeleton,
@@ -109,23 +108,13 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content - 좌측 (트렌드/상세 + 공지) + 우측 부대 리스트 */}
+      {/* Main Content - 좌측 (트렌드 + 공지) + 우측 부대 리스트/상세 */}
       <div className="flex-1 flex overflow-hidden p-3 gap-3">
-        {/* Left Section - 트렌드/상세 + 공지사항 (전체의 50%) */}
-        <div className="w-1/2 flex flex-col gap-3 overflow-hidden">
-          {/* 상단 - 트렌드 분석 또는 부대 상세 */}
+        {/* Left Section - 트렌드 + 공지사항 (60%) */}
+        <div className="w-[60%] flex flex-col gap-3 overflow-hidden">
+          {/* 상단 - 트렌드 분석 */}
           <div className="h-1/2 rounded-lg border border-border bg-card overflow-hidden">
-            {isLoading ? (
-              <TrendChartsSkeleton />
-            ) : selectedUnitId ? (
-              <UnitDetailPanelHorizontal 
-                unitId={selectedUnitId} 
-                onClose={handleCloseDetail}
-                showBackButton
-              />
-            ) : (
-              <TrendAnalysisPanel />
-            )}
+            {isLoading ? <TrendChartsSkeleton /> : <TrendAnalysisPanel />}
           </div>
 
           {/* 하단 - 공지사항 리스트 */}
@@ -134,50 +123,61 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right Section - 부대 리스트 (전체의 50%) */}
-        <div className="w-1/2 flex flex-col rounded-lg border border-border bg-card overflow-hidden relative">
-          {/* 필터 버튼 + 검색창 툴바 */}
-          <div className="flex items-center gap-2 p-3 bg-card">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 shrink-0"
-              onClick={() => setShowLeftPanel(!showLeftPanel)}
-            >
-              <Filter className="w-4 h-4 mr-1.5" />
-              필터
-            </Button>
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="부대 검색..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-8 text-sm"
-              />
-            </div>
-          </div>
-
-          {/* 부대 리스트 */}
-          <div className="flex-1 overflow-hidden">
-            {isLoading ? (
-              <div className="p-4 space-y-2">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="h-14 bg-muted/50 rounded animate-pulse" />
-                ))}
+        {/* Right Section - 부대 리스트 또는 상세 (40%) */}
+        <div className="w-[40%] flex flex-col rounded-lg border border-border bg-card overflow-hidden relative">
+          {selectedUnitId ? (
+            /* 부대 상세 패널 */
+            <UnitDetailPanelHorizontal 
+              unitId={selectedUnitId} 
+              onClose={handleCloseDetail}
+              showBackButton
+            />
+          ) : (
+            <>
+              {/* 필터 버튼 + 검색창 툴바 */}
+              <div className="flex items-center gap-2 p-3 bg-card">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 shrink-0"
+                  onClick={() => setShowLeftPanel(!showLeftPanel)}
+                >
+                  <Filter className="w-4 h-4 mr-1.5" />
+                  필터
+                </Button>
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="부대 검색..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 h-8 text-sm"
+                  />
+                </div>
               </div>
-            ) : (
-              <UnitListCompact
-                onUnitClick={handleUnitClick}
-                selectedUnitId={selectedUnitId}
-                filters={filters}
-                searchQuery={searchQuery}
-              />
-            )}
-          </div>
+
+              {/* 부대 리스트 */}
+              <div className="flex-1 overflow-hidden">
+                {isLoading ? (
+                  <div className="p-4 space-y-2">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="h-14 bg-muted/50 rounded animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <UnitListCompact
+                    onUnitClick={handleUnitClick}
+                    selectedUnitId={selectedUnitId}
+                    filters={filters}
+                    searchQuery={searchQuery}
+                  />
+                )}
+              </div>
+            </>
+          )}
 
           {/* 필터 패널 오버레이 (우측에서 열림) */}
-          {showLeftPanel && (
+          {showLeftPanel && !selectedUnitId && (
             <>
               {/* 어두운 배경 오버레이 */}
               <div 
