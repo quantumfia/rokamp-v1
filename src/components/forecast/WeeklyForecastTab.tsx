@@ -5,10 +5,12 @@ import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
 import { AlertTriangle, TrendingUp, Wine, Clock, MapPin, Users, Lightbulb, ChevronDown, ChevronUp } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts';
 
-// 사고유형별 예보 데이터 (실제 데이터 구조 반영)
+// 사고유형별 예보 데이터 (실제 군 용어 체계 반영)
 const ACCIDENT_FORECASTS = [
+  // 군기사고
   {
     id: 1,
+    category: '군기사고',
     type: '폭행사고',
     probability: 34,
     level: 'error',
@@ -21,6 +23,7 @@ const ACCIDENT_FORECASTS = [
   },
   {
     id: 2,
+    category: '군기사고',
     type: '음주운전',
     probability: 21,
     level: 'warning',
@@ -33,6 +36,7 @@ const ACCIDENT_FORECASTS = [
   },
   {
     id: 3,
+    category: '군기사고',
     type: '성범죄',
     probability: 15,
     level: 'warning',
@@ -45,6 +49,7 @@ const ACCIDENT_FORECASTS = [
   },
   {
     id: 4,
+    category: '군기사고',
     type: '경제범죄',
     probability: 12,
     level: 'safe',
@@ -54,6 +59,124 @@ const ACCIDENT_FORECASTS = [
     locationDetail: '사무실/생활관',
     prevention: '재정 상담 활성화, 도박 예방교육',
     timeSlot: '평일 근무시간'
+  },
+  {
+    id: 5,
+    category: '군기사고',
+    type: '군무이탈',
+    probability: 10,
+    level: 'safe',
+    vulnerableRanks: ['이병', '일병'],
+    workType: '휴식중, 훈련중',
+    location: '영내',
+    locationDetail: '생활관/훈련장',
+    prevention: '신병 관심병사 면담 강화',
+    timeSlot: '주중 오후'
+  },
+  {
+    id: 6,
+    category: '군기사고',
+    type: '불법도박',
+    probability: 8,
+    level: 'safe',
+    vulnerableRanks: ['상병', '병장'],
+    workType: '휴식중, 개인정비',
+    location: '영내',
+    locationDetail: '생활관',
+    prevention: '불법도박 예방교육, 휴대폰 사용지도',
+    timeSlot: '야간/주말'
+  },
+  {
+    id: 7,
+    category: '군기사고',
+    type: '대상관',
+    probability: 5,
+    level: 'safe',
+    vulnerableRanks: ['일병', '상병'],
+    workType: '일반근무',
+    location: '영내',
+    locationDetail: '사무실/생활관',
+    prevention: '상급자 리더십 교육, 소통 강화',
+    timeSlot: '근무시간'
+  },
+  {
+    id: 8,
+    category: '군기사고',
+    type: '자살사고',
+    probability: 4,
+    level: 'safe',
+    vulnerableRanks: ['이병', '일병'],
+    workType: '휴식중',
+    location: '영내',
+    locationDetail: '생활관/화장실',
+    prevention: '관심병사 집중관리, 정신건강 상담',
+    timeSlot: '야간/새벽'
+  },
+  {
+    id: 9,
+    category: '군기사고',
+    type: '일반강력',
+    probability: 3,
+    level: 'safe',
+    vulnerableRanks: ['상병', '병장'],
+    workType: '외출/휴가중',
+    location: '영외',
+    locationDetail: '유흥가/노상',
+    prevention: '외출/휴가 시 주의사항 교육',
+    timeSlot: '야간'
+  },
+  // 안전사고
+  {
+    id: 10,
+    category: '안전사고',
+    type: '교통사고',
+    probability: 18,
+    level: 'warning',
+    vulnerableRanks: ['중사', '상사', '하사'],
+    workType: '출퇴근, 휴가이동',
+    location: '영외',
+    locationDetail: '도로 (92%)',
+    prevention: '안전운전 교육, 장거리 이동 시 휴식',
+    timeSlot: '금요일 오후, 일요일 저녁'
+  },
+  {
+    id: 11,
+    category: '안전사고',
+    type: '추락충격',
+    probability: 7,
+    level: 'safe',
+    vulnerableRanks: ['이병', '일병'],
+    workType: '훈련중, 작업중',
+    location: '영내',
+    locationDetail: '훈련장/시설',
+    prevention: '안전장구 착용 철저, 안전요원 배치',
+    timeSlot: '훈련시간'
+  },
+  {
+    id: 12,
+    category: '안전사고',
+    type: '화재사고',
+    probability: 4,
+    level: 'safe',
+    vulnerableRanks: ['전 계급'],
+    workType: '일반근무, 휴식중',
+    location: '영내',
+    locationDetail: '취사장/생활관',
+    prevention: '화기취급 주의, 소화기 점검',
+    timeSlot: '식사시간'
+  },
+  {
+    id: 13,
+    category: '안전사고',
+    type: '총기오발',
+    probability: 2,
+    level: 'safe',
+    vulnerableRanks: ['이병', '일병'],
+    workType: '경계근무, 사격훈련',
+    location: '영내',
+    locationDetail: 'GOP/사격장',
+    prevention: '총기안전수칙 교육, 탄약관리 철저',
+    timeSlot: '경계/훈련시간'
   },
 ];
 
@@ -118,11 +241,23 @@ const chartTooltipStyle = {
 export default function WeeklyForecastTab() {
   const [selectedUnitId, setSelectedUnitId] = useState<string>('');
   const [expandedCards, setExpandedCards] = useState<number[]>([1, 2]); // 기본 2개 펼침
+  const [showAllTypes, setShowAllTypes] = useState(false); // 전체 사고유형 표시 여부
 
   const toggleCard = (id: number) => {
     setExpandedCards(prev => 
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
+  };
+
+  // 표시할 사고유형 (Top 4 또는 전체)
+  const displayedForecasts = showAllTypes 
+    ? ACCIDENT_FORECASTS 
+    : ACCIDENT_FORECASTS.slice(0, 4);
+  
+  // 대분류별 그룹화
+  const groupedForecasts = {
+    군기사고: displayedForecasts.filter(f => f.category === '군기사고'),
+    안전사고: displayedForecasts.filter(f => f.category === '안전사고'),
   };
 
   // 전체 위험도 계산 (사고유형별 가중 평균)
@@ -207,79 +342,176 @@ export default function WeeklyForecastTab() {
       </div>
 
       {/* 사고유형별 예보 카드 */}
-      <div>
-        <h2 className="text-sm font-medium text-foreground mb-3">사고유형별 예보 (Top 4)</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {ACCIDENT_FORECASTS.map((forecast) => {
-            const isExpanded = expandedCards.includes(forecast.id);
-            return (
-              <Card 
-                key={forecast.id}
-                className={`border ${getRiskBgColor(forecast.level)} overflow-hidden`}
-              >
-                {/* 카드 헤더 */}
-                <div 
-                  className="p-4 cursor-pointer flex items-center justify-between"
-                  onClick={() => toggleCard(forecast.id)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${forecast.level === 'error' ? 'bg-status-error' : forecast.level === 'warning' ? 'bg-status-warning' : 'bg-status-success'}`} />
-                    <span className="font-medium text-foreground">{forecast.type}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xl font-bold ${getRiskTextColor(forecast.level)}`}>
-                      {forecast.probability}%
-                    </span>
-                    {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                  </div>
-                </div>
-
-                {/* 확장 내용 */}
-                {isExpanded && (
-                  <div className="px-4 pb-4 pt-0 border-t border-border/50 space-y-3">
-                    <div className="grid grid-cols-2 gap-3 pt-3">
-                      <div className="flex items-start gap-2">
-                        <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">취약 계급</p>
-                          <p className="text-sm text-foreground">{forecast.vulnerableRanks.join(' > ')}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">근무형태</p>
-                          <p className="text-sm text-foreground">{forecast.workType}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">발생장소</p>
-                          <p className="text-sm text-foreground">{forecast.location} - {forecast.locationDetail}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">취약 시간</p>
-                          <p className="text-sm text-foreground">{forecast.timeSlot}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2 bg-primary/5 rounded-md p-3">
-                      <Lightbulb className="h-4 w-4 text-primary mt-0.5" />
-                      <div>
-                        <p className="text-xs text-primary font-medium">예방 대책</p>
-                        <p className="text-sm text-foreground">{forecast.prevention}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </Card>
-            );
-          })}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-foreground">
+            사고유형별 예보 {showAllTypes ? `(전체 ${ACCIDENT_FORECASTS.length}개)` : '(Top 4)'}
+          </h2>
+          <button
+            onClick={() => setShowAllTypes(!showAllTypes)}
+            className="text-xs text-primary hover:underline"
+          >
+            {showAllTypes ? '간략히 보기' : `전체 보기 (${ACCIDENT_FORECASTS.length}개)`}
+          </button>
         </div>
+
+        {/* 군기사고 */}
+        {groupedForecasts.군기사고.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1 h-4 bg-status-error rounded" />
+              <h3 className="text-xs font-medium text-muted-foreground">군기사고</h3>
+              <span className="text-xs text-muted-foreground">({groupedForecasts.군기사고.length}건)</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {groupedForecasts.군기사고.map((forecast) => {
+                const isExpanded = expandedCards.includes(forecast.id);
+                return (
+                  <Card 
+                    key={forecast.id}
+                    className={`border ${getRiskBgColor(forecast.level)} overflow-hidden`}
+                  >
+                    <div 
+                      className="p-3 cursor-pointer flex items-center justify-between"
+                      onClick={() => toggleCard(forecast.id)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${forecast.level === 'error' ? 'bg-status-error' : forecast.level === 'warning' ? 'bg-status-warning' : 'bg-status-success'}`} />
+                        <span className="text-sm font-medium text-foreground">{forecast.type}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-lg font-bold ${getRiskTextColor(forecast.level)}`}>
+                          {forecast.probability}%
+                        </span>
+                        {isExpanded ? <ChevronUp className="h-3 w-3 text-muted-foreground" /> : <ChevronDown className="h-3 w-3 text-muted-foreground" />}
+                      </div>
+                    </div>
+                    {isExpanded && (
+                      <div className="px-3 pb-3 pt-0 border-t border-border/50 space-y-2">
+                        <div className="grid grid-cols-2 gap-2 pt-2">
+                          <div className="flex items-start gap-1.5">
+                            <Users className="h-3 w-3 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-[10px] text-muted-foreground">취약 계급</p>
+                              <p className="text-xs text-foreground">{forecast.vulnerableRanks.join(' > ')}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-1.5">
+                            <Clock className="h-3 w-3 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-[10px] text-muted-foreground">근무형태</p>
+                              <p className="text-xs text-foreground">{forecast.workType}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-1.5">
+                            <MapPin className="h-3 w-3 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-[10px] text-muted-foreground">발생장소</p>
+                              <p className="text-xs text-foreground">{forecast.location} - {forecast.locationDetail}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-1.5">
+                            <Clock className="h-3 w-3 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-[10px] text-muted-foreground">취약 시간</p>
+                              <p className="text-xs text-foreground">{forecast.timeSlot}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-1.5 bg-primary/5 rounded p-2">
+                          <Lightbulb className="h-3 w-3 text-primary mt-0.5" />
+                          <div>
+                            <p className="text-[10px] text-primary font-medium">예방 대책</p>
+                            <p className="text-xs text-foreground">{forecast.prevention}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 안전사고 */}
+        {groupedForecasts.안전사고.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1 h-4 bg-status-warning rounded" />
+              <h3 className="text-xs font-medium text-muted-foreground">안전사고</h3>
+              <span className="text-xs text-muted-foreground">({groupedForecasts.안전사고.length}건)</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {groupedForecasts.안전사고.map((forecast) => {
+                const isExpanded = expandedCards.includes(forecast.id);
+                return (
+                  <Card 
+                    key={forecast.id}
+                    className={`border ${getRiskBgColor(forecast.level)} overflow-hidden`}
+                  >
+                    <div 
+                      className="p-3 cursor-pointer flex items-center justify-between"
+                      onClick={() => toggleCard(forecast.id)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${forecast.level === 'error' ? 'bg-status-error' : forecast.level === 'warning' ? 'bg-status-warning' : 'bg-status-success'}`} />
+                        <span className="text-sm font-medium text-foreground">{forecast.type}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-lg font-bold ${getRiskTextColor(forecast.level)}`}>
+                          {forecast.probability}%
+                        </span>
+                        {isExpanded ? <ChevronUp className="h-3 w-3 text-muted-foreground" /> : <ChevronDown className="h-3 w-3 text-muted-foreground" />}
+                      </div>
+                    </div>
+                    {isExpanded && (
+                      <div className="px-3 pb-3 pt-0 border-t border-border/50 space-y-2">
+                        <div className="grid grid-cols-2 gap-2 pt-2">
+                          <div className="flex items-start gap-1.5">
+                            <Users className="h-3 w-3 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-[10px] text-muted-foreground">취약 계급</p>
+                              <p className="text-xs text-foreground">{forecast.vulnerableRanks.join(' > ')}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-1.5">
+                            <Clock className="h-3 w-3 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-[10px] text-muted-foreground">근무형태</p>
+                              <p className="text-xs text-foreground">{forecast.workType}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-1.5">
+                            <MapPin className="h-3 w-3 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-[10px] text-muted-foreground">발생장소</p>
+                              <p className="text-xs text-foreground">{forecast.location} - {forecast.locationDetail}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-1.5">
+                            <Clock className="h-3 w-3 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-[10px] text-muted-foreground">취약 시간</p>
+                              <p className="text-xs text-foreground">{forecast.timeSlot}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-1.5 bg-primary/5 rounded p-2">
+                          <Lightbulb className="h-3 w-3 text-primary mt-0.5" />
+                          <div>
+                            <p className="text-[10px] text-primary font-medium">예방 대책</p>
+                            <p className="text-xs text-foreground">{forecast.prevention}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 하단 차트 영역 */}
