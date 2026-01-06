@@ -1,9 +1,10 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { User, AuthState } from '@/types/auth';
+import { User, AuthState, UserRole } from '@/types/auth';
 
 interface AuthContextType extends AuthState {
   login: (militaryId: string, password: string) => Promise<boolean>;
   logout: () => void;
+  switchRole: (role: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,8 +48,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // 역할 전환 (프론트엔드 테스트용)
+  const switchRole = useCallback((role: UserRole) => {
+    const roleUserData: Record<UserRole, Partial<User>> = {
+      'ROLE_HQ': {
+        name: '김본부',
+        rank: '대령',
+        unit: '육군본부 군사경찰실',
+      },
+      'ROLE_DIV': {
+        name: '이사단',
+        rank: '준장',
+        unit: '제1보병사단',
+      },
+      'ROLE_BN': {
+        name: '박대대',
+        rank: '중령',
+        unit: '제1보병사단 제1연대 제1대대',
+      },
+    };
+
+    setAuthState(prev => ({
+      ...prev,
+      user: prev.user ? {
+        ...prev.user,
+        ...roleUserData[role],
+        role,
+      } : null,
+    }));
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ ...authState, login, logout }}>
+    <AuthContext.Provider value={{ ...authState, login, logout, switchRole }}>
       {children}
     </AuthContext.Provider>
   );

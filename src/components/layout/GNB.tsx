@@ -18,8 +18,15 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
-import { ROLE_LABELS } from '@/types/auth';
+import { ROLE_LABELS, UserRole } from '@/types/auth';
 import { toast } from '@/hooks/use-toast';
+
+// 역할별 설명
+const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
+  'ROLE_HQ': '육군본부 군사경찰실',
+  'ROLE_DIV': '사단장/여단장급',
+  'ROLE_BN': '대대장급',
+};
 
 // 실시간 시계 컴포넌트
 function HeaderClock() {
@@ -44,7 +51,7 @@ interface GNBProps {
 }
 
 export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }: GNBProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, switchRole } = useAuth();
   const navigate = useNavigate();
   const hasNotifications = true;
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -181,6 +188,32 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
                 </p>
               </div>
               
+              {/* Role Switcher (프론트엔드 테스트용) */}
+              <div className="py-1">
+                <p className="px-3 py-1.5 text-[10px] font-medium text-sidebar-muted uppercase tracking-wider">
+                  역할 전환 (테스트)
+                </p>
+                {(Object.keys(ROLE_LABELS) as UserRole[]).map((role) => (
+                  <DropdownMenuItem
+                    key={role}
+                    onClick={() => switchRole(role)}
+                    className={`text-sidebar-foreground hover:bg-sidebar-accent cursor-pointer mx-1 rounded ${
+                      user?.role === role ? 'bg-sidebar-accent' : ''
+                    }`}
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium">{ROLE_LABELS[role]}</span>
+                      <span className="text-[10px] text-sidebar-muted">{ROLE_DESCRIPTIONS[role]}</span>
+                    </div>
+                    {user?.role === role && (
+                      <span className="ml-auto text-[10px] text-sidebar-primary">현재</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </div>
+
+              <DropdownMenuSeparator className="bg-sidebar-border" />
+
               {/* Menu Items */}
               <div className="py-1">
                 <DropdownMenuItem 
