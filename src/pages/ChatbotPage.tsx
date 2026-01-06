@@ -342,7 +342,7 @@ export default function ChatbotPage() {
                 />
                 <img src={rokaLogo} alt="ROKA-MP" className="w-16 h-16 relative" />
               </div>
-              <h1 className="text-2xl font-semibold text-foreground mb-2">대한민국 육군 챗봇</h1>
+              <h1 className="text-2xl font-semibold text-foreground mb-2">육군 AI 챗봇</h1>
               <p className="text-sm text-muted-foreground text-center max-w-md">
                 안전사고 예방에 관한 질문에 답변드립니다.
                 <br />
