@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet, AlertTriangle, Snowflake, Flame } from 'lucide-react';
+import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getUnitById, getUnitFullName, LEVEL_LABELS, UNIT_TYPE_LABELS } from '@/data/armyUnits';
@@ -284,40 +284,34 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
         {/* 예보/대비 섹션 */}
         <div>
           <p className="text-sm font-medium text-muted-foreground mb-3">예보/대비</p>
-          <div className="grid grid-cols-2 gap-3">
-            {/* 한파 예보 */}
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Snowflake className="w-4 h-4 text-blue-500" />
-                <span className="text-xs font-semibold text-foreground">한파 주의보</span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 py-2">
+              <div className="w-1 h-8 rounded-full shrink-0 bg-blue-500" />
+              <div className="flex-1 min-w-0">
+                <span className="text-sm text-foreground">1/7~1/9 한파특보 예상, 야외훈련 축소 및 동상 예방조치 시행</span>
               </div>
-              <p className="text-[10px] text-muted-foreground leading-relaxed">
-                1/7~1/9 최저 -15°C 예상<br />
-                난방시설 점검, 동파 방지 조치
-              </p>
+              <span className="text-xs font-medium shrink-0 text-blue-500">기상</span>
             </div>
-
-            {/* 화재 예방 */}
-            <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Flame className="w-4 h-4 text-orange-500" />
-                <span className="text-xs font-semibold text-foreground">화재 예방 강화</span>
+            <div className="flex items-center gap-3 py-2">
+              <div className="w-1 h-8 rounded-full shrink-0 bg-status-error" />
+              <div className="flex-1 min-w-0">
+                <span className="text-sm text-foreground">GOP 철책 순찰 중 빙판 낙상사고 발생 (1군단, 1/5)</span>
               </div>
-              <p className="text-[10px] text-muted-foreground leading-relaxed">
-                건조 주의보 발령 중<br />
-                전열기구 사용 제한
-              </p>
+              <span className="text-xs font-medium shrink-0 text-status-error">유사사례</span>
             </div>
-
-            {/* 안전사고 예방 */}
-            <div className="bg-status-warning/10 border border-status-warning/20 rounded-lg p-3 col-span-2">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle className="w-4 h-4 text-status-warning" />
-                <span className="text-xs font-semibold text-foreground">동절기 안전수칙</span>
+            <div className="flex items-center gap-3 py-2">
+              <div className="w-1 h-8 rounded-full shrink-0 bg-status-warning" />
+              <div className="flex-1 min-w-0">
+                <span className="text-sm text-foreground">K-9 자주포 실사격 예정 (1/8), 포반원 안전거리 준수 재교육 필요</span>
               </div>
-              <p className="text-[10px] text-muted-foreground leading-relaxed">
-                야외활동 시 방한장구 필수 착용 · 결빙구간 서행 운전 · 차량 예열 후 출발
-              </p>
+              <span className="text-xs font-medium shrink-0 text-status-warning">훈련안전</span>
+            </div>
+            <div className="flex items-center gap-3 py-2">
+              <div className="w-1 h-8 rounded-full shrink-0 bg-purple-500" />
+              <div className="flex-1 min-w-0">
+                <span className="text-sm text-foreground">정비창 차량 정비 중 중상해 사고 분석결과 공유 (정비사령부)</span>
+              </div>
+              <span className="text-xs font-medium shrink-0 text-purple-500">정비안전</span>
             </div>
           </div>
         </div>
