@@ -61,7 +61,7 @@ export default function DashboardPage() {
   return (
     <div className="h-full flex flex-col bg-muted/30">
       {/* Top Status Bar - 3개 섹션: 날짜/시간/날씨 + 사고사례 + 사용자 정보 */}
-      <div className="shrink-0 m-3 mb-0 rounded-lg bg-card">
+      <div className="shrink-0 m-3 mb-0 rounded-lg border border-border bg-card">
         <div className="flex items-stretch divide-x divide-border">
           {/* 섹션 1: 날짜/시간/날씨 */}
           <div className="shrink-0">
@@ -85,18 +85,18 @@ export default function DashboardPage() {
         {/* Left Section - 트렌드 + 공지사항 (60%) */}
         <div className="w-[60%] flex flex-col gap-3 overflow-hidden">
           {/* 상단 - 트렌드 분석 */}
-          <div className="h-1/2 rounded-lg bg-card overflow-hidden">
+          <div className="h-1/2 rounded-lg border border-border bg-card overflow-hidden">
             {isLoading ? <TrendChartsSkeleton /> : <TrendAnalysisPanel />}
           </div>
 
           {/* 하단 - 공지사항 리스트 */}
-          <div className="h-1/2 rounded-lg bg-card overflow-hidden">
+          <div className="h-1/2 rounded-lg border border-border bg-card overflow-hidden">
             <DashboardNoticeList />
           </div>
         </div>
 
         {/* Right Section - 부대 리스트 또는 상세 (40%) */}
-        <div className="w-[40%] flex flex-col rounded-lg bg-card overflow-hidden relative">
+        <div className="w-[40%] flex flex-col rounded-lg border border-border bg-card overflow-hidden relative">
           {selectedUnitId ? (
             /* 부대 상세 패널 */
             <UnitDetailPanelHorizontal 
