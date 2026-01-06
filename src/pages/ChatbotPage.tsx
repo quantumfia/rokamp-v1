@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, Shield, Car, Flame, Mountain, RotateCcw, ChevronDown, X, Bot } from "lucide-react";
+import { Send, RotateCcw, ChevronDown, X, Bot, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatbotSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import rokaLogo from "@/assets/roka-logo.svg";
+import { DEFAULT_STARTER_QUESTIONS, ICON_MAP } from "@/data/starterQuestions";
 
 // 사용 가능한 AI 모델
 const AI_MODELS = [
@@ -33,13 +34,6 @@ interface Message {
     url?: string;
   }>;
 }
-
-const SUGGESTED_QUESTIONS = [
-  { icon: Car, text: "동절기 차량 사고 예방 대책은?", color: "text-blue-400" },
-  { icon: Shield, text: "야간 훈련 시 안전 수칙 알려줘", color: "text-emerald-400" },
-  { icon: Flame, text: "화재 예방 점검 항목이 뭐야?", color: "text-orange-400" },
-  { icon: Mountain, text: "행군 중 저체온증 대처 방법은?", color: "text-cyan-400" },
-];
 
 const DOCUMENT_SOURCES = [
   { id: "all", label: "전체", description: "모든 문서에서 검색" },
@@ -332,7 +326,7 @@ export default function ChatbotPage() {
                 />
                 <img src={rokaLogo} alt="ROKA-MP" className="w-16 h-16 relative" />
               </div>
-              <h1 className="text-2xl font-semibold text-foreground mb-2">대한민국 육군 Assistant</h1>
+              <h1 className="text-2xl font-semibold text-foreground mb-2">대한민국 육군 챗봇</h1>
               <p className="text-sm text-muted-foreground text-center max-w-md">
                 안전사고 예방에 관한 질문에 답변드립니다.
                 <br />
@@ -341,16 +335,16 @@ export default function ChatbotPage() {
             </div>
 
             <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-              {SUGGESTED_QUESTIONS.map((q, index) => {
-                const Icon = q.icon;
+              {DEFAULT_STARTER_QUESTIONS.map((q, index) => {
+                const IconComponent = ICON_MAP[q.icon];
                 return (
                   <button
-                    key={index}
+                    key={q.id}
                     onClick={() => handleSend(q.text)}
                     className="group flex items-start gap-3 p-4 text-left border border-border rounded-lg hover:bg-muted/50 hover:border-muted-foreground/20 transition-all duration-200"
                   >
                     <div className={cn("mt-0.5", q.color)}>
-                      <Icon className="w-5 h-5" />
+                      {IconComponent && <IconComponent className="w-5 h-5" />}
                     </div>
                     <span className="text-sm text-foreground group-hover:text-foreground/90">{q.text}</span>
                   </button>
