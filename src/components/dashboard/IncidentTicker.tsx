@@ -63,10 +63,10 @@ export function IncidentTicker({ onClickDetail, compact = false }: IncidentTicke
   };
 
   return (
-    <div className={cn("flex flex-col justify-between px-4", compact ? "h-[52px] py-1.5 gap-1" : "h-[78px] py-2")}>
+    <div className={cn("flex flex-col justify-center px-4", compact ? "h-[40px] py-1.5" : "h-[78px] py-2")}>
       {/* 상단: 타이틀 + 상세보기 버튼 (compact 모드에서는 숨김) */}
       {!compact && (
-        <div className="flex items-center justify-between shrink-0">
+        <div className="flex items-center justify-between shrink-0 mb-1">
           <span className="text-xs font-semibold text-foreground">일일사고사례</span>
           <button 
             onClick={onClickDetail}
@@ -78,12 +78,9 @@ export function IncidentTicker({ onClickDetail, compact = false }: IncidentTicke
         </div>
       )}
 
-      {/* 중앙: 아이콘 + 카드 (세로 중간 배치) */}
+      {/* 중앙: 아이콘 + 카드 */}
       <div className="flex items-center gap-3 shrink-0">
-        {/* 아이콘 */}
         <AlertCircle className={cn('w-4 h-4 shrink-0', getIconColor(currentIncident.type))} />
-
-        {/* 사고 내용 */}
         <div 
           className={cn(
             'flex-1 flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all duration-300',
@@ -98,25 +95,27 @@ export function IncidentTicker({ onClickDetail, compact = false }: IncidentTicke
         </div>
       </div>
 
-      {/* 하단: 인디케이터 */}
-      <div className="flex items-center justify-center gap-1.5 shrink-0">
-        {MOCK_INCIDENTS.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => {
-              setIsAnimating(true);
-              setTimeout(() => {
-                setCurrentIndex(idx);
-                setIsAnimating(false);
-              }, 150);
-            }}
-            className={cn(
-              'w-1.5 h-1.5 rounded-full transition-all',
-              idx === currentIndex ? 'bg-primary w-3' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-            )}
-          />
-        ))}
-      </div>
+      {/* 하단: 인디케이터 (compact 모드에서는 숨김) */}
+      {!compact && (
+        <div className="flex items-center justify-center gap-1.5 shrink-0 mt-1">
+          {MOCK_INCIDENTS.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setIsAnimating(true);
+                setTimeout(() => {
+                  setCurrentIndex(idx);
+                  setIsAnimating(false);
+                }, 150);
+              }}
+              className={cn(
+                'w-1.5 h-1.5 rounded-full transition-all',
+                idx === currentIndex ? 'bg-primary w-3' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+              )}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
