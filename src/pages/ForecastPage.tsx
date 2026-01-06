@@ -41,12 +41,12 @@ const chartTooltipStyle = {
 };
 
 const FORECAST_TABS = [
-  { id: 'weekly', label: '주간 예보' },
   { id: 'trends', label: '경향 분석' },
+  { id: 'weekly', label: '주간 예보' },
 ];
 
 export default function ForecastPage() {
-  const [activeTab, setActiveTab] = useState('weekly');
+  const [activeTab, setActiveTab] = useState('trends');
   const isLoading = usePageLoading(1000);
   const [selectedUnitId, setSelectedUnitId] = useState<string>('');
   
