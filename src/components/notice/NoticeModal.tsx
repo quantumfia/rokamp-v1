@@ -270,7 +270,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                 ))}
               </div>
               {/* 하단 남는 영역 - 전체보기 버튼 */}
-              <div className="flex-1 grid items-center justify-items-end px-3">
+              <div className="flex-1 grid items-end justify-items-end px-3 pb-3">
                 <button
                   onClick={handleViewAll}
                   className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
