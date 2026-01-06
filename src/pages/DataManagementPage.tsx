@@ -675,36 +675,38 @@ export default function DataManagementPage() {
             </span>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-xs">문서명</TableHead>
-                <TableHead className="text-xs w-16">형식</TableHead>
-                <TableHead className="text-xs w-16">크기</TableHead>
-                <TableHead className="text-xs w-36">업로드 일시</TableHead>
-                <TableHead className="text-xs w-20 text-center">청크 수</TableHead>
-                <TableHead className="text-xs w-16">상태</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {documents.map((doc) => (
-                <TableRow 
-                  key={doc.id} 
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleDocumentClick(doc)}
-                >
-                  <TableCell className="text-sm font-medium">{doc.name}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{doc.type}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{doc.size}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground tabular-nums">{doc.uploadedAt}</TableCell>
-                  <TableCell className="text-center text-muted-foreground">
-                    {doc.status === 'completed' ? doc.chunks : '-'}
-                  </TableCell>
-                  <TableCell><StatusLabel status={doc.status} /></TableCell>
+          <div className="overflow-x-auto -mx-6 px-6">
+            <Table className="min-w-[600px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs">문서명</TableHead>
+                  <TableHead className="text-xs w-16">형식</TableHead>
+                  <TableHead className="text-xs w-16">크기</TableHead>
+                  <TableHead className="text-xs w-36">업로드 일시</TableHead>
+                  <TableHead className="text-xs w-20 text-center">청크 수</TableHead>
+                  <TableHead className="text-xs w-16">상태</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {documents.map((doc) => (
+                  <TableRow 
+                    key={doc.id} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleDocumentClick(doc)}
+                  >
+                    <TableCell className="text-sm font-medium">{doc.name}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{doc.type}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{doc.size}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground tabular-nums">{doc.uploadedAt}</TableCell>
+                    <TableCell className="text-center text-muted-foreground">
+                      {doc.status === 'completed' ? doc.chunks : '-'}
+                    </TableCell>
+                    <TableCell><StatusLabel status={doc.status} /></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
           <p className="text-xs text-muted-foreground pt-2">
             ※ 업로드된 문서는 자동으로 청크 분할 및 임베딩 처리되어 AI 챗봇 응답에 활용됩니다.
@@ -722,34 +724,36 @@ export default function DataManagementPage() {
             </span>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-xs">제목</TableHead>
-                <TableHead className="text-xs w-24">출처</TableHead>
-                <TableHead className="text-xs w-24">날짜</TableHead>
-                <TableHead className="text-xs w-20 text-center">임베딩 수</TableHead>
-                <TableHead className="text-xs w-16">상태</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {newsArticles.map((news) => (
-                <TableRow 
-                  key={news.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleNewsClick(news)}
-                >
-                  <TableCell className="text-sm font-medium">{news.title}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{news.source}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground tabular-nums">{news.date}</TableCell>
-                  <TableCell className="text-center text-muted-foreground">
-                    {news.status === 'completed' ? news.embeddings : '-'}
-                  </TableCell>
-                  <TableCell><StatusLabel status={news.status} /></TableCell>
+          <div className="overflow-x-auto -mx-6 px-6">
+            <Table className="min-w-[550px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs">제목</TableHead>
+                  <TableHead className="text-xs w-24">출처</TableHead>
+                  <TableHead className="text-xs w-24">날짜</TableHead>
+                  <TableHead className="text-xs w-20 text-center">임베딩 수</TableHead>
+                  <TableHead className="text-xs w-16">상태</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {newsArticles.map((news) => (
+                  <TableRow 
+                    key={news.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleNewsClick(news)}
+                  >
+                    <TableCell className="text-sm font-medium">{news.title}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{news.source}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground tabular-nums">{news.date}</TableCell>
+                    <TableCell className="text-center text-muted-foreground">
+                      {news.status === 'completed' ? news.embeddings : '-'}
+                    </TableCell>
+                    <TableCell><StatusLabel status={news.status} /></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
           <p className="text-xs text-muted-foreground pt-2">
             ※ 업로드된 기사는 임베딩 처리되어 AI 챗봇의 최신 동향 파악에 활용됩니다.

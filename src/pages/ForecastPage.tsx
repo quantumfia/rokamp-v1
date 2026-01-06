@@ -52,17 +52,23 @@ export default function ForecastPage() {
         description="사고 현황과 위험요소를 시각화하여 부대별·유형별 위험징후를 분석합니다." 
       />
 
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <TabNavigation tabs={FORECAST_TABS} activeTab={activeTab} onChange={setActiveTab} />
 
         {isFixed ? (
-          <div className="flex-shrink-0 w-[320px]">
+          <div className="flex-shrink-0 w-full lg:w-[320px]">
             <div className="text-sm font-medium px-3 py-2 bg-muted/50 rounded-md border border-border">
               {user?.unit || '소속 부대'}
             </div>
           </div>
         ) : (
-          <UnitFilterSelect value={selectedUnit || 'all'} onChange={setSelectedUnit} showLabel={true} label="분석 대상 부대" />
+          <UnitFilterSelect 
+            value={selectedUnit || 'all'} 
+            onChange={setSelectedUnit} 
+            showLabel={true} 
+            label="분석 대상 부대"
+            containerWidth="w-full lg:w-[320px]"
+          />
         )}
       </div>
 

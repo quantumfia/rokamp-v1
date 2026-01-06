@@ -361,7 +361,7 @@ export default function NoticeManagementPage() {
       {/* 공지사항 탭 */}
       {activeTab === 'notices' && (
         <section>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
             <div>
               <h2 className="text-sm font-semibold text-foreground">공지사항</h2>
               <p className="text-xs text-muted-foreground">
@@ -369,7 +369,7 @@ export default function NoticeManagementPage() {
                 {(searchQuery || statusFilter !== 'all') && ` · 검색결과 ${filteredNotices.length}건`}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <select
                 value={statusFilter}
                 onChange={(e) => handleStatusFilterChange(e.target.value as 'all' | 'active' | 'expired')}
@@ -379,20 +379,21 @@ export default function NoticeManagementPage() {
                 <option value="active">활성</option>
                 <option value="expired">만료</option>
               </select>
-              <div className="relative">
+              <div className="relative flex-1 min-w-[200px] lg:flex-none lg:w-56">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="제목, 내용, 작성자 검색..."
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="h-8 pl-8 pr-3 w-56 text-xs"
+                  className="h-8 pl-8 pr-3 w-full text-xs"
                 />
               </div>
             </div>
           </div>
 
-          <Table>
+          <div className="overflow-x-auto -mx-6 px-6">
+            <Table className="min-w-[700px]">
             <TableHeader>
               <TableRow className="border-t border-border">
                 <TableHead className="text-xs min-w-[200px]">제목</TableHead>
@@ -484,6 +485,7 @@ export default function NoticeManagementPage() {
               )}
             </TableBody>
           </Table>
+          </div>
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
@@ -547,7 +549,7 @@ export default function NoticeManagementPage() {
       {/* 일일 사고사례 탭 */}
       {activeTab === 'incidents' && (
         <section>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
             <div>
               <h2 className="text-sm font-semibold text-foreground">일일 사고사례</h2>
               <p className="text-xs text-muted-foreground">
@@ -556,20 +558,21 @@ export default function NoticeManagementPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <div className="relative">
+              <div className="relative flex-1 min-w-[200px] lg:flex-none lg:w-56">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="제목, 내용, 장소 검색..."
                   value={incidentSearchQuery}
                   onChange={(e) => handleIncidentSearchChange(e.target.value)}
-                  className="h-8 pl-8 pr-3 w-56 text-xs"
+                  className="h-8 pl-8 pr-3 w-full text-xs"
                 />
               </div>
             </div>
           </div>
 
-          <Table>
+          <div className="overflow-x-auto -mx-6 px-6">
+            <Table className="min-w-[700px]">
             <TableHeader>
               <TableRow className="border-t border-border">
                 <TableHead className="text-xs min-w-[200px]">제목</TableHead>
@@ -654,6 +657,7 @@ export default function NoticeManagementPage() {
               )}
             </TableBody>
           </Table>
+          </div>
 
           {incidentTotalPages > 1 && (
             <div className="flex items-center justify-between pt-4 border-t border-border mt-4">

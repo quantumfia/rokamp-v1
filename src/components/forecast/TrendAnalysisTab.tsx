@@ -106,7 +106,7 @@ export default function TrendAnalysisTab({ selectedUnit }: TrendAnalysisTabProps
       </div>
 
       {/* 전년 대비 요약 */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-border">
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground mb-1">전체 사고 (전년 대비)</p>
@@ -251,7 +251,7 @@ export default function TrendAnalysisTab({ selectedUnit }: TrendAnalysisTabProps
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 사고 유형별 증감 현황 */}
         <Card className="border-border">
           <CardHeader className="pb-3">
