@@ -264,6 +264,20 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                 </button>
               ))}
             </div>
+            
+            {/* View All Button */}
+            <div className="px-3 py-2 border-t border-border shrink-0 flex justify-end">
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate('/admin/notice');
+                }}
+                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                전체보기
+                <ChevronRight className="w-3 h-3" />
+              </button>
+            </div>
           </div>
 
           {/* Right: Notice Detail */}
