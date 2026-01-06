@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, FileText, ExternalLink, ChevronRight, Printer } from 'lucide-react';
+import { X, ExternalLink, ChevronRight, Printer } from 'lucide-react';
 import { Checkbox as CheckboxUI } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
@@ -344,7 +344,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                         key={attachment.id}
                         className="flex items-center gap-2 px-3 py-2 bg-muted/30 border border-border rounded"
                       >
-                        <FileText className="w-4 h-4 text-primary shrink-0" />
+                        
                         <span className="text-xs text-foreground truncate flex-1">{attachment.name}</span>
                         <span className="text-[10px] text-muted-foreground/60 shrink-0">({attachment.size})</span>
                         <button
