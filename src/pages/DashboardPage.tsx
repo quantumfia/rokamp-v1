@@ -64,9 +64,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Top Status Bar - 3개 섹션: 날짜/시간/날씨 + 사고사례 + 위험도 */}
-      <div className="shrink-0 border-b border-border bg-card/50">
+    <div className="h-full flex flex-col bg-muted/30">
+      {/* Top Status Bar - 3개 섹션: 날짜/시간/날씨 + 사고사례 + 사용자 정보 */}
+      <div className="shrink-0 m-3 mb-0 rounded-lg border border-border bg-card">
         <div className="flex items-stretch divide-x divide-border">
           {/* 섹션 1: 날짜/시간/날씨 */}
           <div className="shrink-0">
@@ -110,11 +110,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content - 좌측 (트렌드/상세 + 공지) + 우측 부대 리스트 */}
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="flex-1 flex overflow-hidden p-3 gap-3">
         {/* Left Section - 트렌드/상세 + 공지사항 (전체의 50%) */}
-        <div className="w-1/2 flex flex-col border-r border-border overflow-hidden">
+        <div className="w-1/2 flex flex-col gap-3 overflow-hidden">
           {/* 상단 - 트렌드 분석 또는 부대 상세 */}
-          <div className="h-1/2 border-b border-border overflow-hidden">
+          <div className="h-1/2 rounded-lg border border-border bg-card overflow-hidden">
             {isLoading ? (
               <TrendChartsSkeleton />
             ) : selectedUnitId ? (
@@ -129,15 +129,15 @@ export default function DashboardPage() {
           </div>
 
           {/* 하단 - 공지사항 리스트 */}
-          <div className="h-1/2 overflow-hidden">
+          <div className="h-1/2 rounded-lg border border-border bg-card overflow-hidden">
             <DashboardNoticeList />
           </div>
         </div>
 
         {/* Right Section - 부대 리스트 (전체의 50%) */}
-        <div className="w-1/2 flex flex-col bg-background overflow-hidden relative">
+        <div className="w-1/2 flex flex-col rounded-lg border border-border bg-card overflow-hidden relative">
           {/* 필터 버튼 + 검색창 툴바 */}
-          <div className="flex items-center gap-2 p-2 border-b border-border bg-card/50">
+          <div className="flex items-center gap-2 p-3 bg-card">
             <Button
               variant="outline"
               size="sm"

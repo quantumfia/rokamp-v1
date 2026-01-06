@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface Notice {
   id: string;
@@ -50,7 +51,7 @@ export function DashboardNoticeList() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+      <div className="flex items-center justify-between px-4 py-3">
         <h3 className="text-sm font-semibold text-foreground">공지사항</h3>
         <Button 
           variant="ghost" 
@@ -64,12 +65,15 @@ export function DashboardNoticeList() {
       </div>
 
       {/* Notice List */}
-      <div className="flex-1 overflow-y-auto">
-        {MOCK_NOTICES.map((notice) => (
+      <div className="flex-1 overflow-y-auto px-4">
+        {MOCK_NOTICES.map((notice, index) => (
           <button
             key={notice.id}
             onClick={() => handleNoticeClick(notice.id)}
-            className="w-full flex items-start gap-3 px-4 py-3 border-b border-border/50 hover:bg-muted/50 transition-colors text-left"
+            className={cn(
+              "w-full flex items-start gap-3 py-3 hover:bg-muted/50 transition-colors text-left rounded-lg px-2 -mx-2",
+              index < MOCK_NOTICES.length - 1 && "border-b border-border/30"
+            )}
           >
             <div className="flex-1 min-w-0">
               <div className="text-sm text-foreground line-clamp-1">{notice.title}</div>

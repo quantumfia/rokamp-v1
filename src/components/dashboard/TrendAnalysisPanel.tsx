@@ -48,15 +48,15 @@ export function TrendAnalysisPanel() {
   return (
     <div className="h-full flex flex-col overflow-hidden bg-card">
       {/* Header */}
-      <div className="shrink-0 px-5 py-3 border-b border-border">
+      <div className="shrink-0 px-5 py-3">
         <h3 className="text-base font-bold text-foreground">오늘의 안전사고 예보</h3>
       </div>
 
       {/* 상단 요약 바 - 3개 핵심 지표 */}
-      <div className="shrink-0 border-b border-border">
-        <div className="grid grid-cols-3 divide-x divide-border">
+      <div className="shrink-0 px-5 pb-4">
+        <div className="grid grid-cols-3 gap-4">
           {/* 위험부대 */}
-          <div className="px-5 py-4">
+          <div className="p-4 rounded-lg bg-muted/50">
             <div className="mb-2">
               <span className="text-sm font-bold text-foreground">위험부대</span>
             </div>
@@ -67,7 +67,7 @@ export function TrendAnalysisPanel() {
           </div>
           
           {/* 위험도 평균 */}
-          <div className="px-5 py-4">
+          <div className="p-4 rounded-lg bg-muted/50">
             <div className="mb-2">
               <span className="text-sm font-bold text-foreground">위험도 평균</span>
             </div>
@@ -78,7 +78,7 @@ export function TrendAnalysisPanel() {
           </div>
           
           {/* 발생사고 상위 */}
-          <div className="px-5 py-4">
+          <div className="p-4 rounded-lg bg-muted/50">
             <div className="mb-2">
               <span className="text-sm font-bold text-foreground">발생사고 상위</span>
             </div>
@@ -91,9 +91,9 @@ export function TrendAnalysisPanel() {
       </div>
 
       {/* 하단 2컬럼 */}
-      <div className="flex-1 overflow-hidden flex divide-x divide-border">
+      <div className="flex-1 overflow-hidden flex gap-4 px-5 pb-5">
         {/* 좌측 - 예측 위험 요인 도넛 차트 */}
-        <div className="w-1/2 p-5 flex flex-col min-h-0">
+        <div className="w-1/2 flex flex-col min-h-0">
           <h4 className="text-sm font-semibold text-foreground mb-4">예측 위험 요인</h4>
           <div className="flex-1 min-h-0 flex items-center">
             {/* 도넛 차트 */}
@@ -140,7 +140,7 @@ export function TrendAnalysisPanel() {
         </div>
 
         {/* 우측 - 발생사고 현황 바 차트 */}
-        <div className="w-1/2 p-5 flex flex-col min-h-0">
+        <div className="w-1/2 flex flex-col min-h-0">
           <h4 className="text-sm font-semibold text-foreground mb-4">발생사고 현황</h4>
           <div className="flex-1 min-h-0">
             <ResponsiveContainer width="100%" height="100%">
