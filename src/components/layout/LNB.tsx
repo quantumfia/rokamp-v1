@@ -30,7 +30,7 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
 ];
 
 const ADMIN_MENU_ITEMS: MenuItem[] = [
-  { id: 'notice', label: '공지사항 관리', icon: FileText, path: '/admin/notice' },
+  { id: 'notice', label: '공지관리', icon: FileText, path: '/admin/notice' },
   { id: 'schedule', label: '일정 관리', icon: CalendarDays, path: '/admin/schedule' },
   { id: 'data', label: '데이터 관리', icon: Database, path: '/data' },
   { id: 'users', label: '사용자 관리', icon: Users, path: '/admin/users' },

@@ -501,7 +501,7 @@ export default function NoticeManagementPage() {
   return (
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
-        title="공지사항 관리" 
+        title="공지관리" 
         description="부대별 공지사항 작성 및 발송 관리"
         actions={
           <ActionButton label="공지 추가" onClick={() => handleOpenModal('create')} />
