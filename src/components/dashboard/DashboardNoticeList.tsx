@@ -104,11 +104,11 @@ export function DashboardNoticeList() {
   const [activeFilter, setActiveFilter] = useState<TagFilter>('전체');
 
   const handleViewAll = () => {
-    navigate('/notice');
+    navigate('/admin/notice');
   };
 
   const handleNoticeClick = (noticeId: string) => {
-    navigate(`/notice?id=${noticeId}`);
+    navigate(`/admin/notice/${noticeId}`);
   };
 
   const filteredNotices = (activeFilter === '전체' 
