@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, ExternalLink, ChevronRight, Printer } from 'lucide-react';
 import { Checkbox as CheckboxUI } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { IncidentTicker } from '@/components/dashboard/IncidentTicker';
 
 interface Attachment {
   id: string;
@@ -195,7 +196,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 dark:bg-black/80" onClick={handleClose} />
       {/* Modal - Fixed size */}
-      <div className="relative w-full max-w-3xl h-[490px] min-h-[490px] max-h-[490px] bg-background border border-border shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full max-w-3xl h-[568px] min-h-[568px] max-h-[568px] bg-background border border-border shadow-2xl overflow-hidden flex flex-col">
         {/* Header Bar */}
         <div className="flex items-center justify-between h-10 px-4 bg-muted/50 border-b border-border">
           <div className="flex items-center gap-2">
@@ -209,6 +210,11 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
           >
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
+        </div>
+
+        {/* Incident Ticker */}
+        <div className="border-b border-border bg-muted/20">
+          <IncidentTicker />
         </div>
 
         <div className="flex flex-1 min-h-0">
