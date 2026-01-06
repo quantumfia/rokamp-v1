@@ -83,71 +83,10 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content - 좌측 부대 리스트 + 우측 (상단 트렌드/상세 + 하단 공지) */}
+      {/* Main Content - 좌측 (트렌드/상세 + 공지) + 우측 부대 리스트 */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Panel - 필터 (오버레이) */}
-        {showLeftPanel && (
-          <div className="absolute inset-0 z-30 flex">
-            <div className="w-64 max-w-[85vw] bg-card border-r border-border overflow-hidden animate-slide-in-left">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-                <span className="text-xs font-medium text-foreground">필터</span>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowLeftPanel(false)}>
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="h-[calc(100%-41px)] overflow-hidden">
-                {isLoading ? <RiskSummarySkeleton /> : <UnitFilterPanel onFilterChange={setFilters} />}
-              </div>
-            </div>
-            <div className="flex-1 bg-black/50" onClick={() => setShowLeftPanel(false)} />
-          </div>
-        )}
-
-        {/* Left Section - 부대 리스트 (전체의 50%) */}
-        <div className="w-1/2 flex flex-col border-r border-border bg-background overflow-hidden">
-          {/* 필터 버튼 + 검색창 툴바 */}
-          <div className="flex items-center gap-2 p-2 border-b border-border bg-card/50">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 shrink-0"
-              onClick={() => setShowLeftPanel(true)}
-            >
-              <Filter className="w-4 h-4 mr-1.5" />
-              필터
-            </Button>
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="부대 검색..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-8 text-sm"
-              />
-            </div>
-          </div>
-
-          {/* 부대 리스트 */}
-          <div className="flex-1 overflow-hidden">
-            {isLoading ? (
-              <div className="p-4 space-y-2">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="h-14 bg-muted/50 rounded animate-pulse" />
-                ))}
-              </div>
-            ) : (
-              <UnitListCompact
-                onUnitClick={handleUnitClick}
-                selectedUnitId={selectedUnitId}
-                filters={filters}
-                searchQuery={searchQuery}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Right Section - 트렌드/상세 + 공지사항 (전체의 50%) */}
-        <div className="w-1/2 flex flex-col overflow-hidden">
+        {/* Left Section - 트렌드/상세 + 공지사항 (전체의 50%) */}
+        <div className="w-1/2 flex flex-col border-r border-border overflow-hidden">
           {/* 상단 - 트렌드 분석 또는 부대 상세 */}
           <div className="h-1/2 border-b border-border overflow-hidden">
             {isLoading ? (
@@ -166,6 +105,64 @@ export default function DashboardPage() {
           {/* 하단 - 공지사항 리스트 */}
           <div className="h-1/2 overflow-hidden">
             <DashboardNoticeList />
+          </div>
+        </div>
+
+        {/* Right Section - 부대 리스트 (전체의 50%) */}
+        <div className="w-1/2 flex flex-col bg-background overflow-hidden">
+          {/* 필터 버튼 + 검색창 툴바 */}
+          <div className="flex items-center gap-2 p-2 border-b border-border bg-card/50">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 shrink-0"
+              onClick={() => setShowLeftPanel(!showLeftPanel)}
+            >
+              <Filter className="w-4 h-4 mr-1.5" />
+              필터
+            </Button>
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="부대 검색..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-8 text-sm"
+              />
+            </div>
+          </div>
+
+          {/* 필터 패널 (위에서 아래로 열림) */}
+          {showLeftPanel && (
+            <div className="border-b border-border bg-card animate-in slide-in-from-top duration-200">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+                <span className="text-xs font-medium text-foreground">필터</span>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowLeftPanel(false)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="max-h-64 overflow-auto">
+                {isLoading ? <RiskSummarySkeleton /> : <UnitFilterPanel onFilterChange={setFilters} />}
+              </div>
+            </div>
+          )}
+
+          {/* 부대 리스트 */}
+          <div className="flex-1 overflow-hidden">
+            {isLoading ? (
+              <div className="p-4 space-y-2">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="h-14 bg-muted/50 rounded animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <UnitListCompact
+                onUnitClick={handleUnitClick}
+                selectedUnitId={selectedUnitId}
+                filters={filters}
+                searchQuery={searchQuery}
+              />
+            )}
           </div>
         </div>
       </div>

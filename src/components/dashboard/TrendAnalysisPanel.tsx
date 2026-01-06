@@ -39,6 +39,13 @@ export function TrendAnalysisPanel() {
   // 상위 발생사고
   const topAccident = accidentData[0];
 
+  // 위험도 점수에 따른 색상 반환
+  const getRiskScoreColor = (score: number) => {
+    if (score >= 60) return 'text-status-error';
+    if (score >= 30) return 'text-status-warning';
+    return 'text-status-success';
+  };
+
   return (
     <div className="h-full flex flex-col overflow-hidden bg-card">
       {/* Header */}
@@ -64,11 +71,11 @@ export function TrendAnalysisPanel() {
           {/* 위험도 평균 */}
           <div className="px-5 py-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-status-warning" />
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">위험도 평균</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-status-warning tracking-tight">{averageRiskScore}</span>
+              <span className={`text-4xl font-bold tracking-tight ${getRiskScoreColor(averageRiskScore)}`}>{averageRiskScore}</span>
               <span className="text-base text-muted-foreground">점</span>
             </div>
           </div>
@@ -76,11 +83,11 @@ export function TrendAnalysisPanel() {
           {/* 발생사고 상위 */}
           <div className="px-5 py-4">
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-primary" />
+              <AlertTriangle className="w-4 h-4 text-status-warning" />
               <span className="text-sm text-muted-foreground">발생사고 상위</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-primary tracking-tight">{topAccident.type}</span>
+              <span className="text-4xl font-bold text-status-warning tracking-tight">{topAccident.type}</span>
               <span className="text-base text-muted-foreground">{topAccident.count}건</span>
             </div>
           </div>
@@ -127,9 +134,9 @@ export function TrendAnalysisPanel() {
                       className="w-3 h-3 rounded-sm" 
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-sm text-foreground">{item.name}</span>
+                    <span className="text-sm" style={{ color: item.color }}>{item.name}</span>
                   </div>
-                  <span className="text-sm font-semibold tabular-nums text-foreground">{item.value}%</span>
+                  <span className="text-sm font-semibold tabular-nums" style={{ color: item.color }}>{item.value}%</span>
                 </div>
               ))}
             </div>
