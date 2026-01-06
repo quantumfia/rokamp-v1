@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,60 +16,77 @@ const MOCK_NOTICES: Notice[] = [
   {
     id: '1',
     title: '야외훈련 간 사고예방 1분 안전학습',
-    date: '2025.01.05',
+    date: '2026.01.05',
     department: '육군본부 안전관리과',
     tag: '일반',
   },
   {
     id: '2',
     title: '겨울철 안전사고 예방 강화 기간 운영 안내',
-    date: '2025.01.02',
+    date: '2026.01.02',
     department: '육군본부 안전관리과',
     tag: '일반',
   },
   {
     id: '3',
     title: '시스템 정기 점검 시간 안내',
-    date: '2024.12.28',
+    date: '2025.12.28',
     department: '정보체계관리단',
     tag: '일반',
   },
   {
     id: '4',
     title: '동절기 차량 운행 주의사항 안내',
-    date: '2024.12.26',
+    date: '2025.12.26',
     department: '육군본부 군사경찰실',
     tag: '일반',
   },
   {
     id: '5',
-    title: '2025년 상반기 진급심사 일정 공고',
-    date: '2024.12.20',
+    title: '2026년 상반기 진급심사 일정 공고',
+    date: '2025.12.22',
     department: '육군본부 인사사령부',
     tag: '인사',
   },
   {
     id: '6',
     title: '창군기념일 행사 참석 안내',
-    date: '2024.12.18',
+    date: '2025.12.20',
     department: '육군본부 공보정훈실',
     tag: '행사',
   },
   {
     id: '7',
     title: '신년 안전점검 주간 운영 계획',
-    date: '2024.12.15',
+    date: '2025.12.18',
     department: '육군본부 안전관리과',
     tag: '일반',
   },
   {
     id: '8',
     title: '동계 휴가 일정 조정 안내',
-    date: '2024.12.10',
+    date: '2025.12.15',
     department: '육군본부 인사사령부',
     tag: '인사',
   },
+  {
+    id: '9',
+    title: '연말 송년 행사 일정 안내',
+    date: '2025.12.12',
+    department: '육군본부 공보정훈실',
+    tag: '행사',
+  },
+  {
+    id: '10',
+    title: '동절기 난방시설 점검 결과',
+    date: '2025.12.10',
+    department: '육군본부 시설관리과',
+    tag: '일반',
+  },
 ];
+
+const TAG_FILTERS = ['전체', '일반', '인사', '행사'] as const;
+type TagFilter = typeof TAG_FILTERS[number];
 
 const getTagStyle = (tag: Notice['tag']) => {
   switch (tag) {
@@ -83,6 +101,7 @@ const getTagStyle = (tag: Notice['tag']) => {
 
 export function DashboardNoticeList() {
   const navigate = useNavigate();
+  const [activeFilter, setActiveFilter] = useState<TagFilter>('전체');
 
   const handleViewAll = () => {
     navigate('/notice');
@@ -91,6 +110,10 @@ export function DashboardNoticeList() {
   const handleNoticeClick = (noticeId: string) => {
     navigate(`/notice?id=${noticeId}`);
   };
+
+  const filteredNotices = activeFilter === '전체' 
+    ? MOCK_NOTICES 
+    : MOCK_NOTICES.filter(notice => notice.tag === activeFilter);
 
   return (
     <div className="h-full flex flex-col">
@@ -108,9 +131,27 @@ export function DashboardNoticeList() {
         </Button>
       </div>
 
+      {/* Tag Filter Tabs */}
+      <div className="flex items-center gap-1 px-4 pb-2">
+        {TAG_FILTERS.map((filter) => (
+          <button
+            key={filter}
+            onClick={() => setActiveFilter(filter)}
+            className={cn(
+              "px-3 py-1 text-xs rounded-md transition-colors",
+              activeFilter === filter
+                ? "bg-foreground text-background font-medium"
+                : "text-muted-foreground hover:bg-muted/50"
+            )}
+          >
+            {filter}
+          </button>
+        ))}
+      </div>
+
       {/* Notice List - 컴팩트 한 줄 형식 */}
       <div className="flex-1 overflow-y-auto">
-        {MOCK_NOTICES.map((notice) => (
+        {filteredNotices.map((notice) => (
           <button
             key={notice.id}
             onClick={() => handleNoticeClick(notice.id)}
