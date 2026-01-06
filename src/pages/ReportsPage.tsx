@@ -111,9 +111,6 @@ export default function ReportsPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState<ReportFormData | undefined>();
 
-  // Super Admin 권한: 모든 기능 표시
-  const isHQ = true;
-
   const handleGenerate = async (data: ReportFormData) => {
     setIsGenerating(true);
     

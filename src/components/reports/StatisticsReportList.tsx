@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Download, ArrowLeft, Eye, ChevronDown, Loader2, Calendar as CalendarIcon, Printer, Trash2, Search } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { jsPDF } from 'jspdf';
@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FileText } from 'lucide-react';
-import { UnitCascadeSelect } from '@/components/unit/UnitCascadeSelect';
+import { UnitPopoverSelect } from '@/components/unit/UnitPopoverSelect';
 import { getUnitById } from '@/data/armyUnits';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths, subQuarters, startOfQuarter, endOfQuarter } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -20,6 +20,8 @@ import { cn } from '@/lib/utils';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import rokaLogo from '@/assets/roka-logo.svg';
 import { AddModal } from '@/components/common';
+import { useAuth } from '@/contexts/AuthContext';
+import { getAccessibleUnits, getSelectableUnitsForRole } from '@/lib/rbac';
 
 interface StatReport {
   id: string;
@@ -180,6 +182,7 @@ interface StatisticsReportListProps {
 }
 
 export function StatisticsReportList({ showModal = false, onCloseModal }: StatisticsReportListProps) {
+  const { user } = useAuth();
   const [filterType, setFilterType] = useState<string>('all');
   const [filterTarget, setFilterTarget] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -201,6 +204,16 @@ export function StatisticsReportList({ showModal = false, onCloseModal }: Statis
     unitId: '',
     rankType: 'all' as 'all' | 'enlisted' | 'nco' | 'officer',
   });
+
+  // 역할 기반 접근 가능 부대 목록
+  const accessibleUnits = useMemo(() => {
+    return getAccessibleUnits(user?.role, user?.unitId);
+  }, [user?.role, user?.unitId]);
+
+  // 역할 기반 부대 선택 정보
+  const { isFixed } = useMemo(() => {
+    return getSelectableUnitsForRole(user?.role, user?.unitId);
+  }, [user?.role, user?.unitId]);
 
   // 모달이 닫힐 때 폼 초기화
   useEffect(() => {
@@ -415,15 +428,23 @@ export function StatisticsReportList({ showModal = false, onCloseModal }: Statis
     }, 2000);
   };
 
-  const filteredReports = reports.filter((report) => {
-    const matchesType = filterType === 'all' || report.type === filterType;
-    const matchesSearch = report.title.toLowerCase().includes(searchQuery.toLowerCase());
-    // 대상 필터: unit이면 부대명에 '사단' 등이 포함된 것, rank면 '계급' 포함
-    const matchesTarget = filterTarget === 'all' || 
-      (filterTarget === 'unit' && !report.unit.includes('계급')) ||
-      (filterTarget === 'rank' && report.unit.includes('계급'));
-    return matchesType && matchesSearch && matchesTarget;
-  });
+  const filteredReports = useMemo(() => {
+    return reports.filter((report) => {
+      // 역할 기반 부대 필터링: HQ는 모든 보고서 접근 가능
+      const hasUnitAccess = user?.role === 'ROLE_HQ' || 
+        accessibleUnits.some(unit => report.unit.includes(unit.name));
+      
+      if (!hasUnitAccess) return false;
+
+      const matchesType = filterType === 'all' || report.type === filterType;
+      const matchesSearch = report.title.toLowerCase().includes(searchQuery.toLowerCase());
+      // 대상 필터: unit이면 부대명에 '사단' 등이 포함된 것, rank면 '계급' 포함
+      const matchesTarget = filterTarget === 'all' || 
+        (filterTarget === 'unit' && !report.unit.includes('계급')) ||
+        (filterTarget === 'rank' && report.unit.includes('계급'));
+      return matchesType && matchesSearch && matchesTarget;
+    });
+  }, [reports, user?.role, accessibleUnits, filterType, searchQuery, filterTarget]);
 
   const handleDownloadPDF = async (report: StatReport) => {
     if (!previewRef.current) {
@@ -1252,12 +1273,17 @@ export function StatisticsReportList({ showModal = false, onCloseModal }: Statis
       {createForm.analysisTarget === 'unit' ? (
         <div>
           <label className="block text-xs text-muted-foreground mb-2">분석 대상 부대</label>
-          <UnitCascadeSelect
-            value={createForm.unitId}
-            onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value }))}
-            placeholder="부대 선택"
-            firstFullWidthRestInline={true}
-          />
+          {isFixed ? (
+            <div className="text-sm font-medium px-3 py-2 bg-muted/50 rounded-md border border-border">
+              {user?.unit || '소속 부대'}
+            </div>
+          ) : (
+            <UnitPopoverSelect
+              value={createForm.unitId || 'all'}
+              onChange={(value) => setCreateForm(prev => ({ ...prev, unitId: value === 'all' ? '' : value }))}
+              placeholder="부대 선택"
+            />
+          )}
         </div>
       ) : (
         <div>
