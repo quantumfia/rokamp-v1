@@ -186,7 +186,7 @@ function RiskSettingsPopover() {
   const [tempLevels, setTempLevels] = useState<RiskLevel[]>(levels);
   const [isOpen, setIsOpen] = useState(false);
   
-  // max 변경 시: 현재 레벨의 max를 변경하고, 다음 레벨의 min을 자동 조정
+  // max 변경 시: 현재 레벨의 max를 변경하고, 모든 후속 레벨들을 연쇄적으로 조정
   const handleMaxChange = (index: number, value: string) => {
     const numValue = parseInt(value);
     if (isNaN(numValue)) return;
@@ -197,9 +197,8 @@ function RiskSettingsPopover() {
     // max는 현재 min 이상이어야 함
     let newMax = Math.max(currentLevel.min, Math.min(99, numValue));
     
-    // 마지막 단계가 아니면 다음 단계 min을 위한 여유 공간 확보
+    // 마지막 단계가 아니면 다음 단계들의 최소 필요 공간 확보
     if (index < newLevels.length - 1) {
-      // 다음 단계들의 최소 필요 공간 계산 (각 단계당 최소 1씩 필요)
       const remainingSteps = newLevels.length - index - 1;
       const maxAllowed = 100 - remainingSteps;
       newMax = Math.min(newMax, maxAllowed);
@@ -207,15 +206,23 @@ function RiskSettingsPopover() {
     
     newLevels[index] = { ...currentLevel, max: newMax };
     
-    // 다음 레벨의 min 자동 조정
-    if (index < newLevels.length - 1) {
-      newLevels[index + 1] = { ...newLevels[index + 1], min: newMax + 1 };
+    // 모든 후속 레벨들을 연쇄적으로 조정
+    for (let i = index + 1; i < newLevels.length; i++) {
+      const prevMax = newLevels[i - 1].max;
+      const newMin = prevMax + 1;
       
-      // 다음 레벨의 max가 min보다 작으면 조정
-      if (newLevels[index + 1].max < newLevels[index + 1].min) {
-        newLevels[index + 1] = { ...newLevels[index + 1], max: newLevels[index + 1].min };
+      newLevels[i] = { ...newLevels[i], min: newMin };
+      
+      // max가 min보다 작으면 max도 조정 (마지막 단계가 아닌 경우)
+      if (i < newLevels.length - 1 && newLevels[i].max < newMin) {
+        // 남은 단계 수에 맞게 max 재계산
+        const stepsRemaining = newLevels.length - i - 1;
+        newLevels[i] = { ...newLevels[i], max: Math.min(newMin, 100 - stepsRemaining) };
       }
     }
+    
+    // 마지막 단계의 max는 항상 100
+    newLevels[newLevels.length - 1] = { ...newLevels[newLevels.length - 1], max: 100 };
     
     setTempLevels(newLevels);
   };
