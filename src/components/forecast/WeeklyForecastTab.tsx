@@ -1,52 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, Calendar, Info } from 'lucide-react';
+import { AlertTriangle, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  getWeeklyOverview,
+  getAccidentTypeRisk,
+  getRankRisk,
+  getWeeklyInsights,
+} from '@/data/forecastData';
 
-// 주간 종합 위험도 데이터
-const WEEKLY_OVERVIEW = [
-  { day: '일', date: '1/5', risk: 32, grade: 'safe', factor: '휴일' },
-  { day: '월', date: '1/6', risk: 48, grade: 'safe', factor: '주말 복귀' },
-  { day: '화', date: '1/7', risk: 42, grade: 'safe', factor: '-' },
-  { day: '수', date: '1/8', risk: 58, grade: 'caution', factor: '주중 피로' },
-  { day: '목', date: '1/9', risk: 52, grade: 'caution', factor: '-' },
-  { day: '금', date: '1/10', risk: 65, grade: 'caution', factor: '외출/외박' },
-  { day: '토', date: '1/11', risk: 28, grade: 'safe', factor: '휴일' },
-];
-
-// 사고유형별 주간 위험지수 (통계 기반)
-const ACCIDENT_TYPE_RISK = [
-  { category: '군기사고', types: [
-    { name: '폭행사고', risk: 42, trend: 'up', stat: '전체의 22%' },
-    { name: '성범죄', risk: 35, trend: 'stable', stat: '전체의 12%' },
-    { name: '음주운전', risk: 58, trend: 'up', stat: '전체의 18%' },
-    { name: '자살사고', risk: 28, trend: 'down', stat: '전체의 8%' },
-  ]},
-  { category: '안전사고', types: [
-    { name: '교통사고', risk: 72, trend: 'up', stat: '전체의 25%' },
-    { name: '화재사고', risk: 15, trend: 'stable', stat: '전체의 5%' },
-    { name: '추락/충격', risk: 38, trend: 'down', stat: '전체의 10%' },
-  ]},
-  { category: '군무이탈', types: [
-    { name: '군무이탈', risk: 32, trend: 'stable', stat: '전체의 8%' },
-  ]},
-];
-
-// 계급별 주간 위험지수 (대분류)
-const RANK_RISK = [
-  { rank: '병', risk: 58, stat: '전체의 62%' },
-  { rank: '부사관', risk: 32, stat: '전체의 24%' },
-  { rank: '장교', risk: 18, stat: '전체의 11%' },
-  { rank: '군무원', risk: 8, stat: '전체의 3%' },
-];
-
-// 주간 핵심 인사이트 (패턴 기반)
-const WEEKLY_INSIGHTS = [
-  { type: 'warning', title: '금요일 교통사고 주의', text: '외출/외박 이동 집중으로 교통사고 발생률 평균 대비 35% 상승' },
-  { type: 'warning', title: '수요일 군기사고 주의', text: '주중 피로 누적 시점, 병사 간 갈등 및 폭행사고 위험 증가' },
-  { type: 'info', title: '월요일 심리관리', text: '주말 복귀 후 우울감 호소 빈도 상승, 관심병사 면담 권고' },
-];
+interface WeeklyForecastTabProps {
+  selectedUnit: string;
+}
 
 const getGradeStyle = (grade: string) => {
   switch (grade) {
@@ -70,10 +36,20 @@ const getTrendBadge = (trend: string) => {
   }
 };
 
-export default function WeeklyForecastTab() {
+export default function WeeklyForecastTab({ selectedUnit }: WeeklyForecastTabProps) {
+  // 선택된 부대에 맞는 데이터 조회
+  const weeklyOverview = getWeeklyOverview(selectedUnit);
+  const accidentTypeRisk = getAccidentTypeRisk(selectedUnit);
+  const rankRisk = getRankRisk(selectedUnit);
+  const weeklyInsights = getWeeklyInsights(selectedUnit);
+
   // 주간 평균 계산
-  const weeklyAvg = Math.round(WEEKLY_OVERVIEW.reduce((sum, d) => sum + d.risk, 0) / WEEKLY_OVERVIEW.length);
-  const maxRiskDay = WEEKLY_OVERVIEW.reduce((max, d) => d.risk > max.risk ? d : max, WEEKLY_OVERVIEW[0]);
+  const weeklyAvg = Math.round(weeklyOverview.reduce((sum, d) => sum + d.risk, 0) / weeklyOverview.length);
+  const maxRiskDay = weeklyOverview.reduce((max, d) => d.risk > max.risk ? d : max, weeklyOverview[0]);
+
+  // 최고 위험 유형 계산
+  const allTypes = accidentTypeRisk.flatMap(cat => cat.types);
+  const topRiskType = allTypes.reduce((max, t) => t.risk > max.risk ? t : max, allTypes[0]);
 
   return (
     <div className="space-y-6">
@@ -104,9 +80,9 @@ export default function WeeklyForecastTab() {
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground mb-1">주요 위험 유형</p>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold">교통사고</span>
+              <span className="text-2xl font-bold">{topRiskType?.name || '-'}</span>
             </div>
-            <p className="text-xs text-status-error mt-0.5">72% (전주 대비 ↑)</p>
+            <p className="text-xs text-status-error mt-0.5">{topRiskType?.risk || 0}% {topRiskType?.trend === 'up' && '(전주 대비 ↑)'}</p>
           </CardContent>
         </Card>
       </div>
@@ -138,7 +114,7 @@ export default function WeeklyForecastTab() {
               <thead>
                 <tr className="bg-muted/50">
                   <th className="py-2 px-3 text-left font-medium text-foreground border-r border-border w-20">구분</th>
-                  {WEEKLY_OVERVIEW.map((d) => (
+                  {weeklyOverview.map((d) => (
                     <th key={d.day} className="py-2 px-2 text-center font-medium text-foreground border-r border-border last:border-r-0">
                       <div>{d.day}</div>
                       <div className="text-[10px] text-muted-foreground font-normal">{d.date}</div>
@@ -149,7 +125,7 @@ export default function WeeklyForecastTab() {
               <tbody>
                 <tr className="border-b border-border">
                   <td className="py-2 px-3 text-xs text-muted-foreground border-r border-border">위험도</td>
-                  {WEEKLY_OVERVIEW.map((d) => (
+                  {weeklyOverview.map((d) => (
                     <td key={d.day} className="py-2 px-2 text-center border-r border-border last:border-r-0">
                       <span className={cn(
                         "inline-block px-2 py-1 rounded text-xs font-medium min-w-[40px]",
@@ -164,7 +140,7 @@ export default function WeeklyForecastTab() {
                 </tr>
                 <tr className="border-b border-border">
                   <td className="py-2 px-3 text-xs text-muted-foreground border-r border-border">등급</td>
-                  {WEEKLY_OVERVIEW.map((d) => (
+                  {weeklyOverview.map((d) => (
                     <td key={d.day} className="py-1.5 px-2 text-center border-r border-border last:border-r-0">
                       <span className={cn("text-xs font-medium", getGradeStyle(d.grade).textColor)}>
                         {getGradeStyle(d.grade).text}
@@ -174,7 +150,7 @@ export default function WeeklyForecastTab() {
                 </tr>
                 <tr className="border-b border-border">
                   <td className="py-2 px-3 text-xs text-muted-foreground border-r border-border">요인</td>
-                  {WEEKLY_OVERVIEW.map((d) => (
+                  {weeklyOverview.map((d) => (
                     <td key={d.day} className="py-1.5 px-2 text-center border-r border-border last:border-r-0">
                       <span className="text-[11px] text-muted-foreground">{d.factor}</span>
                     </td>
@@ -195,7 +171,7 @@ export default function WeeklyForecastTab() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {ACCIDENT_TYPE_RISK.map((cat) => (
+              {accidentTypeRisk.map((cat) => (
                 <div key={cat.category}>
                   <p className="text-xs font-medium text-muted-foreground mb-2">{cat.category}</p>
                   <div className="space-y-2">
@@ -226,7 +202,7 @@ export default function WeeklyForecastTab() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {RANK_RISK.map((item) => (
+              {rankRisk.map((item) => (
                 <div key={item.rank} className="flex items-center gap-3">
                   <span className="text-sm w-16 shrink-0">{item.rank}</span>
                   <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
@@ -262,7 +238,7 @@ export default function WeeklyForecastTab() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {WEEKLY_INSIGHTS.map((insight, idx) => (
+            {weeklyInsights.map((insight, idx) => (
               <div 
                 key={idx} 
                 className={cn(

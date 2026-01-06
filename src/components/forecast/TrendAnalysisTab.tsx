@@ -5,77 +5,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  getWeeklyTrend,
+  getMonthlyTrend,
+  getAccidentTypeChanges,
+  getYearComparison,
+  getTrendInsights,
+  SEASONAL_PATTERN,
+  DAILY_PATTERN,
+} from '@/data/forecastData';
 
-// 주간 추이 데이터
-const WEEKLY_TREND_DATA = [
-  { week: '1주차', 군기사고: 3, 안전사고: 2, 군무이탈: 0 },
-  { week: '2주차', 군기사고: 5, 안전사고: 3, 군무이탈: 1 },
-  { week: '3주차', 군기사고: 2, 안전사고: 4, 군무이탈: 0 },
-  { week: '4주차', 군기사고: 4, 안전사고: 2, 군무이탈: 1 },
-  { week: '5주차', 군기사고: 6, 안전사고: 5, 군무이탈: 0 },
-  { week: '6주차', 군기사고: 3, 안전사고: 3, 군무이탈: 2 },
-];
-
-// 월간 추이 데이터
-const MONTHLY_TREND_DATA = [
-  { month: '7월', current: 12, previous: 15 },
-  { month: '8월', current: 18, previous: 14 },
-  { month: '9월', current: 15, previous: 16 },
-  { month: '10월', current: 22, previous: 19 },
-  { month: '11월', current: 19, previous: 21 },
-  { month: '12월', current: 14, previous: 17 },
-];
-
-// 사고 유형별 증감 현황
-const ACCIDENT_TYPE_CHANGES = [
-  { 
-    category: '군기사고',
-    types: [
-      { name: '구타/폭행', current: 8, previous: 12, trend: 'down' },
-      { name: '가혹행위', current: 5, previous: 7, trend: 'down' },
-      { name: '성폭력', current: 3, previous: 2, trend: 'up' },
-      { name: '언어폭력', current: 12, previous: 10, trend: 'up' },
-      { name: '집단따돌림', current: 2, previous: 4, trend: 'down' },
-    ]
-  },
-  {
-    category: '안전사고',
-    types: [
-      { name: '자살', current: 1, previous: 2, trend: 'down' },
-      { name: '자해', current: 3, previous: 5, trend: 'down' },
-      { name: '총기사고', current: 0, previous: 1, trend: 'down' },
-      { name: '차량사고', current: 8, previous: 5, trend: 'up' },
-      { name: '화재사고', current: 2, previous: 2, trend: 'stable' },
-    ]
-  }
-];
-
-// 계절별 패턴 데이터
-const SEASONAL_PATTERN = [
-  { month: '1월', risk: 65 },
-  { month: '2월', risk: 58 },
-  { month: '3월', risk: 72 },
-  { month: '4월', risk: 68 },
-  { month: '5월', risk: 55 },
-  { month: '6월', risk: 78 },
-  { month: '7월', risk: 85 },
-  { month: '8월', risk: 82 },
-  { month: '9월', risk: 70 },
-  { month: '10월', risk: 62 },
-  { month: '11월', risk: 75 },
-  { month: '12월', risk: 80 },
-];
-
-// 요일별 패턴 데이터
-const DAILY_PATTERN = [
-  { day: '월', 군기사고: 15, 안전사고: 12 },
-  { day: '화', 군기사고: 10, 안전사고: 8 },
-  { day: '수', 군기사고: 22, 안전사고: 15 },
-  { day: '목', 군기사고: 12, 안전사고: 10 },
-  { day: '금', 군기사고: 18, 안전사고: 20 },
-  { day: '토', 군기사고: 14, 안전사고: 8 },
-  { day: '일', 군기사고: 16, 안전사고: 10 },
-];
+interface TrendAnalysisTabProps {
+  selectedUnit: string;
+}
 
 const chartTooltipStyle = {
   backgroundColor: 'hsl(var(--card))',
@@ -107,9 +49,16 @@ const getChangeColor = (current: number, previous: number) => {
   return 'text-muted-foreground';
 };
 
-export default function TrendAnalysisTab() {
+export default function TrendAnalysisTab({ selectedUnit }: TrendAnalysisTabProps) {
   const [periodType, setPeriodType] = useState<'weekly' | 'monthly'>('weekly');
   const [dateRange, setDateRange] = useState<'1m' | '3m' | '6m' | '1y'>('3m');
+
+  // 선택된 부대에 맞는 데이터 조회
+  const weeklyTrendData = getWeeklyTrend(selectedUnit);
+  const monthlyTrendData = getMonthlyTrend(selectedUnit);
+  const accidentTypeChanges = getAccidentTypeChanges(selectedUnit);
+  const yearComparison = getYearComparison(selectedUnit);
+  const trendInsights = getTrendInsights(selectedUnit);
 
   const getDateRangeLabel = (range: string) => {
     switch (range) {
@@ -119,6 +68,18 @@ export default function TrendAnalysisTab() {
       case '1y': return '최근 1년';
       default: return '';
     }
+  };
+
+  const getYearComparisonColor = (value: string) => {
+    if (value.startsWith('+')) return 'text-status-error';
+    if (value.startsWith('-')) return 'text-status-success';
+    return 'text-muted-foreground';
+  };
+
+  const getYearComparisonIcon = (value: string) => {
+    if (value.startsWith('+')) return <ArrowUp className="w-5 h-5 text-status-error" />;
+    if (value.startsWith('-')) return <ArrowDown className="w-5 h-5 text-status-success" />;
+    return null;
   };
 
   return (
@@ -144,15 +105,16 @@ export default function TrendAnalysisTab() {
         </div>
       </div>
 
-
       {/* 전년 대비 요약 */}
       <div className="grid grid-cols-4 gap-4">
         <Card className="border-border">
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground mb-1">전체 사고 (전년 대비)</p>
             <div className="flex items-center gap-2">
-              <p className="text-2xl font-semibold text-status-success">-12%</p>
-              <ArrowDown className="w-5 h-5 text-status-success" />
+              <p className={cn("text-2xl font-semibold", getYearComparisonColor(yearComparison.total))}>
+                {yearComparison.total}
+              </p>
+              {getYearComparisonIcon(yearComparison.total)}
             </div>
           </CardContent>
         </Card>
@@ -160,8 +122,10 @@ export default function TrendAnalysisTab() {
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground mb-1">군기사고 (전년 대비)</p>
             <div className="flex items-center gap-2">
-              <p className="text-2xl font-semibold text-status-success">-18%</p>
-              <ArrowDown className="w-5 h-5 text-status-success" />
+              <p className={cn("text-2xl font-semibold", getYearComparisonColor(yearComparison.military))}>
+                {yearComparison.military}
+              </p>
+              {getYearComparisonIcon(yearComparison.military)}
             </div>
           </CardContent>
         </Card>
@@ -169,8 +133,10 @@ export default function TrendAnalysisTab() {
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground mb-1">안전사고 (전년 대비)</p>
             <div className="flex items-center gap-2">
-              <p className="text-2xl font-semibold text-status-error">+8%</p>
-              <ArrowUp className="w-5 h-5 text-status-error" />
+              <p className={cn("text-2xl font-semibold", getYearComparisonColor(yearComparison.safety))}>
+                {yearComparison.safety}
+              </p>
+              {getYearComparisonIcon(yearComparison.safety)}
             </div>
           </CardContent>
         </Card>
@@ -178,8 +144,10 @@ export default function TrendAnalysisTab() {
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground mb-1">군무이탈 (전년 대비)</p>
             <div className="flex items-center gap-2">
-              <p className="text-2xl font-semibold text-status-success">-25%</p>
-              <ArrowDown className="w-5 h-5 text-status-success" />
+              <p className={cn("text-2xl font-semibold", getYearComparisonColor(yearComparison.awol))}>
+                {yearComparison.awol}
+              </p>
+              {getYearComparisonIcon(yearComparison.awol)}
             </div>
           </CardContent>
         </Card>
@@ -205,7 +173,7 @@ export default function TrendAnalysisTab() {
           <div className="h-[240px]">
             {periodType === 'weekly' ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={WEEKLY_TREND_DATA}>
+                <AreaChart data={weeklyTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
                     dataKey="week" 
@@ -246,7 +214,7 @@ export default function TrendAnalysisTab() {
               </ResponsiveContainer>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={MONTHLY_TREND_DATA}>
+                <LineChart data={monthlyTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
                     dataKey="month" 
@@ -294,7 +262,7 @@ export default function TrendAnalysisTab() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {ACCIDENT_TYPE_CHANGES.map((category) => (
+              {accidentTypeChanges.map((category) => (
                 <div key={category.category}>
                   <p className="text-xs font-medium text-muted-foreground mb-2">{category.category}</p>
                   <div className="space-y-1.5">
@@ -404,10 +372,9 @@ export default function TrendAnalysisTab() {
             <div>
               <h4 className="text-sm font-medium mb-2">주요 경향 분석 결과</h4>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• <span className="text-status-error font-medium">차량사고</span>가 전년 대비 60% 증가 추세로 주의 필요</li>
-                <li>• 구타/폭행, 집단따돌림 등 <span className="text-status-success font-medium">군기사고</span>는 전반적 감소 추세</li>
-                <li>• <span className="font-medium">수요일, 금요일</span> 야간 시간대에 사고 집중 발생</li>
-                <li>• <span className="font-medium">7-8월 하절기</span> 위험도가 연중 최고 수준</li>
+                {trendInsights.map((insight, idx) => (
+                  <li key={idx}>• {insight}</li>
+                ))}
               </ul>
             </div>
           </div>
