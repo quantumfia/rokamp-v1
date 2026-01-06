@@ -154,19 +154,10 @@ export function SplashScreen({ onComplete, skipSplash = false, onClickToContinue
             textShadow: '0 0 30px hsl(210, 75%, 50%, 0.4)',
           }}
         >
-          안전사고 예측 시스템
+          AI 사고예보 시스템
         </p>
         
-        <p 
-          className="text-primary text-sm tracking-[0.3em] uppercase mb-2"
-          style={{
-            textShadow: '0 0 20px hsl(210, 75%, 50%, 0.8)',
-          }}
-        >
-          Safety Accident Prediction System
-        </p>
-        
-        <p className="text-white/40 text-xs tracking-wider mb-10">
+        <p className="text-white/50 text-xs tracking-wider mb-10">
           군사경찰실
         </p>
 
