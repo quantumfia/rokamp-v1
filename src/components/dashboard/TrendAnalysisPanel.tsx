@@ -56,35 +56,35 @@ export function TrendAnalysisPanel() {
       <div className="shrink-0 px-5 pb-4">
         <div className="grid grid-cols-3 gap-4">
           {/* 위험부대 */}
-          <div className="p-4 rounded-lg bg-muted/50">
-            <div className="mb-2">
-              <span className="text-sm font-bold text-foreground">위험부대</span>
+          <div className="p-3 rounded-lg bg-muted/50">
+            <div className="mb-1">
+              <span className="text-xs font-semibold text-foreground">위험부대</span>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-status-error tracking-tight">{dangerousUnitCount}</span>
-              <span className="text-base text-muted-foreground">/ {totalUnitCount} 부대</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-bold text-status-error tracking-tight">{dangerousUnitCount}</span>
+              <span className="text-sm text-muted-foreground">/ {totalUnitCount} 부대</span>
             </div>
           </div>
           
           {/* 위험도 평균 */}
-          <div className="p-4 rounded-lg bg-muted/50">
-            <div className="mb-2">
-              <span className="text-sm font-bold text-foreground">위험도 평균</span>
+          <div className="p-3 rounded-lg bg-muted/50">
+            <div className="mb-1">
+              <span className="text-xs font-semibold text-foreground">위험도 평균</span>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className={`text-4xl font-bold tracking-tight ${getRiskScoreColor(averageRiskScore)}`}>{averageRiskScore}</span>
-              <span className="text-base text-muted-foreground">점</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className={`text-2xl font-bold tracking-tight ${getRiskScoreColor(averageRiskScore)}`}>{averageRiskScore}</span>
+              <span className="text-sm text-muted-foreground">점</span>
             </div>
           </div>
           
           {/* 발생사고 상위 */}
-          <div className="p-4 rounded-lg bg-muted/50">
-            <div className="mb-2">
-              <span className="text-sm font-bold text-foreground">발생사고 상위</span>
+          <div className="p-3 rounded-lg bg-muted/50">
+            <div className="mb-1">
+              <span className="text-xs font-semibold text-foreground">발생사고 상위</span>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-status-warning tracking-tight">{topAccident.type}</span>
-              <span className="text-base text-muted-foreground">{topAccident.count}건</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-bold text-status-warning tracking-tight">{topAccident.type}</span>
+              <span className="text-sm text-muted-foreground">{topAccident.count}건</span>
             </div>
           </div>
         </div>
