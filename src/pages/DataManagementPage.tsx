@@ -682,6 +682,10 @@ export default function DataManagementPage() {
               ))}
             </TableBody>
           </Table>
+
+          <p className="text-xs text-muted-foreground pt-2">
+            ※ 업로드된 문서는 자동으로 청크 분할 및 임베딩 처리되어 AI 챗봇 응답에 활용됩니다.
+          </p>
         </div>
       )}
 
@@ -723,6 +727,10 @@ export default function DataManagementPage() {
               ))}
             </TableBody>
           </Table>
+
+          <p className="text-xs text-muted-foreground pt-2">
+            ※ 업로드된 기사는 임베딩 처리되어 AI 챗봇의 최신 동향 파악에 활용됩니다.
+          </p>
         </div>
       )}
 
@@ -762,6 +770,10 @@ export default function DataManagementPage() {
               ))}
             </TableBody>
           </Table>
+
+          <p className="text-xs text-muted-foreground pt-2">
+            ※ 업로드된 사고 데이터는 예보 모델 학습에 활용되어 위험도 예측 정확도를 높입니다.
+          </p>
         </div>
       )}
 
