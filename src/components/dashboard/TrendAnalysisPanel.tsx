@@ -10,13 +10,13 @@ const accidentData = [
   { type: '대 상관', count: 4 },
 ];
 
-// 예측 위험 요인 데이터 (도넛 차트) - 차분한 파랑 계열 그라데이션
+// 예측 위험 요인 데이터 (도넛 차트) - 중간 채도 파랑 계열 그라데이션
 const riskFactorData = [
-  { name: '훈련 강도', value: 32, color: '#64748b' },  // 슬레이트 블루
-  { name: '근무 피로', value: 28, color: '#475569' },  // 어두운 슬레이트
-  { name: '대인 갈등', value: 20, color: '#334155' },  // 진한 슬레이트
-  { name: '환경 요인', value: 12, color: '#1e293b' },  // 매우 어두운 슬레이트
-  { name: '기타', value: 8, color: '#0f172a' },        // 거의 검정에 가까운 슬레이트
+  { name: '훈련 강도', value: 32, color: '#6b8cae' },  // 밝은 스틸 블루
+  { name: '근무 피로', value: 28, color: '#527394' },  // 스틸 블루
+  { name: '대인 갈등', value: 20, color: '#3d5a7a' },  // 진한 스틸 블루
+  { name: '환경 요인', value: 12, color: '#2a4260' },  // 어두운 스틸 블루
+  { name: '기타', value: 8, color: '#1a2c45' },        // 매우 어두운 스틸 블루
 ];
 
 const chartTooltipStyle = {
