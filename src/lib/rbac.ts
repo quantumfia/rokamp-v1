@@ -59,3 +59,48 @@ export const ROLE_SCOPE_LABELS: Record<UserRole, string> = {
   'ROLE_DIV': '예하 부대',
   'ROLE_BN': '본인 부대',
 };
+
+// ============================================
+// 세부 권한 (페이지 내 기능별)
+// ============================================
+
+// 본인 작성 여부 확인 (작성자 이름 기반)
+export function isOwnContent(role: UserRole | undefined, authorName: string, currentUserName: string): boolean {
+  if (!role) return false;
+  if (role === 'ROLE_HQ') return true; // HQ는 모든 콘텐츠 수정/삭제 가능
+  return authorName === currentUserName;
+}
+
+// 수정/삭제 권한 (공지, 보고서 등)
+export function canEditContent(role: UserRole | undefined, authorName: string, currentUserName: string): boolean {
+  if (!role) return false;
+  if (role === 'ROLE_HQ') return true;
+  return authorName === currentUserName;
+}
+
+export function canDeleteContent(role: UserRole | undefined, authorName: string, currentUserName: string): boolean {
+  return canEditContent(role, authorName, currentUserName);
+}
+
+// 사용자 관리: 역할 변경 권한
+export function canChangeUserRole(role: UserRole | undefined): boolean {
+  return role === 'ROLE_HQ';
+}
+
+// 콘텐츠 생성 권한
+export function canCreateContent(role: UserRole | undefined, pageType: 'notice' | 'schedule' | 'report' | 'user'): boolean {
+  if (!role) return false;
+  
+  switch (pageType) {
+    case 'notice':
+      return role === 'ROLE_HQ' || role === 'ROLE_DIV';
+    case 'schedule':
+      return true; // 모든 역할 가능
+    case 'report':
+      return true; // 모든 역할 가능
+    case 'user':
+      return role === 'ROLE_HQ' || role === 'ROLE_DIV';
+    default:
+      return false;
+  }
+}

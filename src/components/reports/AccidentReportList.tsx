@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import rokaLogo from '@/assets/roka-logo.svg';
 import { ReportFormData } from '@/components/reports/ReportGeneratorForm';
+import { useAuth } from '@/contexts/AuthContext';
+import { canEditContent, canDeleteContent } from '@/lib/rbac';
 
 // 사고 보고서 타입
 interface AccidentReport {
@@ -276,11 +278,16 @@ const convertToFormData = (report: AccidentReport): ReportFormData => {
 };
 
 export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListProps) {
+  const { user } = useAuth();
   const [selectedReport, setSelectedReport] = useState<AccidentReport | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isPrinting, setIsPrinting] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // 권한 체크 헬퍼
+  const canEdit = (authorName: string) => canEditContent(user?.role, authorName, user?.name || '');
+  const canDelete = (authorName: string) => canDeleteContent(user?.role, authorName, user?.name || '');
 
   // 필터링된 보고서
   const filteredReports = MOCK_ACCIDENT_REPORTS.filter(report => {
@@ -542,27 +549,31 @@ export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListPr
             목록으로 돌아가기
           </button>
           <div className="flex items-center gap-2">
-            <button 
-              onClick={() => {
-                if (onEdit && selectedReport) {
-                  const formData = convertToFormData(selectedReport);
-                  onEdit(formData);
-                } else {
-                  toast({ title: '수정', description: '수정 기능은 추후 구현 예정입니다.' });
-                }
-              }}
-              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors"
-            >
-              <Pencil className="w-4 h-4" />
-              수정
-            </button>
-            <button 
-              onClick={() => toast({ title: '삭제', description: '삭제 기능은 추후 구현 예정입니다.', variant: 'destructive' })}
-              className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors text-red-400"
-            >
-              <Trash2 className="w-4 h-4" />
-              삭제
-            </button>
+            {canEdit(selectedReport.reporter) && (
+              <button 
+                onClick={() => {
+                  if (onEdit && selectedReport) {
+                    const formData = convertToFormData(selectedReport);
+                    onEdit(formData);
+                  } else {
+                    toast({ title: '수정', description: '수정 기능은 추후 구현 예정입니다.' });
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors"
+              >
+                <Pencil className="w-4 h-4" />
+                수정
+              </button>
+            )}
+            {canDelete(selectedReport.reporter) && (
+              <button 
+                onClick={() => toast({ title: '삭제', description: '삭제 기능은 추후 구현 예정입니다.', variant: 'destructive' })}
+                className="flex items-center gap-2 px-4 py-2 border border-border rounded text-sm hover:bg-muted/50 transition-colors text-red-400"
+              >
+                <Trash2 className="w-4 h-4" />
+                삭제
+              </button>
+            )}
             <button
               onClick={() => handlePrint(selectedReport)}
               disabled={isPrinting}

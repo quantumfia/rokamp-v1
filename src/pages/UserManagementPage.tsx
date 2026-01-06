@@ -6,6 +6,8 @@ import { toast } from '@/hooks/use-toast';
 import { UserManagementSkeleton } from '@/components/skeletons';
 import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { useAuth } from '@/contexts/AuthContext';
+import { canChangeUserRole } from '@/lib/rbac';
 import {
   Table,
   TableBody,
@@ -173,6 +175,7 @@ function BulkUploadForm({ onDownloadTemplate }: { onDownloadTemplate: () => void
 }
 
 export default function UserManagementPage() {
+  const { user: currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUnitFilter, setSelectedUnitFilter] = useState<string>('');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -184,6 +187,9 @@ export default function UserManagementPage() {
   const [editForm, setEditForm] = useState<Partial<User>>({});
   const [newUserForm, setNewUserForm] = useState<Partial<User>>({});
   const isLoading = usePageLoading(1000);
+  
+  // 역할 변경 권한 확인
+  const canEditRole = canChangeUserRole(currentUser?.role);
   
   // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -618,12 +624,22 @@ export default function UserManagementPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-muted-foreground mb-1.5">권한</label>
+                <label className="block text-xs text-muted-foreground mb-1.5">
+                  권한
+                  {!canEditRole && isEditMode && (
+                    <span className="ml-1 text-[10px] text-amber-500">(변경 불가)</span>
+                  )}
+                </label>
                 {isEditMode ? (
                   <select 
                     value={editForm.role || ''}
                     onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
+                    disabled={!canEditRole}
+                    className={`w-full px-3 py-2 text-sm border border-border rounded-md transition-colors ${
+                      canEditRole 
+                        ? 'bg-background focus:outline-none focus:border-primary' 
+                        : 'bg-muted/50 cursor-not-allowed opacity-60'
+                    }`}
                   >
                     {ROLES.map(role => (
                       <option key={role.value} value={role.value}>{role.label}</option>

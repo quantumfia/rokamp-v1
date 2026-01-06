@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Video, Paperclip, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, AlertTriangle } from 'lucide-react';
+import { Video, Paperclip, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, AlertTriangle, Pencil, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/table';
 import { PageHeader, ActionButton, TabNavigation } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { useAuth } from '@/contexts/AuthContext';
+import { canEditContent, canDeleteContent } from '@/lib/rbac';
 import { cn } from '@/lib/utils';
 
 type ActiveTab = 'notices' | 'incidents';
@@ -191,6 +193,7 @@ const TABS = [
 export default function NoticeManagementPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
   const isLoading = usePageLoading(800);
   
   const tabFromUrl = searchParams.get('tab') as ActiveTab | null;
@@ -205,6 +208,10 @@ export default function NoticeManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [incidentCurrentPage, setIncidentCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // 권한 체크 헬퍼
+  const canEdit = (authorName: string) => canEditContent(user?.role, authorName, user?.name || '');
+  const canDelete = (authorName: string) => canDeleteContent(user?.role, authorName, user?.name || '');
 
   useEffect(() => {
     if (tabFromUrl === 'incidents') {
@@ -350,12 +357,13 @@ export default function NoticeManagementPage() {
                 <TableHead className="text-xs w-24">등록일</TableHead>
                 <TableHead className="text-xs w-20">작성자</TableHead>
                 <TableHead className="text-xs w-14 text-center">상태</TableHead>
+                <TableHead className="text-xs w-16 text-center">관리</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedNotices.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-sm text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-sm text-muted-foreground">
                     검색 결과가 없습니다.
                   </TableCell>
                 </TableRow>
@@ -395,6 +403,37 @@ export default function NoticeManagementPage() {
                     )}>
                       {notice.status === 'active' ? '활성' : '만료'}
                     </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      {canEdit(notice.author) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/notice/${notice.id}`);
+                          }}
+                          className="p-1 rounded hover:bg-muted transition-colors"
+                          title="수정"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                      )}
+                      {canDelete(notice.author) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // 삭제 로직
+                          }}
+                          className="p-1 rounded hover:bg-muted transition-colors"
+                          title="삭제"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      )}
+                      {!canEdit(notice.author) && !canDelete(notice.author) && (
+                        <span className="text-[10px] text-muted-foreground">-</span>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
                 ))
@@ -495,12 +534,13 @@ export default function NoticeManagementPage() {
                 <TableHead className="text-xs w-32">발생장소</TableHead>
                 <TableHead className="text-xs w-16 text-center">심각도</TableHead>
                 <TableHead className="text-xs w-20">작성자</TableHead>
+                <TableHead className="text-xs w-16 text-center">관리</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedIncidents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-sm text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-sm text-muted-foreground">
                     검색 결과가 없습니다.
                   </TableCell>
                 </TableRow>
@@ -533,6 +573,37 @@ export default function NoticeManagementPage() {
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {incident.author}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      {canEdit(incident.author) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/incident/${incident.id}`);
+                          }}
+                          className="p-1 rounded hover:bg-muted transition-colors"
+                          title="수정"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                      )}
+                      {canDelete(incident.author) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // 삭제 로직
+                          }}
+                          className="p-1 rounded hover:bg-muted transition-colors"
+                          title="삭제"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      )}
+                      {!canEdit(incident.author) && !canDelete(incident.author) && (
+                        <span className="text-[10px] text-muted-foreground">-</span>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
                 ))
