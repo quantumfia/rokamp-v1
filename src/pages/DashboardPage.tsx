@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 import {
   RiskSummarySkeleton,
   TrendChartsSkeleton,
-  StatusHeaderSkeleton,
   TickerBarSkeleton,
 } from '@/components/skeletons';
 
@@ -60,15 +59,15 @@ export default function DashboardPage() {
 
   return (
     <div className="h-full flex flex-col bg-muted/30">
-      {/* Top Status Bar - 3개 섹션: 날짜/시간/날씨 + 사고사례 + 사용자 정보 */}
+      {/* Top Status Bar - 날씨 + 일일사고사례(날짜/시간 포함) + 위험도 게이지 */}
       <div className="shrink-0 m-3 mb-0 rounded-lg border border-border bg-card">
         <div className="flex items-stretch divide-x divide-border">
-          {/* 섹션 1: 날짜/시간/날씨 */}
+          {/* 섹션 1: 날씨 */}
           <div className="shrink-0">
-            {isLoading ? <StatusHeaderSkeleton /> : <StatusHeader />}
+            <StatusHeader />
           </div>
           
-          {/* 섹션 2: 사고사례 실시간 카드 */}
+          {/* 섹션 2: 일일사고사례 (날짜/시간 포함) */}
           <div className="flex-1 min-w-0">
             {isLoading ? <TickerBarSkeleton /> : <IncidentTicker onClickDetail={handleIncidentDetail} />}
           </div>
