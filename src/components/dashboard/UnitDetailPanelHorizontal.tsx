@@ -1,14 +1,16 @@
-import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet } from 'lucide-react';
+import { useState } from 'react';
+import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet, AlertTriangle, Snowflake, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getUnitById, getUnitFullName, LEVEL_LABELS, UNIT_TYPE_LABELS } from '@/data/armyUnits';
+import { cn } from '@/lib/utils';
 
 interface Training {
   id: string;
   name: string;
   time: string;
   location: string;
-  dayIndex: number; // 0: 일, 1: 월, 2: 화, 3: 수, 4: 목, 5: 금, 6: 토
+  dayIndex: number;
 }
 
 interface RiskFactor {
@@ -41,7 +43,11 @@ const MOCK_RISK_FACTORS: RiskFactor[] = [
   { id: '3', description: '사격장 결빙으로 인한 미끄러짐 주의', level: 'medium' },
 ];
 
+type TabType = 'training' | 'risk';
+
 export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = false }: UnitDetailPanelHorizontalProps) {
+  const [activeTab, setActiveTab] = useState<TabType>('training');
+  
   const unit = getUnitById(unitId);
   const unitName = unit?.name || '알 수 없는 부대';
   const riskValue = unit?.risk || 0;
@@ -101,141 +107,211 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
         </Button>
       </div>
 
-      {/* Content - 세로 스크롤 레이아웃 */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-6">
-        {/* 현재 위험도 - 대형 표시 */}
-        <div className="bg-muted/40 rounded-xl p-5">
-          <p className="text-sm font-medium text-muted-foreground mb-2">현재 위험도</p>
-          <div className="flex items-end gap-3">
-            <span className={`text-3xl font-bold tabular-nums ${getRiskColor(riskValue)}`}>
-              {riskValue}%
-            </span>
-            <span className={`px-2 py-1 rounded-lg text-xs font-semibold text-white mb-0.5 ${getRiskBg(riskValue)}`}>
-              {getRiskLabel(riskValue)}
-            </span>
-          </div>
-        </div>
-
-        {/* 부대 정보 + 기상 정보 (컴팩트하게 한 줄로) */}
-        <div className="flex gap-3">
-          {/* 부대 정보 */}
-          <div className="flex-1 bg-muted/30 rounded-lg px-3 py-2 flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-muted-foreground">유형</span>
-              <span className="text-xs font-medium text-foreground">{unitType}</span>
-            </div>
-            <div className="w-px h-4 bg-border" />
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-muted-foreground">지역</span>
-              <span className="text-xs font-medium text-foreground">{region}</span>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-5">
+        {/* 현재 위험도 + 부대/기상 정보 */}
+        <div className="flex gap-4">
+          {/* 현재 위험도 */}
+          <div className="bg-muted/40 rounded-xl p-4 shrink-0">
+            <p className="text-xs text-muted-foreground mb-1">현재 위험도</p>
+            <div className="flex items-end gap-2">
+              <span className={`text-2xl font-bold tabular-nums ${getRiskColor(riskValue)}`}>
+                {riskValue}%
+              </span>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold text-white mb-0.5 ${getRiskBg(riskValue)}`}>
+                {getRiskLabel(riskValue)}
+              </span>
             </div>
           </div>
 
-          {/* 기상 정보 */}
-          <div className="flex-1 bg-muted/30 rounded-lg px-3 py-2 flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <Thermometer className="w-3.5 h-3.5 text-status-error" />
-              <span className="text-xs font-medium text-foreground">-5°C</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Cloud className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-xs font-medium text-foreground">눈</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Wind className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-xs font-medium text-foreground">12m/s</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Droplet className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-medium text-foreground">65%</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 주간 훈련 일정 - 캘린더 형식 */}
-        <div>
-          <p className="text-sm font-medium text-muted-foreground mb-3">주간 훈련 일정</p>
-          <div className="grid grid-cols-7 gap-1">
-            {/* 요일 헤더 */}
-            {WEEK_DAYS.map((day, idx) => (
-              <div 
-                key={day} 
-                className={`text-center text-xs font-semibold py-1.5 rounded-t-md ${
-                  idx === 0 ? 'text-status-error bg-status-error/10' : 
-                  idx === 6 ? 'text-primary bg-primary/10' : 
-                  'text-foreground bg-muted/50'
-                }`}
-              >
-                {day}
+          {/* 부대 정보 + 기상 정보 */}
+          <div className="flex-1 flex flex-col gap-2">
+            <div className="bg-muted/30 rounded-lg px-3 py-2 flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground">유형</span>
+                <span className="text-xs font-medium text-foreground">{unitType}</span>
               </div>
-            ))}
-            {/* 각 요일별 일정 */}
-            {WEEK_DAYS.map((_, dayIdx) => {
-              const dayTrainings = MOCK_TRAININGS.filter(t => t.dayIndex === dayIdx);
-              return (
+              <div className="w-px h-4 bg-border" />
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground">지역</span>
+                <span className="text-xs font-medium text-foreground">{region}</span>
+              </div>
+            </div>
+            <div className="bg-muted/30 rounded-lg px-3 py-2 flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <Thermometer className="w-3.5 h-3.5 text-status-error" />
+                <span className="text-xs font-medium text-foreground">-5°C</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Cloud className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-foreground">눈</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Wind className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-foreground">12m/s</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Droplet className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-medium text-foreground">65%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 탭 영역 - 훈련 일정 / 예측 위험 */}
+        <div>
+          <div className="flex border-b border-border mb-4">
+            <button
+              onClick={() => setActiveTab('training')}
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-colors relative",
+                activeTab === 'training'
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              훈련 일정
+              {activeTab === 'training' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('risk')}
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-colors relative",
+                activeTab === 'risk'
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              예측 위험
+              {activeTab === 'risk' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+              )}
+            </button>
+          </div>
+
+          {/* 훈련 일정 탭 */}
+          {activeTab === 'training' && (
+            <div className="grid grid-cols-7 gap-1">
+              {WEEK_DAYS.map((day, idx) => (
                 <div 
-                  key={dayIdx} 
-                  className={`min-h-[100px] p-1.5 rounded-b-md border ${
-                    dayIdx === 0 || dayIdx === 6 ? 'bg-muted/20 border-border/50' : 'bg-muted/30 border-border'
+                  key={day} 
+                  className={`text-center text-xs font-semibold py-1.5 rounded-t-md ${
+                    idx === 0 ? 'text-status-error bg-status-error/10' : 
+                    idx === 6 ? 'text-primary bg-primary/10' : 
+                    'text-foreground bg-muted/50'
                   }`}
                 >
-                  {dayTrainings.length > 0 ? (
-                    <div className="space-y-1">
-                      {dayTrainings.map((training) => (
-                        <TooltipProvider key={training.id} delayDuration={200}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div 
-                                className="p-1.5 bg-primary/10 border border-primary/20 rounded text-[10px] leading-tight cursor-pointer hover:bg-primary/20 transition-colors"
-                              >
-                                <p className="font-semibold text-foreground truncate">{training.name}</p>
-                                <p className="text-primary">{training.time}</p>
-                                <p className="text-muted-foreground truncate">{training.location}</p>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[200px] z-50">
-                              <p className="font-semibold">{training.name}</p>
-                              <p className="text-xs text-primary">{training.time}</p>
-                              <p className="text-xs text-muted-foreground">{training.location}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="h-full flex items-center justify-center">
-                      <span className="text-[10px] text-muted-foreground/50">
-                        {dayIdx === 0 || dayIdx === 6 ? '휴무' : '-'}
-                      </span>
-                    </div>
-                  )}
+                  {day}
                 </div>
-              );
-            })}
-          </div>
+              ))}
+              {WEEK_DAYS.map((_, dayIdx) => {
+                const dayTrainings = MOCK_TRAININGS.filter(t => t.dayIndex === dayIdx);
+                return (
+                  <div 
+                    key={dayIdx} 
+                    className={`min-h-[90px] p-1.5 rounded-b-md border ${
+                      dayIdx === 0 || dayIdx === 6 ? 'bg-muted/20 border-border/50' : 'bg-muted/30 border-border'
+                    }`}
+                  >
+                    {dayTrainings.length > 0 ? (
+                      <div className="space-y-1">
+                        {dayTrainings.map((training) => (
+                          <TooltipProvider key={training.id} delayDuration={200}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div 
+                                  className="p-1.5 bg-primary/10 border border-primary/20 rounded text-[10px] leading-tight cursor-pointer hover:bg-primary/20 transition-colors"
+                                >
+                                  <p className="font-semibold text-foreground truncate">{training.name}</p>
+                                  <p className="text-primary">{training.time}</p>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[200px] z-50">
+                                <p className="font-semibold">{training.name}</p>
+                                <p className="text-xs text-primary">{training.time}</p>
+                                <p className="text-xs text-muted-foreground">{training.location}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="h-full flex items-center justify-center">
+                        <span className="text-[10px] text-muted-foreground/50">
+                          {dayIdx === 0 || dayIdx === 6 ? '휴무' : '-'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* 예측 위험 탭 */}
+          {activeTab === 'risk' && (
+            <div className="space-y-2">
+              {MOCK_RISK_FACTORS.map((factor) => (
+                <div 
+                  key={factor.id} 
+                  className={`px-3 py-2.5 rounded-lg border ${getFactorColor(factor.level)}`}
+                >
+                  <div className="flex items-start gap-2">
+                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                      factor.level === 'high' ? 'bg-status-error text-white' :
+                      factor.level === 'medium' ? 'bg-status-warning text-black' :
+                      'bg-status-success text-white'
+                    }`}>
+                      {getFactorLabel(factor.level)}
+                    </span>
+                    <span className="text-xs leading-relaxed">{factor.description}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* 예측 위험 요인 */}
+        {/* 예보/대비 섹션 */}
         <div>
-          <p className="text-sm font-medium text-muted-foreground mb-3">예측 위험 요인</p>
-          <div className="space-y-2">
-            {MOCK_RISK_FACTORS.map((factor) => (
-              <div 
-                key={factor.id} 
-                className={`px-4 py-3 rounded-lg border ${getFactorColor(factor.level)}`}
-              >
-                <div className="flex items-start gap-3">
-                  <span className={`shrink-0 px-2 py-0.5 rounded text-xs font-semibold ${
-                    factor.level === 'high' ? 'bg-status-error text-white' :
-                    factor.level === 'medium' ? 'bg-status-warning text-black' :
-                    'bg-status-success text-white'
-                  }`}>
-                    {getFactorLabel(factor.level)}
-                  </span>
-                  <span className="text-sm leading-relaxed">{factor.description}</span>
-                </div>
+          <p className="text-sm font-medium text-muted-foreground mb-3">예보/대비</p>
+          <div className="grid grid-cols-2 gap-3">
+            {/* 한파 예보 */}
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Snowflake className="w-4 h-4 text-blue-500" />
+                <span className="text-xs font-semibold text-foreground">한파 주의보</span>
               </div>
-            ))}
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                1/7~1/9 최저 -15°C 예상<br />
+                난방시설 점검, 동파 방지 조치
+              </p>
+            </div>
+
+            {/* 화재 예방 */}
+            <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Flame className="w-4 h-4 text-orange-500" />
+                <span className="text-xs font-semibold text-foreground">화재 예방 강화</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                건조 주의보 발령 중<br />
+                전열기구 사용 제한
+              </p>
+            </div>
+
+            {/* 안전사고 예방 */}
+            <div className="bg-status-warning/10 border border-status-warning/20 rounded-lg p-3 col-span-2">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-4 h-4 text-status-warning" />
+                <span className="text-xs font-semibold text-foreground">동절기 안전수칙</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                야외활동 시 방한장구 필수 착용 · 결빙구간 서행 운전 · 차량 예열 후 출발
+              </p>
+            </div>
           </div>
         </div>
       </div>
