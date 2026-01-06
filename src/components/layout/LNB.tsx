@@ -25,12 +25,12 @@ interface MenuItem {
 const MAIN_MENU_ITEMS: MenuItem[] = [
   { id: 'dashboard', label: '대시보드', icon: LayoutDashboard, path: '/dashboard' },
   { id: 'forecast', label: '예보 분석', icon: TrendingUp, path: '/forecast' },
-  { id: 'reports', label: '보고서', icon: FileText, path: '/reports' },
   { id: 'chatbot', label: '챗봇', icon: MessageSquare, path: '/chatbot' },
+  { id: 'reports', label: '보고서', icon: FileText, path: '/reports' },
 ];
 
 const ADMIN_MENU_ITEMS: MenuItem[] = [
-  { id: 'notice', label: '공지관리', icon: FileText, path: '/admin/notice' },
+  { id: 'notice', label: '공지 관리', icon: FileText, path: '/admin/notice' },
   { id: 'schedule', label: '일정 관리', icon: CalendarDays, path: '/admin/schedule' },
   { id: 'data', label: '데이터 관리', icon: Database, path: '/data' },
   { id: 'users', label: '사용자 관리', icon: Users, path: '/admin/users' },

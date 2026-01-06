@@ -289,7 +289,7 @@ export default function NoticeManagementPage() {
   return (
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
-        title="공지관리" 
+        title="공지 관리" 
         description="공지사항 및 일일 사고사례 관리"
         actions={
           activeTab === 'notices' ? (
