@@ -220,26 +220,57 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
           <div className="w-56 border-r border-border bg-muted/30 flex flex-col">
             {/* Filter Tabs */}
             <div className="px-3 py-2 border-b border-border shrink-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  {TAG_FILTERS.map((filter) => (
-                    <button
-                      key={filter}
-                      onClick={() => setActiveFilter(filter)}
-                      className={cn(
-                        "relative px-2 py-1 text-[10px] transition-colors",
-                        activeFilter === filter
-                          ? "text-foreground font-medium"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      {filter}
-                      {activeFilter === filter && (
-                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-0.5 bg-foreground rounded-full" />
-                      )}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center">
+                {TAG_FILTERS.map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setActiveFilter(filter)}
+                    className={cn(
+                      "relative px-2 py-1 text-[10px] transition-colors",
+                      activeFilter === filter
+                        ? "text-foreground font-medium"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {filter}
+                    {activeFilter === filter && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-0.5 bg-foreground rounded-full" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Notice List (5개) + 전체보기 */}
+            <div className="flex-1 flex flex-col">
+              <div>
+                {filteredNotices.map((notice) => (
+                  <button
+                    key={notice.id}
+                    onClick={() => setSelectedNotice(notice)}
+                    className={`w-full text-left px-3 py-2.5 border-b border-border/50 transition-colors ${
+                      selectedNotice.id === notice.id 
+                        ? 'bg-muted border-l-2 border-l-primary' 
+                        : 'hover:bg-muted/50 border-l-2 border-l-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1 text-[10px] mb-1">
+                      <span className={cn("font-medium", getTagStyle(notice.tag))}>
+                        [{notice.tag}]
+                      </span>
+                      <span className="text-muted-foreground">{notice.date}</span>
+                    </div>
+                    <div className="flex items-start gap-1">
+                      <span className="text-xs text-foreground line-clamp-1 flex-1">{notice.title}</span>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground truncate mt-0.5">
+                      {notice.department}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {/* 하단 남는 영역 - 전체보기 버튼 */}
+              <div className="flex-1 flex items-end justify-end px-3 py-2">
                 <button
                   onClick={handleViewAll}
                   className="flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
@@ -248,34 +279,6 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                   <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
-            </div>
-            
-            {/* Notice List (5개) */}
-            <div className="flex-1">
-              {filteredNotices.map((notice) => (
-                <button
-                  key={notice.id}
-                  onClick={() => setSelectedNotice(notice)}
-                  className={`w-full text-left px-3 py-2.5 border-b border-border/50 transition-colors ${
-                    selectedNotice.id === notice.id 
-                      ? 'bg-muted border-l-2 border-l-primary' 
-                      : 'hover:bg-muted/50 border-l-2 border-l-transparent'
-                  }`}
-                >
-                  <div className="flex items-center gap-1 text-[10px] mb-1">
-                    <span className={cn("font-medium", getTagStyle(notice.tag))}>
-                      [{notice.tag}]
-                    </span>
-                    <span className="text-muted-foreground">{notice.date}</span>
-                  </div>
-                  <div className="flex items-start gap-1">
-                    <span className="text-xs text-foreground line-clamp-1 flex-1">{notice.title}</span>
-                  </div>
-                  <div className="text-[10px] text-muted-foreground truncate mt-0.5">
-                    {notice.department}
-                  </div>
-                </button>
-              ))}
             </div>
           </div>
 
