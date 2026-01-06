@@ -315,17 +315,15 @@ export default function ChatbotPage() {
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuContent align="start" className="w-52 bg-popover z-[100]" sideOffset={5}>
-                    <DropdownMenuRadioGroup value={selectedModel} onValueChange={setSelectedModel}>
-                      {AI_MODELS.map((model) => (
-                        <DropdownMenuRadioItem key={model.id} value={model.id} className="cursor-pointer">
-                          {model.label}
-                        </DropdownMenuRadioItem>
-                      ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                </DropdownMenuPortal>
+                <DropdownMenuContent align="start" className="w-52 bg-popover z-[100]" sideOffset={5}>
+                  <DropdownMenuRadioGroup value={selectedModel} onValueChange={setSelectedModel}>
+                    {AI_MODELS.map((model) => (
+                      <DropdownMenuRadioItem key={model.id} value={model.id} className="cursor-pointer">
+                        {model.label}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
