@@ -574,6 +574,28 @@ export default function DataManagementPage() {
             label: '파일 업로드', 
             content: (
               <div className="space-y-4">
+                {/* 템플릿 다운로드 */}
+                <div className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium">데이터 템플릿</p>
+                    <p className="text-xs text-muted-foreground">필수 컬럼이 포함된 양식 파일</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      toast({
+                        title: '템플릿 다운로드',
+                        description: '사고데이터_템플릿.xlsx 파일을 다운로드합니다.',
+                      });
+                    }}
+                    className="gap-1.5"
+                  >
+                    <Download className="w-4 h-4" />
+                    다운로드
+                  </Button>
+                </div>
+
                 <div>
                   <label className="block text-xs text-muted-foreground mb-1.5">데이터명 *</label>
                   <input
@@ -601,6 +623,7 @@ export default function DataManagementPage() {
                 />
                 <div className="text-[11px] text-muted-foreground space-y-0.5">
                   <p>• Excel(.xlsx, .xls) 또는 CSV 형식 지원</p>
+                  <p>• 필수 컬럼: 발생일자, 사고유형, 부대코드, 계급, 병과 등</p>
                   <p>• 업로드 후 자동으로 모델 학습이 진행됩니다</p>
                 </div>
               </div>
@@ -618,7 +641,7 @@ export default function DataManagementPage() {
     <div className="p-6 space-y-6 animate-page-enter">
       <PageHeader 
         title="데이터 관리" 
-        description="문서, 언론 기사, 예보 모델 학습 데이터 관리"
+        description="AI 챗봇 및 예보 모델 학습을 위한 데이터 관리"
         actions={
           <div className="flex items-center gap-2">
             {activeTab !== 'forecast' && (
