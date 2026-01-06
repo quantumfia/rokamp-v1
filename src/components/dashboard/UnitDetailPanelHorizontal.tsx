@@ -3,39 +3,29 @@ import { Button } from '@/components/ui/button';
 import { getUnitById, getUnitFullName, LEVEL_LABELS, UNIT_TYPE_LABELS } from '@/data/armyUnits';
 import { cn } from '@/lib/utils';
 
-interface ScheduleItem {
-  id: string;
-  type: 'training' | 'risk';
-  title: string;
-  subtitle?: string;
-  level?: 'high' | 'medium' | 'low';
-  date: string;
-}
-
 interface UnitDetailPanelHorizontalProps {
   unitId: string;
   onClose: () => void;
   showBackButton?: boolean;
 }
 
-// 핵심 예보 요약 (유동적 개수)
-const KEY_ALERTS = [
-  { id: '1', label: '한파특보', desc: '1/7~1/9', level: 'high' as const },
-  { id: '2', label: '결빙주의', level: 'medium' as const },
-  { id: '3', label: '유사사례 1건', level: 'low' as const },
+// 훈련 일정 (날짜 있음)
+const TRAINING_ITEMS = [
+  { id: '1', title: 'K-2 소총 영점사격', time: '09:00~12:00', date: '1/6' },
+  { id: '2', title: '기초체력단련', time: '06:00~08:00', date: '1/7' },
+  { id: '3', title: '동절기 차량정비 점검', time: '14:00~17:00', date: '1/8' },
+  { id: '4', title: '야간 기동훈련', time: '20:00~24:00', date: '1/8' },
+  { id: '5', title: '안전교육 (동절기)', time: '10:00~12:00', date: '1/9' },
+  { id: '6', title: '전술훈련 (소대공격)', time: '08:00~18:00', date: '1/10' },
 ];
 
-// 상세 일정 리스트 (간결화)
-const MOCK_SCHEDULE_ITEMS: ScheduleItem[] = [
-  { id: '1', type: 'training', title: 'K-2 소총 영점사격', subtitle: '09:00~12:00', date: '1/6' },
-  { id: '2', type: 'risk', title: '차량 전복 위험 (폭설)', level: 'high', date: '1/6' },
-  { id: '3', type: 'training', title: '기초체력단련', subtitle: '06:00~08:00', date: '1/7' },
-  { id: '4', type: 'training', title: '동절기 차량정비 점검', subtitle: '14:00~17:00', date: '1/8' },
-  { id: '5', type: 'risk', title: '저체온증 주의 (야간행군)', level: 'medium', date: '1/8' },
-  { id: '6', type: 'training', title: '야간 기동훈련', subtitle: '20:00~24:00', date: '1/8' },
-  { id: '7', type: 'risk', title: '사격장 결빙 미끄러짐', level: 'medium', date: '1/9' },
-  { id: '8', type: 'training', title: '안전교육 (동절기)', subtitle: '10:00~12:00', date: '1/9' },
-  { id: '9', type: 'training', title: '전술훈련 (소대공격)', subtitle: '08:00~18:00', date: '1/10' },
+// 예보/위험 (날짜 없음)
+const RISK_ALERTS = [
+  { id: '1', title: '한파특보 예상 (1/7~1/9)', level: 'high' as const },
+  { id: '2', title: '폭설로 인한 차량 전복 위험', level: 'high' as const },
+  { id: '3', title: '야간 행군 중 저체온증 주의', level: 'medium' as const },
+  { id: '4', title: '사격장 결빙으로 미끄러짐 주의', level: 'medium' as const },
+  { id: '5', title: 'GOP 빙판 낙상사고 발생 (1군단)', level: 'low' as const },
 ];
 
 export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = false }: UnitDetailPanelHorizontalProps) {
@@ -65,14 +55,6 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
     if (risk >= 50) return '주의';
     if (risk >= 25) return '관심';
     return '안전';
-  };
-
-  const getAlertStyle = (level: 'high' | 'medium' | 'low') => {
-    switch (level) {
-      case 'high': return 'bg-status-error/10 border-status-error/30 text-status-error';
-      case 'medium': return 'bg-status-warning/10 border-status-warning/30 text-status-warning';
-      default: return 'bg-muted/50 border-border text-muted-foreground';
-    }
   };
 
   return (
@@ -146,49 +128,50 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
           </div>
         </div>
 
-        {/* 핵심 예보 뱃지 */}
-        <div className="flex flex-wrap gap-2">
-          {KEY_ALERTS.map((alert) => (
-            <span 
-              key={alert.id}
-              className={cn(
-                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium",
-                getAlertStyle(alert.level)
-              )}
-            >
-              {alert.label}
-              {alert.desc && <span className="opacity-70">({alert.desc})</span>}
-            </span>
-          ))}
+        {/* 일정 (훈련) */}
+        <div>
+          <p className="text-sm font-semibold text-foreground mb-2">일정</p>
+          <div className="space-y-1 max-h-[140px] overflow-y-auto">
+            {TRAINING_ITEMS.map((item) => (
+              <div 
+                key={item.id}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded text-sm hover:bg-muted/30"
+              >
+                <span className="shrink-0 w-10 text-xs text-muted-foreground">{item.date}</span>
+                <span className="shrink-0 w-1 h-4 rounded-full bg-primary/40" />
+                <span className="flex-1 truncate text-foreground">{item.title}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{item.time}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* 상세 일정 - 간결한 리스트 */}
+        {/* 예보/위험 */}
         <div>
-          <p className="text-sm font-semibold text-foreground mb-2">상세 일정</p>
-          <div className="space-y-1 max-h-[220px] overflow-y-auto">
-            {MOCK_SCHEDULE_ITEMS.map((item) => (
+          <p className="text-sm font-semibold text-foreground mb-2">예보/위험</p>
+          <div className="space-y-1">
+            {RISK_ALERTS.map((item) => (
               <div 
                 key={item.id}
                 className={cn(
                   "flex items-center gap-2 px-2.5 py-1.5 rounded text-sm",
-                  item.type === 'risk' 
-                    ? item.level === 'high' 
-                      ? 'bg-status-error/5 text-status-error' 
-                      : 'bg-status-warning/5 text-status-warning'
-                    : 'hover:bg-muted/30'
+                  item.level === 'high' 
+                    ? 'bg-status-error/5' 
+                    : item.level === 'medium'
+                      ? 'bg-status-warning/5'
+                      : 'bg-muted/30'
                 )}
               >
-                <span className="shrink-0 w-10 text-xs text-muted-foreground">{item.date}</span>
                 <span className={cn(
                   "shrink-0 w-1 h-4 rounded-full",
-                  item.type === 'risk'
-                    ? item.level === 'high' ? 'bg-status-error' : 'bg-status-warning'
-                    : 'bg-primary/40'
+                  item.level === 'high' ? 'bg-status-error' : 
+                  item.level === 'medium' ? 'bg-status-warning' : 'bg-muted-foreground/50'
                 )} />
-                <span className="flex-1 truncate">{item.title}</span>
-                {item.subtitle && (
-                  <span className="shrink-0 text-xs text-muted-foreground">{item.subtitle}</span>
-                )}
+                <span className={cn(
+                  "flex-1",
+                  item.level === 'high' ? 'text-status-error' : 
+                  item.level === 'medium' ? 'text-status-warning' : 'text-muted-foreground'
+                )}>{item.title}</span>
               </div>
             ))}
           </div>
