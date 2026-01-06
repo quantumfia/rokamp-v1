@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { 
   FileText, 
   Download, 
@@ -22,7 +22,7 @@ import {
 import rokaLogo from '@/assets/roka-logo.svg';
 import { ReportFormData } from '@/components/reports/ReportGeneratorForm';
 import { useAuth } from '@/contexts/AuthContext';
-import { canEditContent, canDeleteContent } from '@/lib/rbac';
+import { canEditContent, canDeleteContent, getAccessibleUnits } from '@/lib/rbac';
 
 // 사고 보고서 타입
 interface AccidentReport {
@@ -289,14 +289,30 @@ export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListPr
   const canEdit = (authorName: string) => canEditContent(user?.role, authorName, user?.name || '');
   const canDelete = (authorName: string) => canDeleteContent(user?.role, authorName, user?.name || '');
 
-  // 필터링된 보고서
-  const filteredReports = MOCK_ACCIDENT_REPORTS.filter(report => {
-    const matchesSearch = 
-      report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.unit.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.id.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
+  // 역할 기반 접근 가능 부대 목록
+  const accessibleUnits = useMemo(() => {
+    return getAccessibleUnits(user?.role, user?.unitId);
+  }, [user?.role, user?.unitId]);
+
+  // 역할 기반 + 검색 필터링된 보고서
+  const filteredReports = useMemo(() => {
+    return MOCK_ACCIDENT_REPORTS.filter(report => {
+      // 역할 기반 부대 필터링: 보고서의 unit 필드에 접근 가능한 부대명이 포함되어 있는지 확인
+      // HQ는 모든 보고서 접근 가능
+      const hasUnitAccess = user?.role === 'ROLE_HQ' || 
+        accessibleUnits.some(unit => report.unit.includes(unit.name));
+      
+      if (!hasUnitAccess) return false;
+
+      // 검색 필터
+      const matchesSearch = 
+        report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        report.unit.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        report.id.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return matchesSearch;
+    });
+  }, [user?.role, accessibleUnits, searchTerm]);
 
   // 상태 라벨
   const getStatusLabel = (status: string) => {
