@@ -15,6 +15,8 @@ import ReportsPage from "./pages/ReportsPage";
 import DataManagementPage from "./pages/DataManagementPage";
 import ScheduleManagementPage from "./pages/ScheduleManagementPage";
 import NoticeManagementPage from "./pages/NoticeManagementPage";
+import NoticeFormPage from "./pages/NoticeFormPage";
+import IncidentFormPage from "./pages/IncidentFormPage";
 import UserManagementPage from "./pages/UserManagementPage";
 import SystemSettingsPage from "./pages/SystemSettingsPage";
 import NotFound from "./pages/NotFound";
@@ -46,7 +48,12 @@ function AppRoutes() {
         <Route path="/data" element={<DataManagementPage />} />
         <Route path="/admin/schedule" element={<ScheduleManagementPage />} />
         <Route path="/admin/notice" element={<NoticeManagementPage />} />
+        <Route path="/admin/notice/new" element={<NoticeFormPage />} />
+        <Route path="/admin/notice/:id" element={<NoticeFormPage />} />
+        <Route path="/admin/incident/new" element={<IncidentFormPage />} />
+        <Route path="/admin/incident/:id" element={<IncidentFormPage />} />
         <Route path="/admin/users" element={<UserManagementPage />} />
+        <Route path="/admin/settings" element={<SystemSettingsPage />} />
         <Route path="/admin/settings" element={<SystemSettingsPage />} />
       </Route>
       <Route path="*" element={<NotFound />} />
