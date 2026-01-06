@@ -1,20 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AlertCircle, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { getAccessibleUnitIds } from '@/lib/rbac';
 
 interface IncidentItem {
   id: string;
   title: string;
   unit: string;
+  unitId: string; // 부대 ID 추가
   type: 'accident' | 'warning' | 'info';
   date: string;
 }
 
-const MOCK_INCIDENTS: IncidentItem[] = [
-  { id: '1', title: '교통사고로 후송치료 중', unit: '1사단 일병', type: 'accident', date: '2026-01-05' },
-  { id: '2', title: '사격훈련 중 안전사고 징후 감지', unit: '제7사단 3연대', type: 'warning', date: '2026-01-05' },
-  { id: '3', title: '동파 예방 조치 필요', unit: '전 부대', type: 'warning', date: '2026-01-05' },
-  { id: '4', title: '야간훈련 정상 종료', unit: '제1사단 11연대', type: 'info', date: '2026-01-05' },
+const ALL_INCIDENTS: IncidentItem[] = [
+  { id: '1', title: '교통사고로 후송치료 중', unit: '1사단 일병', unitId: 'corps-1-div-1', type: 'accident', date: '2026-01-05' },
+  { id: '2', title: '사격훈련 중 안전사고 징후 감지', unit: '제7사단 3연대', unitId: 'corps-7-div-8', type: 'warning', date: '2026-01-05' },
+  { id: '3', title: '동파 예방 조치 필요', unit: '전 부대', unitId: 'hq', type: 'warning', date: '2026-01-05' },
+  { id: '4', title: '야간훈련 정상 종료', unit: '제1사단 11연대', unitId: 'corps-1-div-1', type: 'info', date: '2026-01-05' },
+  { id: '5', title: '차량 정비 중 경미한 부상', unit: '수도기계화보병사단', unitId: 'corps-7-div-mech-cap', type: 'accident', date: '2026-01-05' },
+  { id: '6', title: '혹한기 훈련 안전점검 완료', unit: '제3군단', unitId: 'corps-3', type: 'info', date: '2026-01-05' },
 ];
 
 interface IncidentTickerProps {
@@ -23,22 +28,47 @@ interface IncidentTickerProps {
 }
 
 export function IncidentTicker({ onClickDetail, compact = false }: IncidentTickerProps) {
+  const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // 역할 기반 필터링된 사고 목록
+  const filteredIncidents = useMemo(() => {
+    if (!user) return ALL_INCIDENTS;
+    
+    const accessibleIds = new Set(getAccessibleUnitIds(user.role, user.unitId));
+    
+    // 전체 부대 대상 공지(hq)는 모든 역할에게 표시
+    return ALL_INCIDENTS.filter(incident => 
+      incident.unitId === 'hq' || accessibleIds.has(incident.unitId)
+    );
+  }, [user?.role, user?.unitId]);
+
+  // 필터링된 목록이 비어있으면 기본 메시지 표시용 더미 항목
+  const incidents = filteredIncidents.length > 0 
+    ? filteredIncidents 
+    : [{ id: '0', title: '현재 사고 사례가 없습니다', unit: '해당 없음', unitId: '', type: 'info' as const, date: '' }];
+
   // 자동 전환 (5초마다)
   useEffect(() => {
+    if (incidents.length <= 1) return;
+    
     const timer = setInterval(() => {
       setIsAnimating(true);
       setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % MOCK_INCIDENTS.length);
+        setCurrentIndex((prev) => (prev + 1) % incidents.length);
         setIsAnimating(false);
       }, 300);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [incidents.length]);
 
-  const currentIncident = MOCK_INCIDENTS[currentIndex];
+  // 필터링 변경 시 인덱스 리셋
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [user?.role, user?.unitId]);
+
+  const currentIncident = incidents[currentIndex];
 
   const getTypeStyle = (type: string) => {
     switch (type) {
@@ -96,9 +126,9 @@ export function IncidentTicker({ onClickDetail, compact = false }: IncidentTicke
       </div>
 
       {/* 하단: 인디케이터 (compact 모드에서는 숨김) */}
-      {!compact && (
+      {!compact && incidents.length > 1 && (
         <div className="flex items-center justify-center gap-1.5 shrink-0 mt-1">
-          {MOCK_INCIDENTS.map((_, idx) => (
+          {incidents.map((_, idx) => (
             <button
               key={idx}
               onClick={() => {

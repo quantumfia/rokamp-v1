@@ -1,21 +1,33 @@
+import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useAuth } from '@/contexts/AuthContext';
+import { getAccessibleUnitIds } from '@/lib/rbac';
+import { ARMY_UNITS, UNIT_LOCATIONS } from '@/data/armyUnits';
 
-// 발생사고 현황 데이터
-const accidentData = [
-  { type: '폭행 사고', count: 15 },
-  { type: '경제 범죄', count: 11 },
-  { type: '성 범죄', count: 8 },
-  { type: '음주 운전', count: 6 },
-  { type: '대 상관', count: 4 },
+// 발생사고 현황 데이터 (부대별)
+const ALL_ACCIDENTS = [
+  { type: '폭행 사고', unitId: 'corps-1-div-1', count: 3 },
+  { type: '폭행 사고', unitId: 'corps-1-div-9', count: 5 },
+  { type: '폭행 사고', unitId: 'corps-7-div-8', count: 4 },
+  { type: '폭행 사고', unitId: 'corps-2-div-7', count: 3 },
+  { type: '경제 범죄', unitId: 'corps-1-div-1', count: 2 },
+  { type: '경제 범죄', unitId: 'corps-3-div-12', count: 4 },
+  { type: '경제 범죄', unitId: 'corps-5-div-3', count: 5 },
+  { type: '성 범죄', unitId: 'corps-1-div-25', count: 3 },
+  { type: '성 범죄', unitId: 'corps-7-div-mech-cap', count: 5 },
+  { type: '음주 운전', unitId: 'corps-1-div-1', count: 2 },
+  { type: '음주 운전', unitId: 'soc-2-div-31', count: 4 },
+  { type: '대 상관', unitId: 'corps-2-div-15', count: 2 },
+  { type: '대 상관', unitId: 'corps-1-div-9', count: 2 },
 ];
 
 // 예측 위험 요인 데이터 (도넛 차트) - 중간 채도 파랑 계열 그라데이션
 const riskFactorData = [
-  { name: '훈련 강도', value: 32, color: '#6b8cae' },  // 밝은 스틸 블루
-  { name: '근무 피로', value: 28, color: '#527394' },  // 스틸 블루
-  { name: '대인 갈등', value: 20, color: '#3d5a7a' },  // 진한 스틸 블루
-  { name: '환경 요인', value: 12, color: '#2a4260' },  // 어두운 스틸 블루
-  { name: '기타', value: 8, color: '#1a2c45' },        // 매우 어두운 스틸 블루
+  { name: '훈련 강도', value: 32, color: '#6b8cae' },
+  { name: '근무 피로', value: 28, color: '#527394' },
+  { name: '대인 갈등', value: 20, color: '#3d5a7a' },
+  { name: '환경 요인', value: 12, color: '#2a4260' },
+  { name: '기타', value: 8, color: '#1a2c45' },
 ];
 
 const chartTooltipStyle = {
@@ -28,15 +40,51 @@ const chartTooltipStyle = {
 };
 
 export function TrendAnalysisPanel() {
-  // 위험부대 수
-  const dangerousUnitCount = 12;
-  const totalUnitCount = 275;
-  
-  // 위험도 평균
-  const averageRiskScore = 67.3;
+  const { user } = useAuth();
+
+  // 역할 기반 필터링된 데이터
+  const { accidentData, dangerousUnitCount, totalUnitCount, averageRiskScore } = useMemo(() => {
+    const accessibleIds = new Set(getAccessibleUnitIds(user?.role, user?.unitId));
+    
+    // 접근 가능한 부대의 사고만 필터링
+    const filteredAccidents = ALL_ACCIDENTS.filter(a => accessibleIds.has(a.unitId));
+    
+    // 사고 유형별 합계
+    const accidentMap = new Map<string, number>();
+    filteredAccidents.forEach(a => {
+      accidentMap.set(a.type, (accidentMap.get(a.type) || 0) + a.count);
+    });
+    
+    const accidentData = Array.from(accidentMap.entries())
+      .map(([type, count]) => ({ type, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+    
+    // 접근 가능한 부대 수
+    const accessibleUnits = ARMY_UNITS.filter(u => 
+      u.level !== 'CATEGORY' && accessibleIds.has(u.id)
+    );
+    const totalUnitCount = accessibleUnits.length;
+    
+    // 위험 부대 수 (risk >= 60)
+    const dangerousUnitCount = accessibleUnits.filter(u => {
+      const loc = UNIT_LOCATIONS[u.id];
+      return loc && loc.risk >= 60;
+    }).length;
+    
+    // 위험도 평균
+    const riskyUnits = accessibleUnits
+      .map(u => UNIT_LOCATIONS[u.id]?.risk)
+      .filter((r): r is number => r !== undefined);
+    const averageRiskScore = riskyUnits.length > 0 
+      ? Math.round((riskyUnits.reduce((a, b) => a + b, 0) / riskyUnits.length) * 10) / 10
+      : 0;
+    
+    return { accidentData, dangerousUnitCount, totalUnitCount, averageRiskScore };
+  }, [user?.role, user?.unitId]);
   
   // 상위 발생사고
-  const topAccident = accidentData[0];
+  const topAccident = accidentData[0] || { type: '없음', count: 0 };
 
   // 위험도 점수에 따른 색상 반환
   const getRiskScoreColor = (score: number) => {

@@ -8,6 +8,7 @@ import { TrendAnalysisPanel } from '@/components/dashboard/TrendAnalysisPanel';
 import { DashboardNoticeList } from '@/components/dashboard/DashboardNoticeList';
 import { RiskLevelPanel } from '@/components/dashboard/RiskLevelGauge';
 import { useSearchContext } from '@/components/layout/MainLayout';
+import { useAuth } from '@/contexts/AuthContext';
 import { X, Filter, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ import {
 
 export default function DashboardPage() {
   const searchContext = useSearchContext();
+  const { user } = useAuth();
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<FilterState>({
@@ -31,11 +33,21 @@ export default function DashboardPage() {
   // 반응형 패널 상태
   const [showLeftPanel, setShowLeftPanel] = useState(false);
 
+  // 대대급(BN)은 자동으로 자기 부대 상세 표시
+  const isBattalionRole = user?.role === 'ROLE_BN';
+
   // 초기 로딩 시뮬레이션
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500);
     return () => clearTimeout(timer);
   }, []);
+
+  // BN 역할일 때 자동으로 자기 부대 선택
+  useEffect(() => {
+    if (isBattalionRole && user?.unitId && !selectedUnitId) {
+      setSelectedUnitId(user.unitId);
+    }
+  }, [isBattalionRole, user?.unitId, selectedUnitId]);
 
   // GNB 검색에서 부대 선택 시 처리
   useEffect(() => {
@@ -51,7 +63,10 @@ export default function DashboardPage() {
   };
 
   const handleCloseDetail = () => {
-    setSelectedUnitId(null);
+    // BN 역할은 상세 닫기 불가 (항상 자기 부대 표시)
+    if (!isBattalionRole) {
+      setSelectedUnitId(null);
+    }
   };
 
   const handleIncidentDetail = () => {
@@ -102,7 +117,7 @@ export default function DashboardPage() {
             <UnitDetailPanelHorizontal 
               unitId={selectedUnitId} 
               onClose={handleCloseDetail}
-              showBackButton
+              showBackButton={!isBattalionRole} // BN은 뒤로가기 버튼 숨김
             />
           ) : (
             <>
