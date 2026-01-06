@@ -49,7 +49,7 @@ export default function ForecastPage() {
         />
 
         {/* 부대 선택 필터 */}
-        <Card className="p-3 border-border min-w-[280px]">
+        <Card className="p-3 border-border w-[280px] flex-shrink-0">
           <div className="flex items-center gap-2 mb-2">
             <Building2 className="w-4 h-4 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground">분석 대상 부대</span>
@@ -72,11 +72,13 @@ export default function ForecastPage() {
                   전체 부대 (전군)
                 </button>
               )}
-              <UnitTreeSelect 
-                value={selectedUnit === 'all' ? '' : selectedUnit} 
-                onChange={setSelectedUnit}
-                useRoleFilter={true}
-              />
+              <div className="max-h-[200px] overflow-y-auto border border-border/50 rounded-md">
+                <UnitTreeSelect 
+                  value={selectedUnit === 'all' ? '' : selectedUnit} 
+                  onChange={setSelectedUnit}
+                  useRoleFilter={true}
+                />
+              </div>
             </div>
           )}
         </Card>
