@@ -36,7 +36,7 @@ export interface ArmyUnit {
   id: string;
   name: string;
   parentId: string | null;
-  level: 'HQ' | 'CATEGORY' | 'DIRECT_COMMAND' | 'COMMAND' | 'CORPS' | 'DIVISION' | 'BRIGADE' | 'REGIMENT' | 'BATTALION' | 'COMPANY';
+  level: 'HQ' | 'DIRECT_COMMAND' | 'COMMAND' | 'CORPS' | 'DIVISION' | 'BRIGADE' | 'REGIMENT' | 'BATTALION' | 'COMPANY';
   // 지도 표시용 데이터 (선택적)
   lat?: number;
   lng?: number;
@@ -126,16 +126,12 @@ export const ARMY_UNITS: ArmyUnit[] = [
   // ========================================
   { id: 'hq', name: '육군본부', parentId: null, level: 'HQ', ...UNIT_LOCATIONS['hq'] },
 
-  // 분류: 직할부대 / 예하부대
-  { id: 'direct-units', name: '직할부대', parentId: 'hq', level: 'CATEGORY' },
-  { id: 'subordinate-units', name: '예하부대', parentId: 'hq', level: 'CATEGORY' },
-
   // ========================================
-  // 1.1 직할부대
+  // 직할부대 (육군본부 바로 예하)
   // ========================================
 
-  // 1.1.1 수도방위사령부
-  { id: 'sdc', name: '수도방위사령부', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['sdc'] },
+  // 수도방위사령부
+  { id: 'sdc', name: '수도방위사령부', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['sdc'] },
   { id: 'sdc-div-52', name: '제52보병사단', parentId: 'sdc', level: 'DIVISION', ...UNIT_LOCATIONS['sdc-div-52'] },
   { id: 'sdc-div-56', name: '제56보병사단', parentId: 'sdc', level: 'DIVISION', ...UNIT_LOCATIONS['sdc-div-56'] },
   { id: 'sdc-bde-ad-1', name: '제1방공여단', parentId: 'sdc', level: 'BRIGADE' },
@@ -151,8 +147,8 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'sdc-bn-css', name: '군수지원대대', parentId: 'sdc', level: 'BATTALION' },
   { id: 'sdc-bn-shield', name: '방패교육대', parentId: 'sdc', level: 'BATTALION' },
 
-  // 1.1.2 육군특수전사령부
-  { id: 'swc', name: '육군특수전사령부', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['swc'] },
+  // 육군특수전사령부
+  { id: 'swc', name: '육군특수전사령부', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['swc'] },
   { id: 'swc-school', name: '특수전학교', parentId: 'swc', level: 'BRIGADE' },
   { id: 'swc-bde-sf-1', name: '제1공수특전여단', parentId: 'swc', level: 'BRIGADE', ...UNIT_LOCATIONS['swc-bde-sf-1'] },
   { id: 'swc-bde-sf-3', name: '제3공수특전여단', parentId: 'swc', level: 'BRIGADE' },
@@ -165,8 +161,8 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'swc-grp-soag', name: '특수작전항공단', parentId: 'swc', level: 'REGIMENT' },
   { id: 'swc-grp-sig-123', name: '제123정보통신단', parentId: 'swc', level: 'REGIMENT' },
 
-  // 1.1.3 육군교육사령부
-  { id: 'tradoc', name: '육군교육사령부', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['tradoc'] },
+  // 육군교육사령부
+  { id: 'tradoc', name: '육군교육사령부', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['tradoc'] },
   { id: 'tradoc-nco', name: '육군부사관학교', parentId: 'tradoc', level: 'BRIGADE' },
   { id: 'tradoc-nco-grp', name: '교육단', parentId: 'tradoc-nco', level: 'REGIMENT' },
   { id: 'tradoc-katc', name: '육군훈련소', parentId: 'tradoc', level: 'BRIGADE', ...UNIT_LOCATIONS['tradoc-katc'] },
@@ -208,8 +204,8 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'tradoc-sangmu-spt', name: '상무대 근무지원단', parentId: 'tradoc', level: 'REGIMENT' },
   { id: 'tradoc-k9', name: '군견교육대', parentId: 'tradoc', level: 'BATTALION' },
 
-  // 1.1.4 육군군수사령부
-  { id: 'amc', name: '육군군수사령부', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['amc'] },
+  // 육군군수사령부
+  { id: 'amc', name: '육군군수사령부', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['amc'] },
   { id: 'amc-supply', name: '육군종합보급창', parentId: 'amc', level: 'BRIGADE' },
   { id: 'amc-supply-grp-1', name: '제1보급단', parentId: 'amc-supply', level: 'REGIMENT' },
   { id: 'amc-supply-grp-2', name: '제2보급단', parentId: 'amc-supply', level: 'REGIMENT' },
@@ -225,26 +221,26 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'amc-maint-research', name: '정비기술연구소', parentId: 'amc-maint', level: 'REGIMENT' },
   { id: 'amc-ammo', name: '육군탄약지원사령부', parentId: 'amc', level: 'BRIGADE' },
 
-  // 1.1.5 육군인사사령부
-  { id: 'hrc', name: '육군인사사령부', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['hrc'] },
+  // 육군인사사령부
+  { id: 'hrc', name: '육군인사사령부', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['hrc'] },
   { id: 'hrc-records', name: '육군기록정보관리단', parentId: 'hrc', level: 'REGIMENT' },
   { id: 'hrc-welfare', name: '육군복지지원대대', parentId: 'hrc', level: 'BATTALION' },
   { id: 'hrc-8army', name: '주한 미8군 한국군지원단', parentId: 'hrc', level: 'REGIMENT' },
   { id: 'hrc-repldep', name: '중앙보충대대', parentId: 'hrc', level: 'BATTALION' },
   { id: 'hrc-band', name: '육군군악의장대대', parentId: 'hrc', level: 'BATTALION' },
 
-  // 1.1.6 육군미사일전략사령부
-  { id: 'amsc', name: '육군미사일전략사령부', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['amsc'] },
+  // 육군미사일전략사령부
+  { id: 'amsc', name: '육군미사일전략사령부', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['amsc'] },
 
-  // 1.1.7 육군항공사령부
-  { id: 'aac', name: '육군항공사령부', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['aac'] },
+  // 육군항공사령부
+  { id: 'aac', name: '육군항공사령부', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['aac'] },
   { id: 'aac-bde-1', name: '제1전투항공여단', parentId: 'aac', level: 'BRIGADE' },
   { id: 'aac-bde-2', name: '제2전투항공여단', parentId: 'aac', level: 'BRIGADE' },
   { id: 'aac-bde-maint', name: '항공정비여단', parentId: 'aac', level: 'BRIGADE' },
   { id: 'aac-medevac', name: '의무후송항공대', parentId: 'aac', level: 'BATTALION' },
 
-  // 1.1.8 육군동원전력사령부
-  { id: 'amfc', name: '육군동원전력사령부', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['amfc'] },
+  // 육군동원전력사령부
+  { id: 'amfc', name: '육군동원전력사령부', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['amfc'] },
   { id: 'amfc-div-60', name: '제60보병사단', parentId: 'amfc', level: 'DIVISION' },
   { id: 'amfc-div-66', name: '제66보병사단', parentId: 'amfc', level: 'DIVISION' },
   { id: 'amfc-div-72', name: '제72보병사단', parentId: 'amfc', level: 'DIVISION' },
@@ -262,42 +258,42 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'amfc-grp-56', name: '제56동원지원단', parentId: 'amfc', level: 'REGIMENT' },
   { id: 'amfc-grp-convoy', name: '동원자원호송단', parentId: 'amfc', level: 'REGIMENT' },
 
-  // 1.1.9 육군사관학교
-  { id: 'kma', name: '육군사관학교', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['kma'] },
+  // 육군사관학교
+  { id: 'kma', name: '육군사관학교', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['kma'] },
   { id: 'kma-prof', name: '교수부', parentId: 'kma', level: 'BRIGADE' },
   { id: 'kma-cadet', name: '생도대', parentId: 'kma', level: 'BRIGADE' },
   { id: 'kma-staff', name: '참모부', parentId: 'kma', level: 'REGIMENT' },
 
-  // 1.1.10 육군3사관학교
-  { id: 'kma3', name: '육군3사관학교', parentId: 'direct-units', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['kma3'] },
+  // 육군3사관학교
+  { id: 'kma3', name: '육군3사관학교', parentId: 'hq', level: 'DIRECT_COMMAND', ...UNIT_LOCATIONS['kma3'] },
   { id: 'kma3-prof', name: '교수부', parentId: 'kma3', level: 'BRIGADE' },
   { id: 'kma3-cadet', name: '생도대', parentId: 'kma3', level: 'BRIGADE' },
   { id: 'kma3-staff', name: '참모부', parentId: 'kma3', level: 'REGIMENT' },
 
-  // 1.1.11 육군학생군사학교
-  { id: 'rotc-school', name: '육군학생군사학교', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
+  // 육군학생군사학교
+  { id: 'rotc-school', name: '육군학생군사학교', parentId: 'hq', level: 'DIRECT_COMMAND' },
   { id: 'rotc-school-grp', name: '학생군사교육단', parentId: 'rotc-school', level: 'REGIMENT' },
 
-  // 1.1.12 기타부대
-  { id: 'awc', name: '육군대학', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'cid', name: '육군수사단', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'jag', name: '육군검찰단', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'bctp', name: '육군전투지휘훈련단', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'tiger-plan', name: '육군아미타이거4.0통합기획단', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'ai-grp', name: '육군지능정보기술단', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'peo', name: '육군전력지원체계사업단', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'safety', name: '육군전투준비안전단', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'test', name: '육군시험평가단', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'cyber', name: '육군사이버작전센터', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'future', name: '육군미래혁신연구센터', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
-  { id: 'guard-2', name: '제2경비단', parentId: 'direct-units', level: 'DIRECT_COMMAND' },
+  // 기타 직할부대
+  { id: 'awc', name: '육군대학', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'cid', name: '육군수사단', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'jag', name: '육군검찰단', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'bctp', name: '육군전투지휘훈련단', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'tiger-plan', name: '육군아미타이거4.0통합기획단', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'ai-grp', name: '육군지능정보기술단', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'peo', name: '육군전력지원체계사업단', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'safety', name: '육군전투준비안전단', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'test', name: '육군시험평가단', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'cyber', name: '육군사이버작전센터', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'future', name: '육군미래혁신연구센터', parentId: 'hq', level: 'DIRECT_COMMAND' },
+  { id: 'guard-2', name: '제2경비단', parentId: 'hq', level: 'DIRECT_COMMAND' },
 
   // ========================================
-  // 1.2 예하부대
+  // 예하부대 (육군본부 바로 예하)
   // ========================================
 
-  // 1.2.1 지상작전사령부
-  { id: 'goc', name: '지상작전사령부', parentId: 'subordinate-units', level: 'COMMAND', ...UNIT_LOCATIONS['goc'] },
+  // 지상작전사령부
+  { id: 'goc', name: '지상작전사령부', parentId: 'hq', level: 'COMMAND', ...UNIT_LOCATIONS['goc'] },
   { id: 'goc-div-36', name: '제36보병사단', parentId: 'goc', level: 'DIVISION', ...UNIT_LOCATIONS['goc-div-36'] },
   { id: 'goc-div-55', name: '제55보병사단', parentId: 'goc', level: 'DIVISION', ...UNIT_LOCATIONS['goc-div-55'] },
   { id: 'goc-lsc-1', name: '제1군수지원사령부', parentId: 'goc', level: 'BRIGADE' },
@@ -482,7 +478,6 @@ export function getUnitPath(unitId: string): ArmyUnit[] {
 export function getUnitFullName(unitId: string): string {
   const path = getUnitPath(unitId);
   return path
-    .filter(u => u.level !== 'CATEGORY')
     .map(u => u.name)
     .join(' > ');
 }
@@ -511,7 +506,6 @@ export function hasChildren(unitId: string): boolean {
 // 레벨별 한글 라벨
 export const LEVEL_LABELS: Record<ArmyUnit['level'], string> = {
   HQ: '본부',
-  CATEGORY: '분류',
   DIRECT_COMMAND: '직할부대',
   COMMAND: '사령부',
   CORPS: '군단',

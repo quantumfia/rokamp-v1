@@ -41,10 +41,9 @@ const LEVEL_LABELS: Record<string, string> = {
   'COMPANY': '중대',
 };
 
-// 모든 부대 (CATEGORY 제외)
+// 모든 부대 목록
 const getDisplayUnits = () => {
   return ARMY_UNITS
-    .filter((unit) => unit.level !== 'CATEGORY') // 분류(CATEGORY)는 제외
     .map((unit) => {
       const location = UNIT_LOCATIONS[unit.id];
       // 위험도: 위치 정보가 있으면 그 값, 없으면 랜덤 기본값 생성
