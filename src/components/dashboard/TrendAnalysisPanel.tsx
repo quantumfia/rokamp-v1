@@ -4,29 +4,39 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getAccessibleUnitIds } from '@/lib/rbac';
 import { ARMY_UNITS, UNIT_LOCATIONS } from '@/data/armyUnits';
 
-// 발생사고 현황 데이터 (부대별)
+// 발생사고 현황 데이터 (부대별) - forecastData와 동일한 분류 체계 사용
+// 군기사고: 폭행, 성범죄, 음주운전
+// 안전사고: 교통사고, 화재사고, 추락/충격, 한랭질환
+// 군무이탈
 const ALL_ACCIDENTS = [
-  { type: '폭행 사고', unitId: 'corps-1-div-1', count: 3 },
-  { type: '폭행 사고', unitId: 'corps-1-div-9', count: 5 },
-  { type: '폭행 사고', unitId: 'corps-7-div-8', count: 4 },
-  { type: '폭행 사고', unitId: 'corps-2-div-7', count: 3 },
-  { type: '경제 범죄', unitId: 'corps-1-div-1', count: 2 },
-  { type: '경제 범죄', unitId: 'corps-3-div-12', count: 4 },
-  { type: '경제 범죄', unitId: 'corps-5-div-3', count: 5 },
-  { type: '성 범죄', unitId: 'corps-1-div-25', count: 3 },
-  { type: '성 범죄', unitId: 'corps-7-div-mech-cap', count: 5 },
-  { type: '음주 운전', unitId: 'corps-1-div-1', count: 2 },
-  { type: '음주 운전', unitId: 'soc-2-div-31', count: 4 },
-  { type: '대 상관', unitId: 'corps-2-div-15', count: 2 },
-  { type: '대 상관', unitId: 'corps-1-div-9', count: 2 },
+  // 군기사고
+  { type: '폭행사고', category: '군기사고', unitId: 'corps-1-div-1', count: 3 },
+  { type: '폭행사고', category: '군기사고', unitId: 'corps-1-div-9', count: 5 },
+  { type: '폭행사고', category: '군기사고', unitId: 'corps-7-div-8', count: 4 },
+  { type: '성범죄', category: '군기사고', unitId: 'corps-1-div-25', count: 3 },
+  { type: '성범죄', category: '군기사고', unitId: 'corps-7-div-mech-cap', count: 2 },
+  { type: '음주운전', category: '군기사고', unitId: 'corps-1-div-1', count: 2 },
+  { type: '음주운전', category: '군기사고', unitId: 'soc-2-div-31', count: 4 },
+  // 안전사고
+  { type: '교통사고', category: '안전사고', unitId: 'corps-3-div-3', count: 4 },
+  { type: '교통사고', category: '안전사고', unitId: 'corps-2-div-7', count: 3 },
+  { type: '교통사고', category: '안전사고', unitId: 'corps-1-div-1', count: 2 },
+  { type: '화재사고', category: '안전사고', unitId: 'corps-1-div-1-bde-1', count: 1 },
+  { type: '추락/충격', category: '안전사고', unitId: 'corps-7-div-mech-8', count: 2 },
+  { type: '한랭질환', category: '안전사고', unitId: 'corps-7-div-22', count: 3 },
+  { type: '한랭질환', category: '안전사고', unitId: 'corps-5-div-5', count: 2 },
+  // 군무이탈
+  { type: '군무이탈', category: '군무이탈', unitId: 'corps-2-div-15', count: 1 },
+  { type: '군무이탈', category: '군무이탈', unitId: 'corps-1-div-9', count: 1 },
 ];
 
-// 예측 위험 요인 데이터 (도넛 차트) - 중간 채도 파랑 계열 그라데이션
+// 예측 위험 요인 데이터 (도넛 차트) - forecastData와 연계된 요인
+// 동절기 특성 반영 (한랭, 빙판, 실내 밀집 등)
 const riskFactorData = [
-  { name: '훈련 강도', value: 32, color: '#6b8cae' },
+  { name: '한랭 환경', value: 32, color: '#6b8cae' },
   { name: '근무 피로', value: 28, color: '#527394' },
   { name: '대인 갈등', value: 20, color: '#3d5a7a' },
-  { name: '환경 요인', value: 12, color: '#2a4260' },
+  { name: '도로 결빙', value: 12, color: '#2a4260' },
   { name: '기타', value: 8, color: '#1a2c45' },
 ];
 
