@@ -284,19 +284,19 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
           <p className="text-sm font-semibold text-foreground mb-3">예보/대비</p>
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
-              <span className="shrink-0 text-[11px] font-medium text-blue-500 w-14">기상</span>
+              <span className="shrink-0 text-[11px] font-medium text-muted-foreground w-14">기상</span>
               <span className="text-sm text-foreground">1/7~1/9 한파특보 예상, 야외훈련 축소 및 동상 예방조치 시행</span>
             </div>
             <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
-              <span className="shrink-0 text-[11px] font-medium text-status-error w-14">유사사례</span>
+              <span className="shrink-0 text-[11px] font-medium text-muted-foreground w-14">유사사례</span>
               <span className="text-sm text-foreground">GOP 철책 순찰 중 빙판 낙상사고 발생 (1군단, 1/5)</span>
             </div>
             <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
-              <span className="shrink-0 text-[11px] font-medium text-status-warning w-14">훈련안전</span>
+              <span className="shrink-0 text-[11px] font-medium text-muted-foreground w-14">훈련안전</span>
               <span className="text-sm text-foreground">K-9 자주포 실사격 예정 (1/8), 포반원 안전거리 준수 재교육 필요</span>
             </div>
             <div className="flex items-center gap-2.5 px-3 py-2.5 bg-muted/40 rounded-lg">
-              <span className="shrink-0 text-[11px] font-medium text-purple-500 w-14">정비안전</span>
+              <span className="shrink-0 text-[11px] font-medium text-muted-foreground w-14">정비안전</span>
               <span className="text-sm text-foreground">정비창 차량 정비 중 중상해 사고 분석결과 공유 (정비사령부)</span>
             </div>
           </div>
