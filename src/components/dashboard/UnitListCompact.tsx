@@ -133,7 +133,7 @@ export function UnitListCompact({
     <div className="h-full flex flex-col">
 
       {/* 테이블 헤더 */}
-      <div className="flex items-center justify-between px-4 py-3 text-xs font-medium text-muted-foreground">
+      <div className="flex items-center justify-between px-4 py-3 text-sm font-medium text-muted-foreground">
         <button
           className="flex items-center gap-1 hover:text-foreground transition-colors"
           onClick={() => handleSort('name')}
@@ -169,11 +169,11 @@ export function UnitListCompact({
                 )}
               >
                 <div className="flex-1 min-w-0 pr-3">
-                  <div className="font-medium text-sm text-foreground truncate">{unit.name}</div>
-                  <div className="text-[10px] text-muted-foreground truncate mt-0.5">{unit.fullPath}</div>
+                  <div className="font-medium text-base text-foreground truncate">{unit.name}</div>
+                  <div className="text-xs text-muted-foreground truncate mt-0.5">{unit.fullPath}</div>
                 </div>
                 <div className={cn(
-                  'shrink-0 w-12 h-7 flex items-center justify-center rounded text-xs font-bold',
+                  'shrink-0 w-14 h-8 flex items-center justify-center rounded text-sm font-bold',
                   riskStyle.bg, riskStyle.text
                 )}>
                   {unit.risk}%
@@ -185,7 +185,7 @@ export function UnitListCompact({
       </div>
 
       {/* 푸터 */}
-      <div className="px-4 py-3 text-xs text-muted-foreground">
+      <div className="px-4 py-3 text-sm text-muted-foreground">
         총 <span className="font-medium text-foreground">{sortedUnits.length}</span>개 부대
       </div>
     </div>
