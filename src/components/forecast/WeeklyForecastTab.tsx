@@ -4,23 +4,16 @@ import { Progress } from '@/components/ui/progress';
 import { AlertTriangle, Calendar, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// 주간 종합 위험도 데이터 (요일별 + 통계 기반 위험요인)
+// 주간 종합 위험도 데이터
 const WEEKLY_OVERVIEW = [
-  { day: '일', date: '1/5', risk: 32, grade: 'safe', factor: '휴일 이완', stat: '19.0%' },
-  { day: '월', date: '1/6', risk: 48, grade: 'safe', factor: '복귀 우울', stat: '17.8%' },
-  { day: '화', date: '1/7', risk: 42, grade: 'safe', factor: '정상', stat: '12.5%' },
-  { day: '수', date: '1/8', risk: 58, grade: 'caution', factor: '피로 누적', stat: '15.2%' },
-  { day: '목', date: '1/9', risk: 52, grade: 'caution', factor: '스트레스', stat: '13.8%' },
-  { day: '금', date: '1/10', risk: 65, grade: 'caution', factor: '이동 집중', stat: '18.5%' },
-  { day: '토', date: '1/11', risk: 28, grade: 'safe', factor: '휴일', stat: '8.2%' },
+  { day: '일', date: '1/5', risk: 32, grade: 'safe', factor: '휴일' },
+  { day: '월', date: '1/6', risk: 48, grade: 'safe', factor: '주말 복귀' },
+  { day: '화', date: '1/7', risk: 42, grade: 'safe', factor: '-' },
+  { day: '수', date: '1/8', risk: 58, grade: 'caution', factor: '주중 피로' },
+  { day: '목', date: '1/9', risk: 52, grade: 'caution', factor: '-' },
+  { day: '금', date: '1/10', risk: 65, grade: 'caution', factor: '외출/외박' },
+  { day: '토', date: '1/11', risk: 28, grade: 'safe', factor: '휴일' },
 ];
-
-// 요일 패턴 인사이트 (10년 데이터 기반)
-const DAY_PATTERN_INSIGHT = {
-  highRiskDays: ['일', '월', '금'],
-  insight: '주말/휴일 관리 소홀 및 "월요병" 심리 패턴, 금요일 외출/외박 이동 집중',
-  dataSource: '최근 10년 동기간 사고 발생 통계 기준'
-};
 
 // 사고유형별 주간 위험지수 (통계 기반)
 const ACCIDENT_TYPE_RISK = [
@@ -189,13 +182,6 @@ export default function WeeklyForecastTab() {
                 </tr>
               </tbody>
             </table>
-          </div>
-          {/* 패턴 인사이트 */}
-          <div className="mt-3 p-3 bg-muted/30 rounded-lg">
-            <p className="text-xs text-foreground">
-              <span className="font-medium">핵심 패턴:</span> {DAY_PATTERN_INSIGHT.insight}
-            </p>
-            <p className="text-[10px] text-muted-foreground mt-1">※ {DAY_PATTERN_INSIGHT.dataSource}</p>
           </div>
         </CardContent>
       </Card>
