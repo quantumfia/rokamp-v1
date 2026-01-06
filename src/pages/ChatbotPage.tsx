@@ -9,6 +9,7 @@ import {
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import rokaLogo from "@/assets/roka-logo.svg";
 import { DEFAULT_STARTER_QUESTIONS, ICON_MAP } from "@/data/starterQuestions";
@@ -317,17 +318,19 @@ export default function ChatbotPage() {
                     <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-52">
-                  {AI_MODELS.map((model) => (
-                    <DropdownMenuCheckboxItem
-                      key={model.id}
-                      checked={selectedModel === model.id}
-                      onCheckedChange={() => setSelectedModel(model.id)}
-                    >
-                      {model.label}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuContent>
+                <DropdownMenuPortal>
+                  <DropdownMenuContent align="start" className="w-52 z-[100]">
+                    {AI_MODELS.map((model) => (
+                      <DropdownMenuCheckboxItem
+                        key={model.id}
+                        checked={selectedModel === model.id}
+                        onCheckedChange={() => setSelectedModel(model.id)}
+                      >
+                        {model.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenuPortal>
               </DropdownMenu>
             </div>
 
