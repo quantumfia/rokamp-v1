@@ -244,7 +244,7 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                   key={notice.id}
                   onClick={() => setSelectedNotice(notice)}
                   className={cn(
-                    "w-full text-left px-3 py-2 border-b border-border/50 transition-colors",
+                    "w-full text-left px-3 py-2 border-b border-border/50 last:border-b-0 transition-colors",
                     filteredNotices.length === 5 && "flex-1",
                     filteredNotices.length === 5 && "flex flex-col justify-center",
                     selectedNotice.id === notice.id
