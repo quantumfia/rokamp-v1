@@ -5,7 +5,9 @@ import { getUnitById, getUnitFullName, LEVEL_LABELS, UNIT_TYPE_LABELS } from '@/
 interface Training {
   id: string;
   name: string;
-  date: string;
+  time: string;
+  location: string;
+  unit: string;
 }
 
 interface RiskFactor {
@@ -21,10 +23,13 @@ interface UnitDetailPanelHorizontalProps {
 }
 
 const MOCK_TRAININGS: Training[] = [
-  { id: '1', name: '사격 훈련', date: '01/08 (수)' },
-  { id: '2', name: '야간 행군', date: '01/10 (금)' },
-  { id: '3', name: '차량 기동훈련', date: '01/12 (일)' },
-  { id: '4', name: '전술 훈련', date: '01/14 (화)' },
+  { id: '1', name: 'K-2 소총 영점사격', time: '09:00 - 12:00', location: '종합사격장', unit: '제1보병사단 1연대' },
+  { id: '2', name: '기초체력단련', time: '06:00 - 08:00', location: '연병장', unit: '제7보병사단 신병교육대' },
+  { id: '3', name: '동절기 차량정비 점검', time: '14:00 - 17:00', location: '정비창', unit: '수도기계화보병사단' },
+  { id: '4', name: '야간 기동훈련', time: '20:00 - 24:00', location: '훈련장 A구역', unit: '제3보병사단 기갑대대' },
+  { id: '5', name: '안전교육 (동절기 안전수칙)', time: '10:00 - 12:00', location: '대강당', unit: '제5보병사단' },
+  { id: '6', name: '전술훈련 (소대공격)', time: '08:00 - 18:00', location: '전술훈련장', unit: '제1보병사단 2연대' },
+  { id: '7', name: '장비정비 교육', time: '09:00 - 11:00', location: '정비교육장', unit: '제7보병사단' },
 ];
 
 const MOCK_RISK_FACTORS: RiskFactor[] = [
@@ -165,10 +170,16 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
             {MOCK_TRAININGS.map((training) => (
               <div
                 key={training.id}
-                className="flex items-center justify-between px-4 py-3 bg-muted/30 rounded-lg"
+                className="px-4 py-3 bg-muted/30 rounded-lg"
               >
-                <span className="text-sm font-medium text-foreground">{training.name}</span>
-                <span className="text-sm text-muted-foreground">{training.date}</span>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-semibold text-foreground">{training.name}</span>
+                  <span className="text-xs font-medium text-primary">{training.time}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{training.location}</span>
+                  <span>{training.unit}</span>
+                </div>
               </div>
             ))}
           </div>
