@@ -2,15 +2,18 @@ import { useState, useEffect } from 'react';
 import { IncidentTicker } from '@/components/dashboard/IncidentTicker';
 import { StatusHeader } from '@/components/dashboard/StatusHeader';
 import { RiskLevelPanel } from '@/components/dashboard/RiskLevelGauge';
-import { RiskSummaryPanel } from '@/components/dashboard/RiskSummaryPanel';
+import { UnitFilterPanel, FilterState } from '@/components/dashboard/UnitFilterPanel';
+import { UnitListTable } from '@/components/dashboard/UnitListTable';
 import { UnitDetailPanel } from '@/components/dashboard/UnitDetailPanel';
 import { TrendChartsVertical } from '@/components/dashboard/TrendChartsVertical';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchContext } from '@/components/layout/MainLayout';
-import { X } from 'lucide-react';
+import { X, Filter, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   RiskSummarySkeleton,
+  UnitDetailSkeleton,
   TrendChartsSkeleton,
   StatusHeaderSkeleton,
   TickerBarSkeleton,
@@ -21,9 +24,14 @@ export default function DashboardPage() {
   const searchContext = useSearchContext();
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [filters, setFilters] = useState<FilterState>({
+    selectedUnit: '',
+    riskLevels: [],
+  });
   
-  // 모바일 패널 상태
+  // 반응형 패널 상태
   const [showLeftPanel, setShowLeftPanel] = useState(false);
+  const [showRightPanel, setShowRightPanel] = useState(false);
 
   // 초기 로딩 시뮬레이션
   useEffect(() => {
@@ -75,60 +83,92 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content - 2단 구조 (부대목록 + 트렌드/상세) */}
+      {/* Main Content - 2단 구조 (테이블 + 트렌드) */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Panel - 위험도 요약 (데스크탑에서 항상 표시) */}
-        <div className="shrink-0 w-64 border-r border-border bg-card overflow-hidden hidden lg:block">
-          {isLoading ? <RiskSummarySkeleton /> : <RiskSummaryPanel onUnitClick={handleUnitClick} />}
-        </div>
-
-        {/* Mobile Left Panel Overlay - 위험도 요약 */}
+        {/* Left Panel - 필터 (항상 오버레이로만 표시) */}
         {showLeftPanel && (
-          <div className="lg:hidden absolute inset-0 z-30 flex">
+          <div className="absolute inset-0 z-30 flex">
             <div className="w-64 max-w-[85vw] bg-card border-r border-border overflow-hidden animate-slide-in-left">
               <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-                <span className="text-xs font-medium text-foreground">위험도 요약</span>
+                <span className="text-xs font-medium text-foreground">필터</span>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowLeftPanel(false)}>
                   <X className="w-4 h-4" />
                 </Button>
               </div>
               <div className="h-[calc(100%-41px)] overflow-hidden">
-                {isLoading ? <RiskSummarySkeleton /> : <RiskSummaryPanel onUnitClick={handleUnitClick} />}
+                {isLoading ? <RiskSummarySkeleton /> : <UnitFilterPanel onFilterChange={setFilters} />}
               </div>
             </div>
             <div className="flex-1 bg-black/50" onClick={() => setShowLeftPanel(false)} />
           </div>
         )}
 
-        {/* Center - 트렌드 차트 또는 부대 상세 */}
+        {/* Center - 부대 목록 테이블 */}
         <div className="flex-1 flex flex-col bg-background overflow-hidden">
-          {/* 모바일 툴바 */}
-          <div className="lg:hidden flex items-center gap-2 p-2 border-b border-border bg-card/50">
+          {/* 필터 버튼 툴바 */}
+          <div className="flex items-center gap-2 p-2 border-b border-border bg-card/50">
             <Button
               variant="outline"
               size="sm"
               className="h-8"
               onClick={() => setShowLeftPanel(true)}
             >
-              부대 목록
+              <Filter className="w-4 h-4 mr-1.5" />
+              필터
             </Button>
           </div>
 
-          {/* 콘텐츠 영역 */}
+          {/* 테이블 */}
           <div className="flex-1 overflow-hidden">
             {isLoading ? (
-              <TrendChartsSkeleton />
-            ) : selectedUnitId ? (
+              <div className="p-4 space-y-2">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="h-14 bg-muted/50 rounded animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <UnitListTable
+                onUnitClick={handleUnitClick}
+                selectedUnitId={selectedUnitId}
+                filters={filters}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Right Panel - 트렌드 차트 또는 부대 상세 (항상 표시) */}
+        <div
+          className={cn(
+            'shrink-0 border-l border-border bg-card overflow-hidden transition-all duration-300',
+            'hidden md:block md:w-80 xl:w-[480px]',
+          )}
+        >
+          {isLoading ? (
+            <TrendChartsSkeleton />
+          ) : selectedUnitId ? (
+            <UnitDetailPanel 
+              unitId={selectedUnitId} 
+              onClose={handleCloseDetail}
+              showBackButton
+            />
+          ) : (
+            <TrendChartsVertical />
+          )}
+        </div>
+
+        {/* Mobile Right Panel Overlay - 부대 상세 */}
+        {selectedUnitId && (
+          <div className="md:hidden absolute inset-0 z-30 flex justify-end">
+            <div className="flex-1 bg-black/50" onClick={handleCloseDetail} />
+            <div className="w-80 max-w-[90vw] bg-card border-l border-border overflow-hidden animate-slide-in-right">
               <UnitDetailPanel 
                 unitId={selectedUnitId} 
                 onClose={handleCloseDetail}
                 showBackButton
               />
-            ) : (
-              <TrendChartsVertical />
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
