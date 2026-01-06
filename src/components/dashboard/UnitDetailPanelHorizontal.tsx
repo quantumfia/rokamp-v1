@@ -7,7 +7,7 @@ interface Training {
   name: string;
   time: string;
   location: string;
-  unit: string;
+  dayIndex: number; // 0: 일, 1: 월, 2: 화, 3: 수, 4: 목, 5: 금, 6: 토
 }
 
 interface RiskFactor {
@@ -22,14 +22,16 @@ interface UnitDetailPanelHorizontalProps {
   showBackButton?: boolean;
 }
 
+const WEEK_DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
 const MOCK_TRAININGS: Training[] = [
-  { id: '1', name: 'K-2 소총 영점사격', time: '09:00 - 12:00', location: '종합사격장', unit: '제1보병사단 1연대' },
-  { id: '2', name: '기초체력단련', time: '06:00 - 08:00', location: '연병장', unit: '제7보병사단 신병교육대' },
-  { id: '3', name: '동절기 차량정비 점검', time: '14:00 - 17:00', location: '정비창', unit: '수도기계화보병사단' },
-  { id: '4', name: '야간 기동훈련', time: '20:00 - 24:00', location: '훈련장 A구역', unit: '제3보병사단 기갑대대' },
-  { id: '5', name: '안전교육 (동절기 안전수칙)', time: '10:00 - 12:00', location: '대강당', unit: '제5보병사단' },
-  { id: '6', name: '전술훈련 (소대공격)', time: '08:00 - 18:00', location: '전술훈련장', unit: '제1보병사단 2연대' },
-  { id: '7', name: '장비정비 교육', time: '09:00 - 11:00', location: '정비교육장', unit: '제7보병사단' },
+  { id: '1', name: 'K-2 소총 영점사격', time: '09:00 - 12:00', location: '종합사격장', dayIndex: 1 },
+  { id: '2', name: '기초체력단련', time: '06:00 - 08:00', location: '연병장', dayIndex: 2 },
+  { id: '3', name: '동절기 차량정비 점검', time: '14:00 - 17:00', location: '정비창', dayIndex: 3 },
+  { id: '4', name: '야간 기동훈련', time: '20:00 - 24:00', location: '훈련장 A구역', dayIndex: 3 },
+  { id: '5', name: '안전교육 (동절기 안전수칙)', time: '10:00 - 12:00', location: '대강당', dayIndex: 4 },
+  { id: '6', name: '전술훈련 (소대공격)', time: '08:00 - 18:00', location: '전술훈련장', dayIndex: 5 },
+  { id: '7', name: '장비정비 교육', time: '09:00 - 11:00', location: '정비교육장', dayIndex: 5 },
 ];
 
 const MOCK_RISK_FACTORS: RiskFactor[] = [
@@ -163,25 +165,56 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
           </div>
         </div>
 
-        {/* 주간 훈련 일정 */}
+        {/* 주간 훈련 일정 - 캘린더 형식 */}
         <div>
           <p className="text-sm font-medium text-muted-foreground mb-3">주간 훈련 일정</p>
-          <div className="space-y-2">
-            {MOCK_TRAININGS.map((training) => (
-              <div
-                key={training.id}
-                className="px-4 py-3 bg-muted/30 rounded-lg"
+          <div className="grid grid-cols-7 gap-1">
+            {/* 요일 헤더 */}
+            {WEEK_DAYS.map((day, idx) => (
+              <div 
+                key={day} 
+                className={`text-center text-xs font-semibold py-1.5 rounded-t-md ${
+                  idx === 0 ? 'text-status-error bg-status-error/10' : 
+                  idx === 6 ? 'text-primary bg-primary/10' : 
+                  'text-foreground bg-muted/50'
+                }`}
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-semibold text-foreground">{training.name}</span>
-                  <span className="text-xs font-medium text-primary">{training.time}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{training.location}</span>
-                  <span>{training.unit}</span>
-                </div>
+                {day}
               </div>
             ))}
+            {/* 각 요일별 일정 */}
+            {WEEK_DAYS.map((_, dayIdx) => {
+              const dayTrainings = MOCK_TRAININGS.filter(t => t.dayIndex === dayIdx);
+              return (
+                <div 
+                  key={dayIdx} 
+                  className={`min-h-[100px] p-1.5 rounded-b-md border ${
+                    dayIdx === 0 || dayIdx === 6 ? 'bg-muted/20 border-border/50' : 'bg-muted/30 border-border'
+                  }`}
+                >
+                  {dayTrainings.length > 0 ? (
+                    <div className="space-y-1">
+                      {dayTrainings.map((training) => (
+                        <div 
+                          key={training.id} 
+                          className="p-1.5 bg-primary/10 border border-primary/20 rounded text-[10px] leading-tight"
+                        >
+                          <p className="font-semibold text-foreground truncate">{training.name}</p>
+                          <p className="text-primary">{training.time}</p>
+                          <p className="text-muted-foreground truncate">{training.location}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="h-full flex items-center justify-center">
+                      <span className="text-[10px] text-muted-foreground/50">
+                        {dayIdx === 0 || dayIdx === 6 ? '휴무' : '-'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
