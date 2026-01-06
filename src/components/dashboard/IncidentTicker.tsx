@@ -63,16 +63,10 @@ export function IncidentTicker({ onClickDetail }: IncidentTickerProps) {
 
   return (
     <div className="h-[78px] relative flex items-center px-4">
-      {/* 메인 행: 라벨 + 카드 + 상세보기 (세로 중앙) */}
+      {/* 메인 행: 카드 + 상세보기 (세로 중앙) */}
       <div className="flex items-center gap-3 w-full">
-        {/* 라벨 */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          <AlertCircle className={cn('w-4 h-4', getIconColor(currentIncident.type))} />
-          <span className="text-xs font-medium text-foreground whitespace-nowrap">일일사고사례</span>
-        </div>
-
-        {/* 구분선 */}
-        <div className="h-6 w-px bg-border shrink-0" />
+        {/* 아이콘 */}
+        <AlertCircle className={cn('w-4 h-4 shrink-0', getIconColor(currentIncident.type))} />
 
         {/* 사고 내용 */}
         <div 
