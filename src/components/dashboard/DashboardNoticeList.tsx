@@ -133,7 +133,7 @@ export function DashboardNoticeList() {
       </div>
 
       {/* Tag Filter Tabs - 밑줄 스타일 */}
-      <div className="flex items-center px-4 pb-2 border-b border-border">
+      <div className="flex items-center px-4 pb-2">
         {TAG_FILTERS.map((filter, idx) => (
           <button
             key={filter}
