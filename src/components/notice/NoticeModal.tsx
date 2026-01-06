@@ -290,9 +290,21 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
                 <span className="text-[10px] text-primary font-medium">{selectedNotice.number}</span>
                 <span className="text-[10px] text-muted-foreground">{selectedNotice.date}</span>
               </div>
-              <h3 className="text-sm font-medium text-foreground leading-relaxed">
-                {selectedNotice.title}
-              </h3>
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="text-sm font-medium text-foreground leading-relaxed flex-1">
+                  {selectedNotice.title}
+                </h3>
+                <button
+                  onClick={() => {
+                    onClose();
+                    navigate(`/notice?id=${selectedNotice.id}`);
+                  }}
+                  className="shrink-0 flex items-center gap-1 px-2 py-1 text-[10px] text-primary hover:bg-primary/10 rounded transition-colors"
+                >
+                  상세보기
+                  <ExternalLink className="w-3 h-3" />
+                </button>
+              </div>
               <div className="mt-1 text-[10px] text-muted-foreground">
                 발신: {selectedNotice.department}
               </div>
@@ -325,33 +337,26 @@ export function NoticeModal({ onClose }: NoticeModalProps) {
               {/* Attachments - 상세자료 링크 */}
               {selectedNotice.attachments && selectedNotice.attachments.length > 0 && (
                 <div className="px-5 py-3 border-t border-border">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">첨부자료</div>
-                    <div className="flex items-center gap-1 text-[10px] text-status-warning">
-                      <Printer className="w-3 h-3" />
-                      <span>출력만 가능 (다운로드 불가)</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleViewMaterials}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 bg-muted/50 hover:bg-muted border border-border rounded transition-colors text-left group"
-                  >
-                    <FileText className="w-4 h-4 text-primary shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs text-foreground">상세 자료 보기</div>
-                      <div className="text-[10px] text-muted-foreground">군사경찰 사이버안전훈련센터에서 열람</div>
-                    </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                  </button>
-                  <div className="mt-2 space-y-1">
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">첨부자료</div>
+                  <div className="space-y-1.5">
                     {selectedNotice.attachments.map((attachment) => (
                       <div
                         key={attachment.id}
-                        className="flex items-center gap-2 px-3 py-1.5 text-left"
+                        className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded"
                       >
-                        <FileText className="w-3 h-3 text-muted-foreground shrink-0" />
-                        <span className="text-[10px] text-muted-foreground truncate">{attachment.name}</span>
-                        <span className="text-[10px] text-muted-foreground/60">({attachment.size})</span>
+                        <FileText className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs text-foreground truncate">{attachment.name}</div>
+                          <div className="text-[10px] text-muted-foreground">{attachment.size}</div>
+                        </div>
+                        <button
+                          onClick={handleViewMaterials}
+                          className="shrink-0 flex items-center gap-1 px-2 py-1 text-[10px] text-primary hover:bg-primary/10 rounded transition-colors"
+                          title="군사경찰 사이버안전훈련센터에서 출력"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                          <span>출력</span>
+                        </button>
                       </div>
                     ))}
                   </div>
