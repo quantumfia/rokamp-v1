@@ -309,7 +309,7 @@ export default function ChatbotPage() {
           /* Welcome Screen */
           <div className="flex-1 flex flex-col px-4 animate-page-enter">
             {/* 좌측 상단 모델 선택 */}
-            <div className="py-3">
+            <div className="py-3 relative z-20">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
