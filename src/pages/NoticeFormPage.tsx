@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Video, Link2, Plus, X, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { FormField } from '@/components/common';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,15 +17,38 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { useFormValidation, getFieldError } from '@/hooks/useFormValidation';
 import { useAuth } from '@/contexts/AuthContext';
+import { noticeSchema } from '@/lib/validation';
+import { z } from 'zod';
 
-// Mock 데이터 (실제 구현 시 API에서 가져옴)
+// 폼 데이터 타입
 interface AttachmentLink {
   id: string;
   name: string;
   url: string;
 }
 
+// 내부 폼에서 사용할 타입
+interface NoticeFormValues {
+  title: string;
+  content: string;
+  target: string;
+  videoUrl: string;
+  attachments: AttachmentLink[];
+  [key: string]: unknown;
+}
+
+// attachments를 포함한 스키마
+const noticeFormSchema = noticeSchema.extend({
+  attachments: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    url: z.string(),
+  })).optional(),
+});
+
+// Mock 데이터 (실제 구현 시 API에서 가져옴)
 interface Notice {
   id: number;
   title: string;
@@ -78,14 +101,48 @@ export default function NoticeFormPage() {
   const isLoading = usePageLoading(500);
   const isEditMode = !!id;
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [target, setTarget] = useState('subordinate'); // 기본값을 예하 부대로
-  const [videoUrl, setVideoUrl] = useState('');
-  const [attachments, setAttachments] = useState<AttachmentLink[]>([]);
+  // 첨부 링크 입력 상태 (별도 관리)
   const [newLinkName, setNewLinkName] = useState('');
   const [newLinkUrl, setNewLinkUrl] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  // 폼 검증 훅 사용
+  const {
+    values,
+    errors,
+    touched,
+    isValid,
+    isSubmitting,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    setMultipleValues,
+  } = useFormValidation<NoticeFormValues>({
+    initialValues: {
+      title: '',
+      content: '',
+      target: 'subordinate',
+      videoUrl: '',
+      attachments: [],
+    },
+    schema: noticeFormSchema as z.ZodSchema<NoticeFormValues>,
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (formValues) => {
+      if (isEditMode) {
+        toast({
+          title: '공지 수정 완료',
+          description: '공지사항이 수정되었습니다.',
+        });
+      } else {
+        toast({
+          title: '공지 등록 완료',
+          description: '공지사항이 등록되었습니다. 대상자 로그인 시 팝업으로 표시됩니다.',
+        });
+      }
+      navigate('/admin/notice');
+    },
+  });
 
   // 역할에 따른 발송 대상 옵션
   const canSendToAll = user?.role === 'ROLE_HQ';
@@ -94,38 +151,16 @@ export default function NoticeFormPage() {
     if (id) {
       const notice = NOTICES.find(n => n.id === parseInt(id));
       if (notice) {
-        setTitle(notice.title);
-        setContent(notice.content);
-        setTarget(notice.target);
-        setVideoUrl(notice.videoUrl);
-        setAttachments(notice.attachments || []);
+        setMultipleValues({
+          title: notice.title,
+          content: notice.content,
+          target: notice.target,
+          videoUrl: notice.videoUrl,
+          attachments: notice.attachments || [],
+        });
       }
     }
-  }, [id]);
-
-  const handleSubmit = () => {
-    if (!title.trim() || !content.trim()) {
-      toast({
-        title: '입력 오류',
-        description: '제목과 내용을 모두 입력해주세요.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (isEditMode) {
-      toast({
-        title: '공지 수정 완료',
-        description: '공지사항이 수정되었습니다.',
-      });
-    } else {
-      toast({
-        title: '공지 등록 완료',
-        description: '공지사항이 등록되었습니다. 대상자 로그인 시 팝업으로 표시됩니다.',
-      });
-    }
-    navigate('/admin/notice');
-  };
+  }, [id, setMultipleValues]);
 
   const handleDelete = () => {
     toast({
@@ -152,13 +187,13 @@ export default function NoticeFormPage() {
       url: newLinkUrl.trim(),
     };
 
-    setAttachments(prev => [...prev, newAttachment]);
+    handleChange('attachments', [...(values.attachments || []), newAttachment]);
     setNewLinkName('');
     setNewLinkUrl('');
   };
 
-  const handleRemoveLink = (id: string) => {
-    setAttachments(prev => prev.filter(a => a.id !== id));
+  const handleRemoveLink = (linkId: string) => {
+    handleChange('attachments', (values.attachments || []).filter(a => a.id !== linkId));
   };
 
   if (isLoading) {
@@ -202,7 +237,11 @@ export default function NoticeFormPage() {
               삭제
             </Button>
           )}
-          <Button size="sm" onClick={handleSubmit}>
+          <Button 
+            size="sm" 
+            onClick={handleSubmit}
+            disabled={!isValid || isSubmitting}
+          >
             <Save className="w-4 h-4 mr-1.5" />
             {isEditMode ? '저장' : '등록'}
           </Button>
@@ -211,35 +250,46 @@ export default function NoticeFormPage() {
 
       {/* 폼 */}
       <div className="bg-card border border-border rounded-lg p-6 space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="title" className="text-sm font-medium">제목 *</Label>
+        <FormField 
+          label="제목" 
+          required 
+          error={getFieldError('title', errors, touched)}
+        >
           <Input
             id="title"
             placeholder="공지 제목을 입력하세요"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={values.title}
+            onChange={(e) => handleChange('title', e.target.value)}
+            onBlur={() => handleBlur('title')}
             className="bg-background"
           />
-        </div>
+        </FormField>
 
-        <div className="space-y-2">
-          <Label htmlFor="content" className="text-sm font-medium">내용 *</Label>
+        <FormField 
+          label="내용" 
+          required 
+          error={getFieldError('content', errors, touched)}
+        >
           <Textarea
             id="content"
             placeholder="공지 내용을 입력하세요"
             rows={8}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+            value={values.content}
+            onChange={(e) => handleChange('content', e.target.value)}
+            onBlur={() => handleBlur('content')}
             className="bg-background resize-none"
           />
-        </div>
+        </FormField>
 
         <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">발송 대상</Label>
+          <FormField 
+            label="발송 대상"
+            error={getFieldError('target', errors, touched)}
+          >
             <select 
-              value={target} 
-              onChange={(e) => setTarget(e.target.value)}
+              value={values.target} 
+              onChange={(e) => handleChange('target', e.target.value)}
+              onBlur={() => handleBlur('target')}
               className="w-full h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {canSendToAll && <option value="all">전체 (전군)</option>}
@@ -250,62 +300,61 @@ export default function NoticeFormPage() {
                 전체 발송은 본부 관리자만 가능합니다.
               </p>
             )}
-          </div>
+          </FormField>
 
-          <div className="space-y-2">
-            <Label htmlFor="video-url" className="text-sm font-medium">YouTube URL (선택)</Label>
+          <FormField 
+            label="YouTube URL (선택)"
+            error={getFieldError('videoUrl', errors, touched)}
+          >
             <div className="relative">
               <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="video-url"
                 placeholder="https://youtu.be/..."
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
+                value={values.videoUrl || ''}
+                onChange={(e) => handleChange('videoUrl', e.target.value)}
+                onBlur={() => handleBlur('videoUrl')}
                 className="bg-background pl-10"
               />
             </div>
-          </div>
+          </FormField>
         </div>
 
         {/* 첨부 링크 섹션 */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium">첨부 링크 (선택)</Label>
-          <p className="text-xs text-muted-foreground -mt-1">
-            관련 문서가 있는 외부 페이지 링크를 추가합니다.
-          </p>
-          
-          {/* 링크 추가 입력 */}
-          <div className="flex gap-2">
-            <Input
-              placeholder="링크 이름 (예: 안전수칙 체크리스트)"
-              value={newLinkName}
-              onChange={(e) => setNewLinkName(e.target.value)}
-              className="bg-background flex-1"
-            />
-            <div className="relative flex-1">
-              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <FormField label="첨부 링크 (선택)" hint="관련 문서가 있는 외부 페이지 링크를 추가합니다.">
+            <div className="flex gap-2">
               <Input
-                placeholder="https://..."
-                value={newLinkUrl}
-                onChange={(e) => setNewLinkUrl(e.target.value)}
-                className="bg-background pl-10"
+                placeholder="링크 이름 (예: 안전수칙 체크리스트)"
+                value={newLinkName}
+                onChange={(e) => setNewLinkName(e.target.value)}
+                className="bg-background flex-1"
               />
+              <div className="relative flex-1">
+                <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="https://..."
+                  value={newLinkUrl}
+                  onChange={(e) => setNewLinkUrl(e.target.value)}
+                  className="bg-background pl-10"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleAddLink}
+                className="shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={handleAddLink}
-              className="shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
-          </div>
+          </FormField>
 
           {/* 추가된 링크 목록 */}
-          {attachments.length > 0 && (
+          {(values.attachments || []).length > 0 && (
             <div className="space-y-2">
-              {attachments.map((attachment) => (
+              {(values.attachments || []).map((attachment) => (
                 <div
                   key={attachment.id}
                   className="flex items-center justify-between px-4 py-2.5 border border-border rounded-lg bg-muted/30"
@@ -345,7 +394,7 @@ export default function NoticeFormPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>공지사항 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              "{title}" 공지사항을 삭제하시겠습니까?<br />
+              "{values.title}" 공지사항을 삭제하시겠습니까?<br />
               삭제된 공지사항은 복구할 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -1,13 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, MapPin, Clock, AlertCircle, Users, Download, Pencil, Trash2 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/common';
+import { PageHeader, ActionButton, AddModal, FileDropZone, InlineFormField } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { useFormValidation, getFieldError } from '@/hooks/useFormValidation';
+import { trainingScheduleSchema } from '@/lib/validation';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAccessibleUnits } from '@/lib/rbac';
+import { z } from 'zod';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+
 // 훈련 일정 타입
 interface TrainingSchedule {
   id: string;
@@ -31,6 +35,33 @@ interface TrainingSchedule {
   riskLevel: 'low' | 'medium' | 'high';
   participants: number;
 }
+
+// 폼 값 타입
+interface ScheduleFormValues {
+  title: string;
+  unit: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  type: '사격' | '기동' | '전술' | '체력' | '교육' | '점검' | '';
+  riskLevel: 'low' | 'medium' | 'high';
+  participants: number;
+  [key: string]: unknown;
+}
+
+// 폼 스키마
+const scheduleFormSchema = z.object({
+  title: z.string().trim().min(1, { message: '훈련명을 입력해주세요.' }).max(200),
+  unit: z.string().trim().min(1, { message: '부대를 입력해주세요.' }),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: '날짜를 선택해주세요.' }),
+  startTime: z.string().optional().or(z.literal('')),
+  endTime: z.string().optional().or(z.literal('')),
+  location: z.string().max(200).optional().or(z.literal('')),
+  type: z.enum(['사격', '기동', '전술', '체력', '교육', '점검', '']),
+  riskLevel: z.enum(['low', 'medium', 'high']).optional(),
+  participants: z.number().nonnegative().optional(),
+});
 
 // Mock 훈련 일정 데이터
 const generateMockSchedules = (): TrainingSchedule[] => {
@@ -184,40 +215,60 @@ function ScheduleCard({ schedule, onClick }: { schedule: TrainingSchedule; onCli
 interface ScheduleFormProps {
   schedule?: TrainingSchedule | null;
   isEditing?: boolean;
+  formState: ReturnType<typeof useFormValidation<ScheduleFormValues>>;
 }
 
-function ScheduleForm({ schedule, isEditing = true }: ScheduleFormProps) {
+function ScheduleForm({ schedule, isEditing = true, formState }: ScheduleFormProps) {
+  const { values, errors, touched, handleChange, handleBlur } = formState;
+  
   const inputClass = isEditing
     ? "w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
     : "w-full px-3 py-2 text-sm bg-muted/50 border border-border rounded-md text-foreground cursor-not-allowed";
   
   return (
     <div className="space-y-4">
-      <div>
-        <label className="block text-xs text-muted-foreground mb-1.5">훈련명 *</label>
+      <InlineFormField 
+        label="훈련명" 
+        required 
+        error={getFieldError('title', errors, touched)}
+      >
         <input
           type="text"
           placeholder="K-2 소총 영점사격"
-          defaultValue={schedule?.title || ''}
+          value={values.title}
+          onChange={(e) => handleChange('title', e.target.value)}
+          onBlur={() => handleBlur('title')}
           disabled={!isEditing}
           className={inputClass}
         />
-      </div>
+      </InlineFormField>
+      
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">부대 *</label>
+        <InlineFormField 
+          label="부대" 
+          required 
+          error={getFieldError('unit', errors, touched)}
+        >
           <input
             type="text"
             placeholder="제1보병사단"
-            defaultValue={schedule?.unit || ''}
+            value={values.unit}
+            onChange={(e) => handleChange('unit', e.target.value)}
+            onBlur={() => handleBlur('unit')}
             disabled={!isEditing}
             className={inputClass}
           />
-        </div>
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">훈련 유형 *</label>
+        </InlineFormField>
+        
+        <InlineFormField 
+          label="훈련 유형" 
+          required 
+          error={getFieldError('type', errors, touched)}
+        >
           <select 
-            defaultValue={schedule?.type || ''}
+            value={values.type}
+            onChange={(e) => handleChange('type', e.target.value)}
+            onBlur={() => handleBlur('type')}
             disabled={!isEditing}
             className={inputClass}
           >
@@ -229,58 +280,68 @@ function ScheduleForm({ schedule, isEditing = true }: ScheduleFormProps) {
             <option value="교육">교육</option>
             <option value="점검">점검</option>
           </select>
-        </div>
+        </InlineFormField>
       </div>
+      
       <div className="grid grid-cols-3 gap-3">
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">날짜 *</label>
+        <InlineFormField 
+          label="날짜" 
+          required 
+          error={getFieldError('date', errors, touched)}
+        >
           <input
             type="date"
-            defaultValue={schedule ? format(schedule.date, 'yyyy-MM-dd') : ''}
+            value={values.date}
+            onChange={(e) => handleChange('date', e.target.value)}
+            onBlur={() => handleBlur('date')}
             disabled={!isEditing}
             className={inputClass}
           />
-        </div>
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">시작 시간</label>
+        </InlineFormField>
+        
+        <InlineFormField label="시작 시간">
           <input
             type="time"
-            defaultValue={schedule?.startTime || ''}
+            value={values.startTime}
+            onChange={(e) => handleChange('startTime', e.target.value)}
             disabled={!isEditing}
             className={inputClass}
           />
-        </div>
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">종료 시간</label>
+        </InlineFormField>
+        
+        <InlineFormField label="종료 시간">
           <input
             type="time"
-            defaultValue={schedule?.endTime || ''}
+            value={values.endTime}
+            onChange={(e) => handleChange('endTime', e.target.value)}
             disabled={!isEditing}
             className={inputClass}
           />
-        </div>
+        </InlineFormField>
       </div>
+      
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">장소</label>
+        <InlineFormField label="장소">
           <input
             type="text"
             placeholder="종합사격장"
-            defaultValue={schedule?.location || ''}
+            value={values.location}
+            onChange={(e) => handleChange('location', e.target.value)}
             disabled={!isEditing}
             className={inputClass}
           />
-        </div>
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1.5">참여 인원</label>
+        </InlineFormField>
+        
+        <InlineFormField label="참여 인원">
           <input
             type="number"
             placeholder="120"
-            defaultValue={schedule?.participants || ''}
+            value={values.participants || ''}
+            onChange={(e) => handleChange('participants', parseInt(e.target.value) || 0)}
             disabled={!isEditing}
             className={inputClass}
           />
-        </div>
+        </InlineFormField>
       </div>
     </div>
   );
@@ -320,6 +381,24 @@ export default function ScheduleManagementPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [scheduleToDelete, setScheduleToDelete] = useState<TrainingSchedule | null>(null);
   const isLoading = usePageLoading(800);
+
+  // 폼 검증 훅
+  const formState = useFormValidation<ScheduleFormValues>({
+    initialValues: {
+      title: '',
+      unit: '',
+      date: '',
+      startTime: '',
+      endTime: '',
+      location: '',
+      type: '',
+      riskLevel: 'low',
+      participants: 0,
+    },
+    schema: scheduleFormSchema as z.ZodSchema<ScheduleFormValues>,
+    validateOnChange: true,
+    validateOnBlur: true,
+  });
 
   // 역할 기반 접근 가능 부대 목록
   const accessibleUnits = useMemo(() => {
@@ -364,25 +443,57 @@ export default function ScheduleManagementPage() {
     };
   }, [filteredSchedules, weekStart, weekEnd]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
+    if (!formState.isValid) {
+      formState.validate();
+      toast({
+        title: '입력 오류',
+        description: '필수 항목을 확인해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     toast({
       title: '등록 완료',
       description: '일정이 등록되었습니다.',
     });
     setShowAddModal(false);
-  };
+    formState.reset();
+  }, [formState]);
 
-  const handleScheduleClick = (schedule: TrainingSchedule) => {
+  const handleScheduleClick = useCallback((schedule: TrainingSchedule) => {
     setSelectedSchedule(schedule);
+    formState.setMultipleValues({
+      title: schedule.title,
+      unit: schedule.unit,
+      date: format(schedule.date, 'yyyy-MM-dd'),
+      startTime: schedule.startTime,
+      endTime: schedule.endTime,
+      location: schedule.location,
+      type: schedule.type,
+      riskLevel: schedule.riskLevel,
+      participants: schedule.participants,
+    });
     setIsEditMode(false);
     setShowDetailModal(true);
-  };
+  }, [formState]);
 
   const handleEditClick = () => {
     setIsEditMode(true);
   };
 
-  const handleDetailSubmit = () => {
+  const handleDetailSubmit = useCallback(() => {
+    if (!formState.isValid) {
+      formState.validate();
+      toast({
+        title: '입력 오류',
+        description: '필수 항목을 확인해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     toast({
       title: '수정 완료',
       description: '일정이 수정되었습니다.',
@@ -390,7 +501,8 @@ export default function ScheduleManagementPage() {
     setShowDetailModal(false);
     setSelectedSchedule(null);
     setIsEditMode(false);
-  };
+    formState.reset();
+  }, [formState]);
 
   const handleDeleteClick = () => {
     setScheduleToDelete(selectedSchedule);
@@ -411,11 +523,17 @@ export default function ScheduleManagementPage() {
     setIsEditMode(false);
   };
 
-  const handleDetailModalClose = () => {
+  const handleDetailModalClose = useCallback(() => {
     setShowDetailModal(false);
     setSelectedSchedule(null);
     setIsEditMode(false);
-  };
+    formState.reset();
+  }, [formState]);
+
+  const handleAddModalOpen = useCallback(() => {
+    formState.reset();
+    setShowAddModal(true);
+  }, [formState]);
 
   const handleDownloadTemplate = () => {
     // CSV 템플릿 헤더 및 예시 데이터
@@ -466,7 +584,7 @@ export default function ScheduleManagementPage() {
         title="일정 관리" 
         description="부대별 훈련 일정 관리 및 조회"
         actions={
-          <ActionButton label="일정 추가" onClick={() => setShowAddModal(true)} />
+          <ActionButton label="일정 추가" onClick={handleAddModalOpen} />
         }
       />
 
@@ -597,15 +715,16 @@ export default function ScheduleManagementPage() {
       {/* 일정 추가 모달 */}
       <AddModal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => { setShowAddModal(false); formState.reset(); }}
         title="일정 추가"
         description="개별 입력 또는 엑셀 파일로 일괄 등록"
         inputTypes={[
-          { id: 'single', label: '직접 입력', content: <ScheduleForm /> },
+          { id: 'single', label: '직접 입력', content: <ScheduleForm formState={formState} /> },
           { id: 'bulk', label: '일괄 등록', content: <ScheduleBulkUploadForm onDownloadTemplate={handleDownloadTemplate} /> },
         ]}
         onSubmit={handleSubmit}
         submitLabel="등록"
+        isSubmitDisabled={!formState.isValid}
       />
 
       {/* 일정 상세/수정 모달 */}
@@ -615,10 +734,11 @@ export default function ScheduleManagementPage() {
         title={isEditMode ? "일정 수정" : "일정 상세"}
         description={selectedSchedule?.unit || ''}
         inputTypes={[
-          { id: 'detail', label: '상세 정보', content: <ScheduleForm schedule={selectedSchedule} isEditing={isEditMode} /> },
+          { id: 'detail', label: '상세 정보', content: <ScheduleForm schedule={selectedSchedule} isEditing={isEditMode} formState={formState} /> },
         ]}
         onSubmit={isEditMode ? handleDetailSubmit : undefined}
         submitLabel={isEditMode ? "저장" : undefined}
+        isSubmitDisabled={isEditMode && !formState.isValid}
         footerActions={
           !isEditMode ? (
             <div className="flex gap-2 mr-auto">
