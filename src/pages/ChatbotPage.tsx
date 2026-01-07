@@ -536,12 +536,12 @@ export default function ChatbotPage() {
                       className={cn(
                         "text-sm",
                         message.role === "user"
-                          ? "max-w-[80%] bg-foreground text-background px-4 py-3 rounded-2xl rounded-br-sm shadow-sm"
+                          ? "max-w-[80%] bg-muted text-foreground px-4 py-3 rounded-2xl rounded-br-sm"
                           : "flex-1 bg-muted/40 border border-border/50 px-4 py-3.5 rounded-2xl rounded-bl-sm",
                       )}
                     >
                       {message.role === "user" && message.sources && message.sources.length > 0 && (
-                        <div className="text-[10px] opacity-70 mb-1.5 pb-1.5 border-b border-background/10">
+                        <div className="text-[10px] text-muted-foreground mb-1.5 pb-1.5 border-b border-border/50">
                           검색:{" "}
                           {message.sources.map((id) => DOCUMENT_SOURCES.find((s) => s.id === id)?.label).join(", ")}
                         </div>
@@ -595,11 +595,6 @@ export default function ChatbotPage() {
                         </div>
                       )}
                     </div>
-                    {message.role === "user" && (
-                      <div className="w-9 h-9 rounded-full bg-foreground flex items-center justify-center flex-shrink-0 text-xs font-semibold text-background shadow-sm">
-                        나
-                      </div>
-                    )}
                   </div>
                 ))}
 
