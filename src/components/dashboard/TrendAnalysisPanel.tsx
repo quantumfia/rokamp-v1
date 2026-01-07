@@ -40,14 +40,6 @@ const riskFactorData = [
   { name: '기타', value: 8, color: '#94A3B8' },
 ];
 
-const chartTooltipStyle = {
-  backgroundColor: 'hsl(220 10% 20%)',
-  border: '1px solid hsl(220 10% 30%)',
-  borderRadius: '8px',
-  fontSize: '12px',
-  color: '#ffffff',
-  padding: '8px 12px',
-};
 
 export function TrendAnalysisPanel() {
   const { user } = useAuth();
@@ -170,8 +162,17 @@ export function TrendAnalysisPanel() {
                     ))}
                   </Pie>
                   <Tooltip 
-                    contentStyle={chartTooltipStyle}
-                    formatter={(value: number) => [`${value}%`, '비율']}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="bg-background text-foreground border border-border rounded-lg px-3 py-2 shadow-lg">
+                            <p className="text-sm font-medium" style={{ color: data.color }}>{data.name}: {data.value}%</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -217,8 +218,17 @@ export function TrendAnalysisPanel() {
                   width={70}
                 />
                 <Tooltip 
-                  contentStyle={chartTooltipStyle}
-                  formatter={(value: number) => [`${value}건`, '발생']}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-background text-foreground border border-border rounded-lg px-3 py-2 shadow-lg">
+                          <p className="text-sm font-medium">{data.type}: {data.count}건</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                   cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
                 />
                 <Bar 
