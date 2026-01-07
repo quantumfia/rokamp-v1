@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Video, Link2, Plus, X, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/common';
+import { RichTextEditor } from '@/components/common/RichTextEditor';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -270,14 +270,12 @@ export default function NoticeFormPage() {
           required 
           error={getFieldError('content', errors, touched)}
         >
-          <Textarea
-            id="content"
-            placeholder="공지 내용을 입력하세요"
-            rows={8}
+          <RichTextEditor
             value={values.content}
-            onChange={(e) => handleChange('content', e.target.value)}
+            onChange={(value) => handleChange('content', value)}
             onBlur={() => handleBlur('content')}
-            className="bg-background resize-none"
+            placeholder="공지 내용을 입력하세요"
+            error={!!getFieldError('content', errors, touched)}
           />
         </FormField>
 
