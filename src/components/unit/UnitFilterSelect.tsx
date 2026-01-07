@@ -107,7 +107,8 @@ export function UnitFilterSelect({
             className={cn(
               popoverWidth,
               'p-3 bg-popover',
-              'border-border shadow-md'
+              'border-border shadow-md',
+              'z-[300]'
             )}
           >
             <div className="max-h-[420px] overflow-y-auto pr-1">
