@@ -211,30 +211,29 @@ export default function IncidentFormPage() {
           required 
           error={getFieldError('title', errors, touched)}
         >
-          <Input
-            id="title"
-            placeholder="사고사례 제목을 입력하세요"
-            value={values.title}
-            onChange={(e) => handleChange('title', e.target.value)}
-            onBlur={() => handleBlur('title')}
-            className="bg-background"
-          />
-        </FormField>
-
-        <FormField 
-          label="내용" 
-          required 
-          error={getFieldError('description', errors, touched)}
-        >
-          <Textarea
-            id="description"
-            placeholder="사고 발생 경위, 피해 상황, 조치 내용 등을 상세히 작성하세요"
-            rows={8}
-            value={values.description}
-            onChange={(e) => handleChange('description', e.target.value)}
-            onBlur={() => handleBlur('description')}
-            className="bg-background resize-none"
-          />
+          <div className="flex gap-2">
+            <select 
+              value={values.category} 
+              onChange={(e) => handleChange('category', e.target.value)}
+              onBlur={() => handleBlur('category')}
+              className="h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring min-w-[100px]"
+            >
+              <option value="훈련">훈련</option>
+              <option value="교통">교통</option>
+              <option value="화재">화재</option>
+              <option value="한랭질환">한랭질환</option>
+              <option value="작업">작업</option>
+              <option value="기타">기타</option>
+            </select>
+            <Input
+              id="title"
+              placeholder="사고사례 제목을 입력하세요"
+              value={values.title}
+              onChange={(e) => handleChange('title', e.target.value)}
+              onBlur={() => handleBlur('title')}
+              className="bg-background flex-1"
+            />
+          </div>
         </FormField>
 
         <div className="grid grid-cols-2 gap-6">
@@ -269,47 +268,25 @@ export default function IncidentFormPage() {
           </FormField>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <FormField 
-            label="분류" 
-            required
-            error={getFieldError('category', errors, touched)}
+        <FormField 
+          label="발송 대상"
+          error={getFieldError('target', errors, touched)}
+        >
+          <select 
+            value={values.target} 
+            onChange={(e) => handleChange('target', e.target.value)}
+            onBlur={() => handleBlur('target')}
+            className="w-full h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            <select 
-              value={values.category} 
-              onChange={(e) => handleChange('category', e.target.value)}
-              onBlur={() => handleBlur('category')}
-              className="w-full h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              <option value="훈련">훈련</option>
-              <option value="교통">교통</option>
-              <option value="화재">화재</option>
-              <option value="한랭질환">한랭질환</option>
-              <option value="작업">작업</option>
-              <option value="기타">기타</option>
-            </select>
-          </FormField>
-
-          <FormField 
-            label="발송 대상"
-            error={getFieldError('target', errors, touched)}
-          >
-            <select 
-              value={values.target} 
-              onChange={(e) => handleChange('target', e.target.value)}
-              onBlur={() => handleBlur('target')}
-              className="w-full h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              {canSendToAll && <option value="all">전체 (전군)</option>}
-              <option value="subordinate">예하 부대</option>
-            </select>
-            {!canSendToAll && (
-              <p className="text-[10px] text-muted-foreground">
-                전체 발송은 본부 관리자만 가능합니다.
-              </p>
-            )}
-          </FormField>
-        </div>
+            {canSendToAll && <option value="all">전체 (전군)</option>}
+            <option value="subordinate">예하 부대</option>
+          </select>
+          {!canSendToAll && (
+            <p className="text-[10px] text-muted-foreground">
+              전체 발송은 본부 관리자만 가능합니다.
+            </p>
+          )}
+        </FormField>
 
         <FormField 
           label="심각도" 
@@ -334,6 +311,22 @@ export default function IncidentFormPage() {
               </button>
             ))}
           </div>
+        </FormField>
+
+        <FormField 
+          label="내용" 
+          required 
+          error={getFieldError('description', errors, touched)}
+        >
+          <Textarea
+            id="description"
+            placeholder="사고 발생 경위, 피해 상황, 조치 내용 등을 상세히 작성하세요"
+            rows={8}
+            value={values.description}
+            onChange={(e) => handleChange('description', e.target.value)}
+            onBlur={() => handleBlur('description')}
+            className="bg-background resize-none"
+          />
         </FormField>
 
         {/* 안내 */}
