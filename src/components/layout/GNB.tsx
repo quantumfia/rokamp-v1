@@ -38,7 +38,7 @@ function HeaderClock() {
   }, []);
   
   return (
-    <span className="font-mono tabular-nums">
+    <span className="font-mono tabular-nums leading-none">
       {time.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
     </span>
   );
@@ -136,9 +136,14 @@ export function GNB({ onNotificationClick, onSidebarToggle, isSidebarExpanded }:
             </div>
           </button>
 
-          <div className="hidden lg:flex items-center ml-3 gap-2 text-xs text-sidebar-muted">
-            <span>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' })}</span>
-            <HeaderClock />
+          <div className="hidden lg:flex items-center ml-4 h-7 px-3 rounded-md bg-sidebar-accent/50 dark:bg-sidebar-accent">
+            <div className="flex items-center gap-2 text-xs text-sidebar-foreground">
+              <span className="font-medium">
+                {new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' })}
+              </span>
+              <span className="w-px h-3.5 bg-sidebar-border" />
+              <HeaderClock />
+            </div>
           </div>
         </div>
 
