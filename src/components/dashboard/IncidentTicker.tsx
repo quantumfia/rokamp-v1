@@ -99,7 +99,7 @@ export function IncidentTicker({ onClickDetail, compact = false }: IncidentTicke
       {/* 상단: 타이틀 + 상세보기 버튼 (compact 모드에서는 숨김) */}
       {!compact && (
         <div className="flex items-center justify-between shrink-0 mb-1">
-          <span className="text-xs font-semibold text-foreground">일일사고사례</span>
+          <span className="text-xs font-semibold text-muted-foreground">일일사고사례</span>
           <button 
             onClick={onClickDetail}
             className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
