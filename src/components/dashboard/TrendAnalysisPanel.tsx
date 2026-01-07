@@ -32,13 +32,21 @@ const ALL_ACCIDENTS = [
 
 // 예측 위험 요인 데이터 (도넛 차트) - forecastData와 연계된 요인
 // 동절기 특성 반영 (한랭, 빙판, 실내 밀집 등)
-const riskFactorData = [
-  { name: '한랭 환경', value: 32, color: '#60A5FA' },
-  { name: '근무 피로', value: 28, color: '#F97316' },
-  { name: '대인 갈등', value: 20, color: '#A78BFA' },
-  { name: '도로 결빙', value: 12, color: '#34D399' },
-  { name: '기타', value: 8, color: '#94A3B8' },
+const riskFactorBaseData = [
+  { name: '한랭 환경', value: 32 },
+  { name: '근무 피로', value: 28 },
+  { name: '대인 갈등', value: 20 },
+  { name: '도로 결빙', value: 12 },
+  { name: '기타', value: 8 },
 ];
+
+// 1위는 노란색(warning), 나머지는 초록색(success)으로 색상 지정
+const riskFactorData = riskFactorBaseData
+  .sort((a, b) => b.value - a.value)
+  .map((item, index) => ({
+    ...item,
+    color: index === 0 ? 'hsl(var(--status-warning))' : 'hsl(var(--status-success))',
+  }));
 
 
 export function TrendAnalysisPanel() {
@@ -233,10 +241,16 @@ export function TrendAnalysisPanel() {
                 />
                 <Bar 
                   dataKey="count" 
-                  fill="hsl(var(--status-warning))"
                   radius={[0, 6, 6, 0]}
                   barSize={16}
-                />
+                >
+                  {accidentData.map((entry, index) => (
+                    <Cell 
+                      key={`bar-${index}`} 
+                      fill={index === 0 ? 'hsl(var(--status-warning))' : 'hsl(var(--status-success))'} 
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
