@@ -41,12 +41,12 @@ const riskFactorBaseData = [
   { name: '기타', value: 8 },
 ];
 
-// 1위는 노란색(warning), 나머지는 초록색(success)으로 색상 지정
+// 1위는 노란색(warning), 나머지는 회색으로 색상 지정
 const riskFactorData = riskFactorBaseData
   .sort((a, b) => b.value - a.value)
   .map((item, index) => ({
     ...item,
-    color: index === 0 ? 'hsl(var(--status-warning))' : 'hsl(var(--status-success))',
+    color: index === 0 ? 'hsl(var(--status-warning))' : 'hsl(var(--muted-foreground))',
   }));
 
 
@@ -243,7 +243,7 @@ export function TrendAnalysisPanel() {
                   {accidentData.map((entry, index) => (
                     <Cell 
                       key={`bar-${index}`} 
-                      fill={index === 0 ? 'hsl(var(--status-warning))' : 'hsl(var(--status-success))'} 
+                      fill={index === 0 ? 'hsl(var(--status-warning))' : 'hsl(var(--muted-foreground))'} 
                     />
                   ))}
                 </Bar>
