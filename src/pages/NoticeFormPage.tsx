@@ -31,6 +31,7 @@ interface AttachmentLink {
 
 // 내부 폼에서 사용할 타입
 interface NoticeFormValues {
+  tag: string;
   title: string;
   content: string;
   target: string;
@@ -41,6 +42,7 @@ interface NoticeFormValues {
 
 // attachments를 포함한 스키마
 const noticeFormSchema = noticeSchema.extend({
+  tag: z.string().min(1, '태그를 선택해주세요'),
   attachments: z.array(z.object({
     id: z.string(),
     name: z.string(),
@@ -51,6 +53,7 @@ const noticeFormSchema = noticeSchema.extend({
 // Mock 데이터 (실제 구현 시 API에서 가져옴)
 interface Notice {
   id: number;
+  tag: string;
   title: string;
   content: string;
   target: string;
@@ -63,9 +66,16 @@ interface Notice {
   status: string;
 }
 
+const NOTICE_TAGS = [
+  { value: 'general', label: '일반' },
+  { value: 'hr', label: '인사' },
+  { value: 'event', label: '행사' },
+];
+
 const NOTICES: Notice[] = [
   { 
     id: 1, 
+    tag: 'general',
     title: '동절기 안전수칙 강화 안내', 
     content: '동절기 안전수칙을 강화하오니 각 부대에서는 철저히 준수하시기 바랍니다.\n\n1. 난방기구 사용 시 화재 예방\n2. 결빙 구역 미끄럼 주의\n3. 저체온증 예방 조치',
     target: 'all', 
@@ -81,6 +91,7 @@ const NOTICES: Notice[] = [
   },
   { 
     id: 2, 
+    tag: 'hr',
     title: '시스템 정기점검 안내 (12/20)', 
     content: '시스템 정기점검이 예정되어 있습니다.\n\n점검일시: 2024년 12월 20일 02:00 ~ 06:00\n점검내용: 서버 업데이트 및 보안 패치',
     target: 'all', 
@@ -119,6 +130,7 @@ export default function NoticeFormPage() {
     setMultipleValues,
   } = useFormValidation<NoticeFormValues>({
     initialValues: {
+      tag: 'general',
       title: '',
       content: '',
       target: 'subordinate',
@@ -152,6 +164,7 @@ export default function NoticeFormPage() {
       const notice = NOTICES.find(n => n.id === parseInt(id));
       if (notice) {
         setMultipleValues({
+          tag: notice.tag || 'general',
           title: notice.title,
           content: notice.content,
           target: notice.target,
@@ -255,14 +268,27 @@ export default function NoticeFormPage() {
           required 
           error={getFieldError('title', errors, touched)}
         >
-          <Input
-            id="title"
-            placeholder="공지 제목을 입력하세요"
-            value={values.title}
-            onChange={(e) => handleChange('title', e.target.value)}
-            onBlur={() => handleBlur('title')}
-            className="bg-background"
-          />
+          <div className="flex gap-2">
+            <select
+              value={values.tag}
+              onChange={(e) => handleChange('tag', e.target.value)}
+              className="h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring min-w-[100px]"
+            >
+              {NOTICE_TAGS.map((tag) => (
+                <option key={tag.value} value={tag.value}>
+                  {tag.label}
+                </option>
+              ))}
+            </select>
+            <Input
+              id="title"
+              placeholder="공지 제목을 입력하세요"
+              value={values.title}
+              onChange={(e) => handleChange('title', e.target.value)}
+              onBlur={() => handleBlur('title')}
+              className="bg-background flex-1"
+            />
+          </div>
         </FormField>
 
         <FormField 
