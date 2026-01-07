@@ -33,11 +33,11 @@ const ALL_ACCIDENTS = [
 // 예측 위험 요인 데이터 (도넛 차트) - forecastData와 연계된 요인
 // 동절기 특성 반영 (한랭, 빙판, 실내 밀집 등)
 const riskFactorData = [
-  { name: '한랭 환경', value: 32, color: '#6b8cae' },
-  { name: '근무 피로', value: 28, color: '#527394' },
-  { name: '대인 갈등', value: 20, color: '#3d5a7a' },
-  { name: '도로 결빙', value: 12, color: '#2a4260' },
-  { name: '기타', value: 8, color: '#1a2c45' },
+  { name: '한랭 환경', value: 32, color: '#7BA3C9' },
+  { name: '근무 피로', value: 28, color: '#5E8AB5' },
+  { name: '대인 갈등', value: 20, color: '#4A7BA8' },
+  { name: '도로 결빙', value: 12, color: '#3A6B98' },
+  { name: '기타', value: 8, color: '#2D5A85' },
 ];
 
 const chartTooltipStyle = {
