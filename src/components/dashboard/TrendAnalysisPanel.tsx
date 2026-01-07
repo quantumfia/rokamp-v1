@@ -41,11 +41,11 @@ const riskFactorData = [
 ];
 
 const chartTooltipStyle = {
-  backgroundColor: 'hsl(var(--card))',
-  border: '1px solid hsl(var(--border))',
+  backgroundColor: 'hsl(220 10% 20%)',
+  border: '1px solid hsl(220 10% 30%)',
   borderRadius: '8px',
   fontSize: '12px',
-  color: 'hsl(var(--foreground))',
+  color: '#ffffff',
   padding: '8px 12px',
 };
 
