@@ -4,6 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAverageRiskScore } from '@/hooks/useAverageRiskScore';
 
 // 3단계 고정 위험도 설정
 interface RiskLevel {
@@ -243,7 +244,7 @@ function RiskSettingsPopover() {
 // 오늘의 안전사고 예보와 연동된 위험도
 export function RiskLevelPanel() {
   const { user } = useAuth();
-  const averageRiskScore = 67.3;
+  const averageRiskScore = useAverageRiskScore();
   const isHQ = user?.role === 'ROLE_HQ';
   
   return (

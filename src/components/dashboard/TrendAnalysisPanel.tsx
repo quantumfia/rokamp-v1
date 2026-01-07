@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { useAuth } from '@/contexts/AuthContext';
 import { getAccessibleUnitIds } from '@/lib/rbac';
 import { ARMY_UNITS, UNIT_LOCATIONS } from '@/data/armyUnits';
+import { useAverageRiskScore } from '@/hooks/useAverageRiskScore';
 
 // 발생사고 현황 데이터 (부대별) - forecastData와 동일한 분류 체계 사용
 // 군기사고: 폭행, 성범죄, 음주운전
@@ -52,8 +53,11 @@ const riskFactorData = riskFactorBaseData
 export function TrendAnalysisPanel() {
   const { user } = useAuth();
 
+  // 공유 훅에서 위험도 평균 가져오기
+  const averageRiskScore = useAverageRiskScore();
+
   // 역할 기반 필터링된 데이터
-  const { accidentData, dangerousUnitCount, totalUnitCount, averageRiskScore } = useMemo(() => {
+  const { accidentData, dangerousUnitCount, totalUnitCount } = useMemo(() => {
     const accessibleIds = new Set(getAccessibleUnitIds(user?.role, user?.unitId));
     
     // 접근 가능한 부대의 사고만 필터링
@@ -80,15 +84,7 @@ export function TrendAnalysisPanel() {
       return loc && loc.risk >= 60;
     }).length;
     
-    // 위험도 평균
-    const riskyUnits = accessibleUnits
-      .map(u => UNIT_LOCATIONS[u.id]?.risk)
-      .filter((r): r is number => r !== undefined);
-    const averageRiskScore = riskyUnits.length > 0 
-      ? Math.round((riskyUnits.reduce((a, b) => a + b, 0) / riskyUnits.length) * 10) / 10
-      : 0;
-    
-    return { accidentData, dangerousUnitCount, totalUnitCount, averageRiskScore };
+    return { accidentData, dangerousUnitCount, totalUnitCount };
   }, [user?.role, user?.unitId]);
   
   // 상위 발생사고
