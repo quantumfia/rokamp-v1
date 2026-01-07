@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Info, ChevronUp, ChevronDown } from 'lucide-react';
+import { Info, ArrowUpAZ, ArrowDownAZ, ArrowUp01, ArrowDown10 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { 
@@ -123,12 +123,21 @@ export function UnitListCompact({
     }
   };
 
-  const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return null;
+  const NameSortIcon = () => {
+    if (sortField !== 'name') return <ArrowUpAZ className="w-3.5 h-3.5 opacity-40" />;
     return sortDirection === 'asc' ? (
-      <ChevronUp className="w-3 h-3" />
+      <ArrowUpAZ className="w-3.5 h-3.5 text-primary" />
     ) : (
-      <ChevronDown className="w-3 h-3" />
+      <ArrowDownAZ className="w-3.5 h-3.5 text-primary" />
+    );
+  };
+
+  const RiskSortIcon = () => {
+    if (sortField !== 'risk') return <ArrowDown10 className="w-3.5 h-3.5 opacity-40" />;
+    return sortDirection === 'desc' ? (
+      <ArrowDown10 className="w-3.5 h-3.5 text-primary" />
+    ) : (
+      <ArrowUp01 className="w-3.5 h-3.5 text-primary" />
     );
   };
 
@@ -144,16 +153,24 @@ export function UnitListCompact({
       {/* 테이블 헤더 */}
       <div className="flex items-center justify-between px-4 py-3 text-sm font-medium text-muted-foreground">
         <button
-          className="flex items-center gap-1 hover:text-foreground transition-colors"
+          className={cn(
+            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors",
+            sortField === 'name' ? "text-foreground bg-muted" : "hover:text-foreground hover:bg-muted/50"
+          )}
           onClick={() => handleSort('name')}
+          title={sortField === 'name' && sortDirection === 'asc' ? '가→하 정렬' : '하→가 정렬'}
         >
-          부대 <SortIcon field="name" />
+          가나다 <NameSortIcon />
         </button>
         <button
-          className="flex items-center gap-1 hover:text-foreground transition-colors"
+          className={cn(
+            "flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors",
+            sortField === 'risk' ? "text-foreground bg-muted" : "hover:text-foreground hover:bg-muted/50"
+          )}
           onClick={() => handleSort('risk')}
+          title={sortField === 'risk' && sortDirection === 'desc' ? '높은순 정렬' : '낮은순 정렬'}
         >
-          위험도 <SortIcon field="risk" />
+          위험도 <RiskSortIcon />
         </button>
       </div>
 
