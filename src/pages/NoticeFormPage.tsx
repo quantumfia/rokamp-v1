@@ -292,6 +292,26 @@ export default function NoticeFormPage() {
         </FormField>
 
         <FormField 
+          label="발송 대상"
+          error={getFieldError('target', errors, touched)}
+        >
+          <select 
+            value={values.target} 
+            onChange={(e) => handleChange('target', e.target.value)}
+            onBlur={() => handleBlur('target')}
+            className="w-full h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            {canSendToAll && <option value="all">전체 (전군)</option>}
+            <option value="subordinate">예하 부대</option>
+          </select>
+          {!canSendToAll && (
+            <p className="text-[10px] text-muted-foreground">
+              전체 발송은 본부 관리자만 가능합니다.
+            </p>
+          )}
+        </FormField>
+
+        <FormField 
           label="내용" 
           required 
           error={getFieldError('content', errors, touched)}
@@ -305,44 +325,22 @@ export default function NoticeFormPage() {
           />
         </FormField>
 
-        <div className="grid grid-cols-2 gap-6">
-          <FormField 
-            label="발송 대상"
-            error={getFieldError('target', errors, touched)}
-          >
-            <select 
-              value={values.target} 
-              onChange={(e) => handleChange('target', e.target.value)}
-              onBlur={() => handleBlur('target')}
-              className="w-full h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              {canSendToAll && <option value="all">전체 (전군)</option>}
-              <option value="subordinate">예하 부대</option>
-            </select>
-            {!canSendToAll && (
-              <p className="text-[10px] text-muted-foreground">
-                전체 발송은 본부 관리자만 가능합니다.
-              </p>
-            )}
-          </FormField>
-
-          <FormField 
-            label="YouTube URL (선택)"
-            error={getFieldError('videoUrl', errors, touched)}
-          >
-            <div className="relative">
-              <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                id="video-url"
-                placeholder="https://youtu.be/..."
-                value={values.videoUrl || ''}
-                onChange={(e) => handleChange('videoUrl', e.target.value)}
-                onBlur={() => handleBlur('videoUrl')}
-                className="bg-background pl-10"
-              />
-            </div>
-          </FormField>
-        </div>
+        <FormField 
+          label="YouTube URL (선택)"
+          error={getFieldError('videoUrl', errors, touched)}
+        >
+          <div className="relative">
+            <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              id="video-url"
+              placeholder="https://youtu.be/..."
+              value={values.videoUrl || ''}
+              onChange={(e) => handleChange('videoUrl', e.target.value)}
+              onBlur={() => handleBlur('videoUrl')}
+              className="bg-background pl-10"
+            />
+          </div>
+        </FormField>
 
         {/* 첨부 링크 섹션 */}
         <div className="space-y-3">
