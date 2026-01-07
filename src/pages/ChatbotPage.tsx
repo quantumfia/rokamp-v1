@@ -536,7 +536,7 @@ export default function ChatbotPage() {
                       className={cn(
                         "text-sm",
                         message.role === "user"
-                          ? "max-w-[80%] bg-muted text-foreground px-4 py-3 rounded-2xl rounded-br-sm"
+                          ? "max-w-[80%] bg-muted-foreground/20 text-foreground px-4 py-3 rounded-2xl rounded-br-sm"
                           : "flex-1 bg-muted/40 border border-border/50 px-4 py-3.5 rounded-2xl rounded-bl-sm",
                       )}
                     >
