@@ -137,6 +137,7 @@ export const incidentSchema = z.object({
   location: requiredString('장소', 200),
   category: requiredString('분류'),
   severity: z.enum(['low', 'medium', 'high']),
+  target: requiredString('발송 대상'),
 });
 
 /** 훈련 일정 스키마 */

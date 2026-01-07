@@ -18,6 +18,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { useFormValidation, getFieldError } from '@/hooks/useFormValidation';
+import { useAuth } from '@/contexts/AuthContext';
 import { incidentSchema } from '@/lib/validation';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
@@ -34,6 +35,7 @@ interface Incident {
   location: string;
   category: string;
   severity: 'low' | 'medium' | 'high';
+  target: string;
   createdAt: string;
   author: string;
 }
@@ -47,6 +49,7 @@ const INCIDENTS: Incident[] = [
     location: '제32보병사단 훈련장',
     category: '훈련',
     severity: 'medium',
+    target: 'subordinate',
     createdAt: '2024-12-13',
     author: '김철수 대령',
   },
@@ -58,6 +61,7 @@ const INCIDENTS: Incident[] = [
     location: '본부 주차장',
     category: '교통',
     severity: 'low',
+    target: 'all',
     createdAt: '2024-12-12',
     author: '이영희 준장',
   },
@@ -66,8 +70,11 @@ const INCIDENTS: Incident[] = [
 export default function IncidentFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isLoading = usePageLoading(500);
   const isEditMode = !!id;
+  
+  const canSendToAll = user?.role === 'ROLE_HQ';
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -90,6 +97,7 @@ export default function IncidentFormPage() {
       location: '',
       category: '훈련',
       severity: 'low',
+      target: 'subordinate',
     },
     schema: incidentSchema,
     validateOnChange: true,
@@ -121,6 +129,7 @@ export default function IncidentFormPage() {
           location: incident.location,
           category: incident.category,
           severity: incident.severity,
+          target: incident.target || 'subordinate',
         });
       }
     }
@@ -137,7 +146,7 @@ export default function IncidentFormPage() {
 
   const getSeverityColor = (sev: 'low' | 'medium' | 'high') => {
     switch (sev) {
-      case 'low': return 'border-green-500 bg-green-500/10 text-green-600';
+      case 'low': return 'border-muted-foreground bg-muted text-muted-foreground';
       case 'medium': return 'border-yellow-500 bg-yellow-500/10 text-yellow-600';
       case 'high': return 'border-red-500 bg-red-500/10 text-red-600';
     }
@@ -282,30 +291,50 @@ export default function IncidentFormPage() {
           </FormField>
 
           <FormField 
-            label="심각도" 
-            required
-            error={getFieldError('severity', errors, touched)}
+            label="발송 대상"
+            error={getFieldError('target', errors, touched)}
           >
-            <div className="flex gap-2">
-              {(['low', 'medium', 'high'] as const).map((sev) => (
-                <button
-                  key={sev}
-                  type="button"
-                  onClick={() => handleChange('severity', sev)}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 h-10 px-3 text-sm border rounded-md transition-colors",
-                    values.severity === sev
-                      ? getSeverityColor(sev)
-                      : "border-border bg-background hover:bg-muted"
-                  )}
-                >
-                  <AlertTriangle className="w-4 h-4" />
-                  {sev === 'low' ? '경미' : sev === 'medium' ? '보통' : '심각'}
-                </button>
-              ))}
-            </div>
+            <select 
+              value={values.target} 
+              onChange={(e) => handleChange('target', e.target.value)}
+              onBlur={() => handleBlur('target')}
+              className="w-full h-10 px-3 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              {canSendToAll && <option value="all">전체 (전군)</option>}
+              <option value="subordinate">예하 부대</option>
+            </select>
+            {!canSendToAll && (
+              <p className="text-[10px] text-muted-foreground">
+                전체 발송은 본부 관리자만 가능합니다.
+              </p>
+            )}
           </FormField>
         </div>
+
+        <FormField 
+          label="심각도" 
+          required
+          error={getFieldError('severity', errors, touched)}
+        >
+          <div className="flex gap-2">
+            {(['low', 'medium', 'high'] as const).map((sev) => (
+              <button
+                key={sev}
+                type="button"
+                onClick={() => handleChange('severity', sev)}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 h-10 px-3 text-sm border rounded-md transition-colors",
+                  values.severity === sev
+                    ? getSeverityColor(sev)
+                    : "border-border bg-background hover:bg-muted"
+                )}
+              >
+                <AlertTriangle className="w-4 h-4" />
+                {sev === 'low' ? '경미' : sev === 'medium' ? '보통' : '심각'}
+              </button>
+            ))}
+          </div>
+        </FormField>
 
         {/* 안내 */}
         <div className="pt-4 border-t border-border">
