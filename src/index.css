@@ -105,59 +105,59 @@
   .dark {
     /* ========================================
        Commercial-Grade Dark Theme  
-       Inspired by: GitHub, Discord, Figma
+       Neutral Gray - More readable
        ======================================== */
     
-    /* Base Colors - Slightly lighter for content area contrast */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* Base Colors - Neutral gray instead of navy */
+    --background: 220 10% 14%;
+    --foreground: 210 20% 95%;
 
     /* Card - Elevated surface */
-    --card: 223 47% 10%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 10% 12%;
+    --card-foreground: 210 20% 95%;
 
     /* Popover - Higher elevation */
-    --popover: 223 47% 12%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 10% 16%;
+    --popover-foreground: 210 20% 95%;
 
     /* Primary - Brighter for dark mode */
     --primary: 210 75% 55%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - Subtle elevation */
-    --secondary: 223 47% 14%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 10% 18%;
+    --secondary-foreground: 210 20% 95%;
 
     /* Muted - Subdued backgrounds */
-    --muted: 223 47% 12%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 220 10% 16%;
+    --muted-foreground: 220 10% 60%;
 
     /* Accent */
-    --accent: 223 47% 16%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 220 10% 20%;
+    --accent-foreground: 210 20% 95%;
 
     /* Destructive */
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders & Inputs */
-    --border: 220 13% 20%;
-    --input: 220 13% 20%;
+    --border: 220 10% 24%;
+    --input: 220 10% 24%;
     --ring: 210 75% 55%;
 
     /* Sidebar - Slightly darker for hierarchy */
-    --sidebar-background: 222 47% 6%;
-    --sidebar-foreground: 210 40% 98%;
+    --sidebar-background: 220 10% 10%;
+    --sidebar-foreground: 210 20% 95%;
     --sidebar-primary: 210 75% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 223 47% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 220 13% 16%;
+    --sidebar-accent: 220 10% 16%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 220 10% 20%;
     --sidebar-ring: 210 75% 55%;
-    --sidebar-muted: 215 20% 50%;
+    --sidebar-muted: 220 10% 55%;
     
     /* Header - Slightly darker than sidebar for hierarchy */
-    --header-sidebar-bg: 222 47% 5%;
+    --header-sidebar-bg: 220 10% 8%;
 
     /* Dark theme shadows - Deeper and more diffuse */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
