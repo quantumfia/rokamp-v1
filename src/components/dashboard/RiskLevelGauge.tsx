@@ -3,6 +3,7 @@ import { Settings2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/AuthContext';
 
 // 3단계 고정 위험도 설정
 interface RiskLevel {
@@ -241,7 +242,9 @@ function RiskSettingsPopover() {
 
 // 오늘의 안전사고 예보와 연동된 위험도
 export function RiskLevelPanel() {
+  const { user } = useAuth();
   const averageRiskScore = 67.3;
+  const isHQ = user?.role === 'ROLE_HQ';
   
   return (
     <div className="relative flex flex-col items-center justify-center h-[78px] w-40 px-3">
@@ -249,10 +252,12 @@ export function RiskLevelPanel() {
       <span className="text-[10px] font-medium text-muted-foreground mb-1">사건/사고 위험도</span>
       {/* 중앙: 게이지 */}
       <RiskScoreGauge score={averageRiskScore} />
-      {/* 우측 하단: 설정 아이콘 */}
-      <div className="absolute bottom-1 right-1">
-        <RiskSettingsPopover />
-      </div>
+      {/* 우측 하단: 설정 아이콘 (Super Admin만 표시) */}
+      {isHQ && (
+        <div className="absolute bottom-1 right-1">
+          <RiskSettingsPopover />
+        </div>
+      )}
     </div>
   );
 }
