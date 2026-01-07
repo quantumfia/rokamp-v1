@@ -29,13 +29,18 @@ interface AttachmentLink {
   url: string;
 }
 
+interface VideoLink {
+  id: string;
+  url: string;
+}
+
 // 내부 폼에서 사용할 타입
 interface NoticeFormValues {
   tag: string;
   title: string;
   content: string;
   target: string;
-  videoUrl: string;
+  videoUrls: VideoLink[];
   attachments: AttachmentLink[];
   [key: string]: unknown;
 }
@@ -43,6 +48,10 @@ interface NoticeFormValues {
 // attachments를 포함한 스키마
 const noticeFormSchema = noticeSchema.extend({
   tag: z.string().min(1, '태그를 선택해주세요'),
+  videoUrls: z.array(z.object({
+    id: z.string(),
+    url: z.string(),
+  })).optional(),
   attachments: z.array(z.object({
     id: z.string(),
     name: z.string(),
@@ -58,7 +67,7 @@ interface Notice {
   content: string;
   target: string;
   targetLabel: string;
-  videoUrl: string;
+  videoUrls: VideoLink[];
   hasVideo: boolean;
   attachments: AttachmentLink[];
   createdAt: string;
@@ -80,7 +89,7 @@ const NOTICES: Notice[] = [
     content: '동절기 안전수칙을 강화하오니 각 부대에서는 철저히 준수하시기 바랍니다.\n\n1. 난방기구 사용 시 화재 예방\n2. 결빙 구역 미끄럼 주의\n3. 저체온증 예방 조치',
     target: 'all', 
     targetLabel: '전체',
-    videoUrl: 'https://youtu.be/example1',
+    videoUrls: [{ id: '1', url: 'https://youtu.be/example1' }],
     hasVideo: true,
     attachments: [
       { id: '1', name: '동절기_안전수칙_체크리스트.pdf', url: 'https://portal.cstec.kr/docs/winter-safety' },
@@ -96,7 +105,7 @@ const NOTICES: Notice[] = [
     content: '시스템 정기점검이 예정되어 있습니다.\n\n점검일시: 2024년 12월 20일 02:00 ~ 06:00\n점검내용: 서버 업데이트 및 보안 패치',
     target: 'all', 
     targetLabel: '전체',
-    videoUrl: '',
+    videoUrls: [],
     hasVideo: false,
     attachments: [],
     createdAt: '2024-12-10', 
@@ -115,6 +124,7 @@ export default function NoticeFormPage() {
   // 첨부 링크 입력 상태 (별도 관리)
   const [newLinkName, setNewLinkName] = useState('');
   const [newLinkUrl, setNewLinkUrl] = useState('');
+  const [newVideoUrl, setNewVideoUrl] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // 폼 검증 훅 사용
@@ -134,7 +144,7 @@ export default function NoticeFormPage() {
       title: '',
       content: '',
       target: 'subordinate',
-      videoUrl: '',
+      videoUrls: [],
       attachments: [],
     },
     schema: noticeFormSchema as z.ZodSchema<NoticeFormValues>,
@@ -168,7 +178,7 @@ export default function NoticeFormPage() {
           title: notice.title,
           content: notice.content,
           target: notice.target,
-          videoUrl: notice.videoUrl,
+          videoUrls: notice.videoUrls || [],
           attachments: notice.attachments || [],
         });
       }
@@ -182,6 +192,29 @@ export default function NoticeFormPage() {
     });
     setShowDeleteDialog(false);
     navigate('/admin/notice');
+  };
+
+  const handleAddVideoUrl = () => {
+    if (!newVideoUrl.trim()) {
+      toast({
+        title: '입력 오류',
+        description: 'YouTube URL을 입력해주세요.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const newVideo: VideoLink = {
+      id: Date.now().toString(),
+      url: newVideoUrl.trim(),
+    };
+
+    handleChange('videoUrls', [...(values.videoUrls || []), newVideo]);
+    setNewVideoUrl('');
+  };
+
+  const handleRemoveVideoUrl = (videoId: string) => {
+    handleChange('videoUrls', (values.videoUrls || []).filter(v => v.id !== videoId));
   };
 
   const handleAddLink = () => {
@@ -325,22 +358,54 @@ export default function NoticeFormPage() {
           />
         </FormField>
 
-        <FormField 
-          label="YouTube URL (선택)"
-          error={getFieldError('videoUrl', errors, touched)}
-        >
-          <div className="relative">
-            <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              id="video-url"
-              placeholder="https://youtu.be/..."
-              value={values.videoUrl || ''}
-              onChange={(e) => handleChange('videoUrl', e.target.value)}
-              onBlur={() => handleBlur('videoUrl')}
-              className="bg-background pl-10"
-            />
-          </div>
-        </FormField>
+        {/* YouTube URL 섹션 */}
+        <div className="space-y-3">
+          <FormField label="YouTube URL (선택)" hint="관련 동영상 링크를 추가합니다.">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="https://youtu.be/..."
+                  value={newVideoUrl}
+                  onChange={(e) => setNewVideoUrl(e.target.value)}
+                  className="bg-background pl-10"
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleAddVideoUrl}
+                className="shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </FormField>
+
+          {/* 추가된 YouTube URL 목록 */}
+          {(values.videoUrls || []).length > 0 && (
+            <div className="space-y-2">
+              {(values.videoUrls || []).map((video) => (
+                <div
+                  key={video.id}
+                  className="flex items-center justify-between px-4 py-2.5 border border-border rounded-lg bg-muted/30"
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <Video className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <span className="text-sm block truncate">{video.url}</span>
+                  </div>
+                  <button 
+                    onClick={() => handleRemoveVideoUrl(video.id)}
+                    className="p-1.5 hover:bg-muted rounded transition-colors shrink-0 ml-2"
+                  >
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* 첨부 링크 섹션 */}
         <div className="space-y-3">

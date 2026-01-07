@@ -122,7 +122,10 @@ export const noticeSchema = z.object({
   title: requiredString('제목', 200),
   content: requiredString('내용', 10000),
   target: requiredString('발송 대상'),
-  videoUrl: urlSchema,
+  videoUrls: z.array(z.object({
+    id: z.string(),
+    url: z.string(),
+  })).optional(),
   attachments: z.array(z.object({
     name: requiredString('링크명', 100),
     url: z.string().url({ message: '올바른 URL을 입력해주세요.' }),
