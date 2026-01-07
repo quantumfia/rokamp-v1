@@ -518,36 +518,45 @@ export default function ChatbotPage() {
 
             {/* Scrollable Messages */}
             <div className="flex-1 min-h-0 overflow-y-auto pt-16 pb-36">
-              <div className="max-w-3xl mx-auto px-4 py-4 space-y-6">
+              <div className="max-w-3xl mx-auto px-4 py-4 space-y-5">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={cn("flex gap-3", message.role === "user" ? "justify-end" : "justify-start")}
+                    className={cn(
+                      "flex gap-3",
+                      message.role === "user" ? "justify-end" : "justify-start"
+                    )}
                   >
                     {message.role === "assistant" && (
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Sparkles className="w-4 h-4 text-primary" />
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0 ring-1 ring-primary/10">
+                        <img src={rokaLogo} alt="AI" className="w-5 h-5" />
                       </div>
                     )}
                     <div
                       className={cn(
-                        "max-w-[85%] text-sm",
+                        "max-w-[80%] text-sm",
                         message.role === "user"
-                          ? "bg-primary text-primary-foreground px-4 py-3 rounded-2xl rounded-br-md"
-                          : "text-foreground",
+                          ? "bg-foreground text-background px-4 py-3 rounded-2xl rounded-br-sm shadow-sm"
+                          : "bg-muted/40 border border-border/50 px-4 py-3.5 rounded-2xl rounded-bl-sm",
                       )}
                     >
                       {message.role === "user" && message.sources && message.sources.length > 0 && (
-                        <div className="text-[10px] text-primary-foreground/70 mb-1">
+                        <div className="text-[10px] opacity-70 mb-1.5 pb-1.5 border-b border-background/10">
                           검색:{" "}
                           {message.sources.map((id) => DOCUMENT_SOURCES.find((s) => s.id === id)?.label).join(", ")}
                         </div>
                       )}
-                      <div className="whitespace-pre-wrap leading-relaxed">
+                      <div className={cn(
+                        "whitespace-pre-wrap leading-relaxed",
+                        message.role === "assistant" && "text-foreground"
+                      )}>
                         {message.content.split("\n").map((line, i) => {
                           if (line.startsWith("**") && line.endsWith("**")) {
                             return (
-                              <p key={i} className="font-semibold mt-4 mb-2 first:mt-0">
+                              <p key={i} className={cn(
+                                "font-semibold mt-4 mb-2 first:mt-0",
+                                message.role === "assistant" && "text-foreground"
+                              )}>
                                 {line.replace(/\*\*/g, "")}
                               </p>
                             );
@@ -568,24 +577,27 @@ export default function ChatbotPage() {
                         })}
                       </div>
                       {message.references && message.references.length > 0 && (
-                        <div className="mt-4 pt-3 border-t border-border/50 space-y-1.5">
-                          <p className="text-xs font-medium text-muted-foreground">참고 자료</p>
-                          {message.references.map((ref, index) => (
-                            <button
-                              key={index}
-                              onClick={() => handleDocumentClick(ref)}
-                              className="flex items-center gap-2 text-xs text-primary/80 hover:text-primary transition-colors text-left w-full group"
-                            >
-                              <FileText className="w-3.5 h-3.5 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                              <span className="truncate">{ref.title} · {ref.source}</span>
-                            </button>
-                          ))}
+                        <div className="mt-4 pt-3 border-t border-border/30 space-y-2">
+                          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">참고 자료</p>
+                          <div className="space-y-1">
+                            {message.references.map((ref, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleDocumentClick(ref)}
+                                className="flex items-center gap-2 text-xs text-primary hover:text-primary/80 transition-colors text-left w-full py-1 px-2 -mx-2 rounded-md hover:bg-primary/5 group"
+                              >
+                                <FileText className="w-3.5 h-3.5 flex-shrink-0" />
+                                <span className="truncate">{ref.title}</span>
+                                <span className="text-muted-foreground text-[10px] ml-auto flex-shrink-0">{ref.source}</span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
                     {message.role === "user" && (
-                      <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center flex-shrink-0 text-xs font-medium text-background">
-                        U
+                      <div className="w-9 h-9 rounded-full bg-foreground flex items-center justify-center flex-shrink-0 text-xs font-semibold text-background shadow-sm">
+                        나
                       </div>
                     )}
                   </div>
