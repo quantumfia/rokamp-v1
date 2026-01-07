@@ -534,10 +534,10 @@ export default function ChatbotPage() {
                     )}
                     <div
                       className={cn(
-                        "max-w-[80%] text-sm",
+                        "text-sm",
                         message.role === "user"
-                          ? "bg-foreground text-background px-4 py-3 rounded-2xl rounded-br-sm shadow-sm"
-                          : "bg-muted/40 border border-border/50 px-4 py-3.5 rounded-2xl rounded-bl-sm",
+                          ? "max-w-[80%] bg-foreground text-background px-4 py-3 rounded-2xl rounded-br-sm shadow-sm"
+                          : "flex-1 bg-muted/40 border border-border/50 px-4 py-3.5 rounded-2xl rounded-bl-sm",
                       )}
                     >
                       {message.role === "user" && message.sources && message.sources.length > 0 && (
