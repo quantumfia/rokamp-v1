@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, RotateCcw, ChevronDown, X, Sparkles, FileText } from "lucide-react";
+import { Send, RotateCcw, ChevronDown, X, Sparkles, FileText, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatbotSkeleton } from "@/components/skeletons";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,10 @@ import {
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import rokaLogo from "@/assets/roka-logo.svg";
-import { DEFAULT_STARTER_QUESTIONS, ICON_MAP } from "@/data/starterQuestions";
+import { DEFAULT_STARTER_QUESTIONS, ICON_MAP, StarterQuestion } from "@/data/starterQuestions";
 import { DocumentViewerPanel } from "@/components/chatbot/DocumentViewerPanel";
+import { StarterQuestionsModal } from "@/components/chatbot/StarterQuestionsModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 // 사용 가능한 AI 모델
 const AI_MODELS = [
@@ -48,6 +50,7 @@ const DOCUMENT_SOURCES = [
 
 export default function ChatbotPage() {
   const location = useLocation();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -56,10 +59,13 @@ export default function ChatbotPage() {
   const [selectedModel, setSelectedModel] = useState("llama-3.3-70b");
   const [isDocumentPanelOpen, setIsDocumentPanelOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<{ title: string; source: string; url?: string; page?: number } | null>(null);
+  const [starterQuestions, setStarterQuestions] = useState<StarterQuestion[]>(DEFAULT_STARTER_QUESTIONS);
+  const [isStarterModalOpen, setIsStarterModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const hasConversation = messages.length > 0;
+  const isHQ = user?.role === "ROLE_HQ";
 
   const handleDocumentClick = (ref: { title: string; source: string; url?: string; page?: number }) => {
     setSelectedDocument(ref);
@@ -309,8 +315,8 @@ export default function ChatbotPage() {
         {!hasConversation ? (
           /* Welcome Screen */
           <div className="flex-1 flex flex-col px-4 animate-page-enter">
-            {/* 좌측 상단 모델 선택 */}
-            <div className="py-3 relative z-20">
+            {/* 상단 모델 선택 및 관리 버튼 */}
+            <div className="py-3 relative z-20 flex items-center justify-between">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
@@ -331,6 +337,19 @@ export default function ChatbotPage() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              {/* 스타터 질문 관리 버튼 (Super Admin만) */}
+              {isHQ && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs gap-1.5"
+                  onClick={() => setIsStarterModalOpen(true)}
+                >
+                  <Settings className="w-4 h-4" />
+                  스타터 질문 관리
+                </Button>
+              )}
             </div>
 
             <div className="flex-1 flex flex-col items-center justify-center -mt-12">
@@ -351,7 +370,7 @@ export default function ChatbotPage() {
             </div>
 
             <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-              {DEFAULT_STARTER_QUESTIONS.map((q, index) => {
+              {starterQuestions.map((q) => {
                 const IconComponent = ICON_MAP[q.icon];
                 return (
                   <button
@@ -690,6 +709,14 @@ export default function ChatbotPage() {
         isOpen={isDocumentPanelOpen}
         onClose={handleCloseDocumentPanel}
         document={selectedDocument}
+      />
+
+      {/* Starter Questions Modal */}
+      <StarterQuestionsModal
+        isOpen={isStarterModalOpen}
+        onClose={() => setIsStarterModalOpen(false)}
+        questions={starterQuestions}
+        onSave={setStarterQuestions}
       />
     </div>
   );
