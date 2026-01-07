@@ -396,13 +396,13 @@ export default function NoticeManagementPage() {
             <Table className="min-w-[700px]">
             <TableHeader>
               <TableRow className="border-t border-border">
-                <TableHead className="text-xs min-w-[200px]">제목</TableHead>
-                <TableHead className="text-xs w-24">발송 대상</TableHead>
-                <TableHead className="text-xs w-14 text-center">첨부</TableHead>
-                <TableHead className="text-xs w-24">등록일</TableHead>
-                <TableHead className="text-xs w-20">작성자</TableHead>
-                <TableHead className="text-xs w-14 text-center">상태</TableHead>
-                <TableHead className="text-xs w-16 text-center">관리</TableHead>
+                <TableHead className="text-xs">제목</TableHead>
+                <TableHead className="text-xs w-28">발송 대상</TableHead>
+                <TableHead className="text-xs w-16 text-center">첨부</TableHead>
+                <TableHead className="text-xs w-28">등록일</TableHead>
+                <TableHead className="text-xs w-24">작성자</TableHead>
+                <TableHead className="text-xs w-16 text-center">상태</TableHead>
+                <TableHead className="text-xs w-20 text-center">관리</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -575,13 +575,13 @@ export default function NoticeManagementPage() {
             <Table className="min-w-[700px]">
             <TableHeader>
               <TableRow className="border-t border-border">
-                <TableHead className="text-xs min-w-[200px]">제목</TableHead>
+                <TableHead className="text-xs">제목</TableHead>
                 <TableHead className="text-xs w-24">분류</TableHead>
-                <TableHead className="text-xs w-24">발생일</TableHead>
-                <TableHead className="text-xs w-32">발생장소</TableHead>
-                <TableHead className="text-xs w-16 text-center">심각도</TableHead>
-                <TableHead className="text-xs w-20">작성자</TableHead>
-                <TableHead className="text-xs w-16 text-center">관리</TableHead>
+                <TableHead className="text-xs w-28">발생일</TableHead>
+                <TableHead className="text-xs w-36">발생장소</TableHead>
+                <TableHead className="text-xs w-20 text-center">심각도</TableHead>
+                <TableHead className="text-xs w-24">작성자</TableHead>
+                <TableHead className="text-xs w-20 text-center">관리</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Save, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/common';
+import { RichTextEditor } from '@/components/common/RichTextEditor';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -325,14 +325,12 @@ export default function IncidentFormPage() {
           required 
           error={getFieldError('description', errors, touched)}
         >
-          <Textarea
-            id="description"
-            placeholder="사고 발생 경위, 피해 상황, 조치 내용 등을 상세히 작성하세요"
-            rows={8}
+          <RichTextEditor
             value={values.description}
-            onChange={(e) => handleChange('description', e.target.value)}
+            onChange={(value) => handleChange('description', value)}
             onBlur={() => handleBlur('description')}
-            className="bg-background resize-none"
+            placeholder="사고 발생 경위, 피해 상황, 조치 내용 등을 상세히 작성하세요"
+            error={!!getFieldError('description', errors, touched)}
           />
         </FormField>
 
