@@ -4,7 +4,7 @@
  */
 
 import { apiClient, ApiResponse, PaginationParams, FilterParams } from '@/lib/apiClient';
-import type { User, CreateUserDto, UpdateUserDto, PaginatedResponse } from '@/types/entities';
+import type { User, CreateUserDto, UpdateUserDto, PaginatedResponse, UserStatus, UserRole, USER_STATUS_LABELS } from '@/types/entities';
 import { getUnitById, getUnitFullName } from '@/data/armyUnits';
 
 // ============================================
@@ -12,18 +12,18 @@ import { getUnitById, getUnitFullName } from '@/data/armyUnits';
 // ============================================
 
 const MOCK_USERS: User[] = [
-  { id: '1', accountId: 'HQ-001', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', role: 'ROLE_SUPER_ADMIN', status: 'active', createdAt: '2024-01-01' },
-  { id: '2', accountId: 'C1D1-001', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'corps-1-div-1', role: 'ROLE_ADMIN', status: 'active', createdAt: '2024-01-02' },
-  { id: '3', accountId: 'C5D3-001', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'corps-5-div-3', role: 'ROLE_ADMIN', status: 'active', createdAt: '2024-01-03' },
-  { id: '4', accountId: 'C1D9-001', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'corps-1-div-9', role: 'ROLE_USER', status: 'active', createdAt: '2024-01-04' },
-  { id: '5', accountId: 'C1D25-001', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'corps-1-div-25', role: 'ROLE_USER', status: 'inactive', createdAt: '2024-01-05' },
-  { id: '6', accountId: 'C1-001', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', role: 'ROLE_ADMIN', status: 'active', createdAt: '2024-01-06' },
-  { id: '7', accountId: 'C2D7-001', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'corps-2-div-7', role: 'ROLE_USER', status: 'active', createdAt: '2024-01-07' },
-  { id: '8', accountId: 'SWC-001', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'swc-bde-sf-1', role: 'ROLE_USER', status: 'active', createdAt: '2024-01-08' },
-  { id: '9', accountId: 'GOC-001', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', role: 'ROLE_SUPER_ADMIN', status: 'active', createdAt: '2024-01-09' },
-  { id: '10', accountId: 'C3D12-001', militaryId: '19-745821', name: '송준혁', rank: '소령', unitId: 'corps-3-div-12', role: 'ROLE_USER', status: 'active', createdAt: '2024-01-10' },
-  { id: '11', accountId: 'C2D15-001', militaryId: '20-768432', name: '윤서연', rank: '중령', unitId: 'corps-2-div-15', role: 'ROLE_ADMIN', status: 'active', createdAt: '2024-01-11' },
-  { id: '12', accountId: 'C3D21-001', militaryId: '21-791543', name: '장민석', rank: '소령', unitId: 'corps-3-div-21', role: 'ROLE_USER', status: 'inactive', createdAt: '2024-01-12' },
+  { id: '1', accountId: 'HQ-001', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', role: 'ROLE_HQ', status: 'ACTIVE', createdAt: '2024-01-01' },
+  { id: '2', accountId: 'C1D1-001', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'corps-1-div-1', role: 'ROLE_DIV', status: 'ACTIVE', createdAt: '2024-01-02' },
+  { id: '3', accountId: 'C5D3-001', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'corps-5-div-3', role: 'ROLE_DIV', status: 'ACTIVE', createdAt: '2024-01-03' },
+  { id: '4', accountId: 'C1D9-001', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'corps-1-div-9', role: 'ROLE_BN', status: 'ACTIVE', createdAt: '2024-01-04' },
+  { id: '5', accountId: 'C1D25-001', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'corps-1-div-25', role: 'ROLE_BN', status: 'LOCKED', createdAt: '2024-01-05' },
+  { id: '6', accountId: 'C1-001', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', role: 'ROLE_DIV', status: 'ACTIVE', createdAt: '2024-01-06' },
+  { id: '7', accountId: 'C2D7-001', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'corps-2-div-7', role: 'ROLE_BN', status: 'ACTIVE', createdAt: '2024-01-07' },
+  { id: '8', accountId: 'SWC-001', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'swc-bde-sf-1', role: 'ROLE_BN', status: 'ACTIVE', createdAt: '2024-01-08' },
+  { id: '9', accountId: 'GOC-001', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', role: 'ROLE_HQ', status: 'ACTIVE', createdAt: '2024-01-09' },
+  { id: '10', accountId: 'C3D12-001', militaryId: '19-745821', name: '송준혁', rank: '소령', unitId: 'corps-3-div-12', role: 'ROLE_BN', status: 'ACTIVE', createdAt: '2024-01-10' },
+  { id: '11', accountId: 'C2D15-001', militaryId: '20-768432', name: '윤서연', rank: '중령', unitId: 'corps-2-div-15', role: 'ROLE_DIV', status: 'DORMANT', createdAt: '2024-01-11' },
+  { id: '12', accountId: 'C3D21-001', militaryId: '21-791543', name: '장민석', rank: '소령', unitId: 'corps-3-div-21', role: 'ROLE_BN', status: 'WITHDRAWN', createdAt: '2024-01-12' },
 ];
 
 let mockUsers = [...MOCK_USERS];
@@ -46,14 +46,33 @@ export const getUserUnitFullPath = (unitId: string): string => {
 /** 역할 라벨 조회 */
 export const getRoleLabel = (role: string): string => {
   const labels: Record<string, string> = {
-    'ROLE_SUPER_ADMIN': 'Super Admin',
-    'ROLE_ADMIN': 'Admin',
-    'ROLE_USER': 'User',
-    'ROLE_HQ': '본부',
-    'ROLE_DIV': '사단',
-    'ROLE_BN': '대대',
+    'ROLE_HQ': 'Super Admin',
+    'ROLE_DIV': 'Admin',
+    'ROLE_BN': 'User',
   };
   return labels[role] || role;
+};
+
+/** 상태 라벨 조회 */
+export const getStatusLabel = (status: UserStatus): string => {
+  const labels: Record<UserStatus, string> = {
+    'ACTIVE': '활성',
+    'LOCKED': '잠김',
+    'DORMANT': '휴면',
+    'WITHDRAWN': '탈퇴',
+  };
+  return labels[status] || status;
+};
+
+/** 상태 색상 조회 */
+export const getStatusColor = (status: UserStatus): string => {
+  const colors: Record<UserStatus, string> = {
+    'ACTIVE': 'text-green-600',
+    'LOCKED': 'text-red-600',
+    'DORMANT': 'text-yellow-600',
+    'WITHDRAWN': 'text-gray-600',
+  };
+  return colors[status] || 'text-gray-600';
 };
 
 // ============================================
@@ -134,8 +153,8 @@ export async function createUser(data: CreateUserDto): Promise<ApiResponse<User>
   const newUser: User = {
     id: Date.now().toString(),
     ...data,
-    role: 'ROLE_USER',
-    status: 'active',
+    role: data.role || 'ROLE_BN',
+    status: 'ACTIVE',
     createdAt: new Date().toISOString(),
   };
 
@@ -223,7 +242,9 @@ export async function bulkCreateUsers(file: File): Promise<ApiResponse<{ created
 export interface UserStats {
   total: number;
   active: number;
-  inactive: number;
+  locked: number;
+  dormant: number;
+  withdrawn: number;
   byRole: Record<string, number>;
   byUnit: Record<string, number>;
 }
@@ -236,8 +257,10 @@ export async function getUserStats(): Promise<ApiResponse<UserStats>> {
 
   const stats: UserStats = {
     total: mockUsers.length,
-    active: mockUsers.filter(u => u.status === 'active').length,
-    inactive: mockUsers.filter(u => u.status === 'inactive').length,
+    active: mockUsers.filter(u => u.status === 'ACTIVE').length,
+    locked: mockUsers.filter(u => u.status === 'LOCKED').length,
+    dormant: mockUsers.filter(u => u.status === 'DORMANT').length,
+    withdrawn: mockUsers.filter(u => u.status === 'WITHDRAWN').length,
     byRole: mockUsers.reduce((acc, u) => {
       acc[u.role] = (acc[u.role] || 0) + 1;
       return acc;

@@ -1,13 +1,15 @@
 // 예보 분석 관련 목데이터
 // TODO: 백엔드 연동 시 services 레이어로 대체
 
+import type { RiskGrade } from '@/types/entities';
+
 // ============ 주간 예보 탭 데이터 ============
 
 export interface WeeklyOverviewItem {
   day: string;
   date: string;
   risk: number;
-  grade: 'safe' | 'caution' | 'warning';
+  grade: RiskGrade;
   factor: string;
 }
 
@@ -39,43 +41,43 @@ export interface WeeklyInsight {
 export const WEEKLY_OVERVIEW_BY_UNIT: Record<string, WeeklyOverviewItem[]> = {
   // 전체 (HQ/ADMIN 용)
   'all': [
-    { day: '일', date: '1/5', risk: 32, grade: 'safe', factor: '휴일' },
-    { day: '월', date: '1/6', risk: 48, grade: 'safe', factor: '주말 복귀' },
-    { day: '화', date: '1/7', risk: 42, grade: 'safe', factor: '-' },
-    { day: '수', date: '1/8', risk: 58, grade: 'caution', factor: '주중 피로' },
-    { day: '목', date: '1/9', risk: 52, grade: 'caution', factor: '-' },
-    { day: '금', date: '1/10', risk: 65, grade: 'caution', factor: '외출/외박' },
-    { day: '토', date: '1/11', risk: 28, grade: 'safe', factor: '휴일' },
+    { day: '일', date: '1/5', risk: 32, grade: 'SAFE', factor: '휴일' },
+    { day: '월', date: '1/6', risk: 48, grade: 'ATTENTION', factor: '주말 복귀' },
+    { day: '화', date: '1/7', risk: 42, grade: 'ATTENTION', factor: '-' },
+    { day: '수', date: '1/8', risk: 58, grade: 'CAUTION', factor: '주중 피로' },
+    { day: '목', date: '1/9', risk: 52, grade: 'CAUTION', factor: '-' },
+    { day: '금', date: '1/10', risk: 65, grade: 'CAUTION', factor: '외출/외박' },
+    { day: '토', date: '1/11', risk: 28, grade: 'SAFE', factor: '휴일' },
   ],
   // 1사단
   'unit-1div': [
-    { day: '일', date: '1/5', risk: 35, grade: 'safe', factor: '휴일' },
-    { day: '월', date: '1/6', risk: 52, grade: 'caution', factor: '주말 복귀' },
-    { day: '화', date: '1/7', risk: 45, grade: 'safe', factor: '-' },
-    { day: '수', date: '1/8', risk: 62, grade: 'caution', factor: '야간훈련' },
-    { day: '목', date: '1/9', risk: 55, grade: 'caution', factor: '-' },
-    { day: '금', date: '1/10', risk: 68, grade: 'caution', factor: '외출/외박' },
-    { day: '토', date: '1/11', risk: 30, grade: 'safe', factor: '휴일' },
+    { day: '일', date: '1/5', risk: 35, grade: 'SAFE', factor: '휴일' },
+    { day: '월', date: '1/6', risk: 52, grade: 'CAUTION', factor: '주말 복귀' },
+    { day: '화', date: '1/7', risk: 45, grade: 'ATTENTION', factor: '-' },
+    { day: '수', date: '1/8', risk: 62, grade: 'CAUTION', factor: '야간훈련' },
+    { day: '목', date: '1/9', risk: 55, grade: 'CAUTION', factor: '-' },
+    { day: '금', date: '1/10', risk: 68, grade: 'WARNING', factor: '외출/외박' },
+    { day: '토', date: '1/11', risk: 30, grade: 'SAFE', factor: '휴일' },
   ],
   // 11연대
   'unit-11reg': [
-    { day: '일', date: '1/5', risk: 28, grade: 'safe', factor: '휴일' },
-    { day: '월', date: '1/6', risk: 45, grade: 'safe', factor: '주말 복귀' },
-    { day: '화', date: '1/7', risk: 38, grade: 'safe', factor: '-' },
-    { day: '수', date: '1/8', risk: 55, grade: 'caution', factor: '주중 피로' },
-    { day: '목', date: '1/9', risk: 48, grade: 'safe', factor: '-' },
-    { day: '금', date: '1/10', risk: 60, grade: 'caution', factor: '외출/외박' },
-    { day: '토', date: '1/11', risk: 25, grade: 'safe', factor: '휴일' },
+    { day: '일', date: '1/5', risk: 28, grade: 'SAFE', factor: '휴일' },
+    { day: '월', date: '1/6', risk: 45, grade: 'ATTENTION', factor: '주말 복귀' },
+    { day: '화', date: '1/7', risk: 38, grade: 'SAFE', factor: '-' },
+    { day: '수', date: '1/8', risk: 55, grade: 'CAUTION', factor: '주중 피로' },
+    { day: '목', date: '1/9', risk: 48, grade: 'ATTENTION', factor: '-' },
+    { day: '금', date: '1/10', risk: 60, grade: 'CAUTION', factor: '외출/외박' },
+    { day: '토', date: '1/11', risk: 25, grade: 'SAFE', factor: '휴일' },
   ],
   // 1대대
   'unit-1bn': [
-    { day: '일', date: '1/5', risk: 25, grade: 'safe', factor: '휴일' },
-    { day: '월', date: '1/6', risk: 42, grade: 'safe', factor: '주말 복귀' },
-    { day: '화', date: '1/7', risk: 35, grade: 'safe', factor: '-' },
-    { day: '수', date: '1/8', risk: 52, grade: 'caution', factor: '관심병사 면담' },
-    { day: '목', date: '1/9', risk: 45, grade: 'safe', factor: '-' },
-    { day: '금', date: '1/10', risk: 58, grade: 'caution', factor: '외출/외박' },
-    { day: '토', date: '1/11', risk: 22, grade: 'safe', factor: '휴일' },
+    { day: '일', date: '1/5', risk: 25, grade: 'SAFE', factor: '휴일' },
+    { day: '월', date: '1/6', risk: 42, grade: 'ATTENTION', factor: '주말 복귀' },
+    { day: '화', date: '1/7', risk: 35, grade: 'SAFE', factor: '-' },
+    { day: '수', date: '1/8', risk: 52, grade: 'CAUTION', factor: '관심병사 면담' },
+    { day: '목', date: '1/9', risk: 45, grade: 'ATTENTION', factor: '-' },
+    { day: '금', date: '1/10', risk: 58, grade: 'CAUTION', factor: '외출/외박' },
+    { day: '토', date: '1/11', risk: 22, grade: 'SAFE', factor: '휴일' },
   ],
 };
 
@@ -352,4 +354,38 @@ export function getYearComparison(unitId: string): YearComparisonSummary {
 
 export function getTrendInsights(unitId: string): string[] {
   return TREND_INSIGHTS_BY_UNIT[unitId] || TREND_INSIGHTS_BY_UNIT['all'];
+}
+
+// RiskGrade 헬퍼 함수
+export function getRiskGradeLabel(grade: RiskGrade): string {
+  const labels: Record<RiskGrade, string> = {
+    'SAFE': '안전',
+    'ATTENTION': '관심',
+    'CAUTION': '주의',
+    'WARNING': '경계',
+    'DANGER': '심각',
+  };
+  return labels[grade];
+}
+
+export function getRiskGradeColor(grade: RiskGrade): string {
+  const colors: Record<RiskGrade, string> = {
+    'SAFE': 'text-green-600',
+    'ATTENTION': 'text-blue-600',
+    'CAUTION': 'text-yellow-600',
+    'WARNING': 'text-orange-600',
+    'DANGER': 'text-red-600',
+  };
+  return colors[grade];
+}
+
+export function getRiskGradeBgColor(grade: RiskGrade): string {
+  const colors: Record<RiskGrade, string> = {
+    'SAFE': 'bg-green-100',
+    'ATTENTION': 'bg-blue-100',
+    'CAUTION': 'bg-yellow-100',
+    'WARNING': 'bg-orange-100',
+    'DANGER': 'bg-red-100',
+  };
+  return colors[grade];
 }

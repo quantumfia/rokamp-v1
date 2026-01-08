@@ -4,7 +4,7 @@
  */
 
 import type { ApiResponse, PaginationParams, FilterParams } from '@/lib/apiClient';
-import type { TrainingSchedule, CreateTrainingScheduleDto, UpdateTrainingScheduleDto, PaginatedResponse, TrainingType, RiskLevel } from '@/types/entities';
+import type { TrainingSchedule, CreateTrainingScheduleDto, UpdateTrainingScheduleDto, PaginatedResponse, TrainingType, RiskGrade, RISK_GRADE_LABELS } from '@/types/entities';
 import { format } from 'date-fns';
 
 // ============================================
@@ -16,71 +16,76 @@ const generateMockSchedules = (): TrainingSchedule[] => {
   return [
     {
       id: '1',
-      title: 'K-2 소총 영점사격',
+      name: 'K-2 소총 영점사격',
       unit: '제1보병사단 1연대',
       unitId: 'corps-1-div-1',
-      date: format(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() - 1), 'yyyy-MM-dd'),
+      startDate: format(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() - 1), 'yyyy-MM-dd'),
+      endDate: format(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() - 1), 'yyyy-MM-dd'),
       startTime: '09:00',
       endTime: '12:00',
       location: '종합사격장',
       type: '사격',
-      riskLevel: 'high',
+      riskLevel: 'DANGER',
       participants: 120,
       createdAt: '2024-12-01',
     },
     {
       id: '2',
-      title: '기초체력단련',
+      name: '기초체력단련',
       unit: '제7보병사단 신병교육대',
       unitId: 'corps-7-div-1',
-      date: format(baseDate, 'yyyy-MM-dd'),
+      startDate: format(baseDate, 'yyyy-MM-dd'),
+      endDate: format(baseDate, 'yyyy-MM-dd'),
       startTime: '06:00',
       endTime: '08:00',
       location: '연병장',
       type: '체력',
-      riskLevel: 'low',
+      riskLevel: 'SAFE',
       participants: 200,
       createdAt: '2024-12-02',
     },
     {
       id: '3',
-      title: '동절기 차량정비 점검',
+      name: '동절기 차량정비 점검',
       unit: '수도기계화보병사단',
       unitId: 'capital-div',
-      date: format(baseDate, 'yyyy-MM-dd'),
+      startDate: format(baseDate, 'yyyy-MM-dd'),
+      endDate: format(baseDate, 'yyyy-MM-dd'),
       startTime: '14:00',
       endTime: '17:00',
       location: '정비창',
       type: '점검',
-      riskLevel: 'medium',
+      riskLevel: 'CAUTION',
       participants: 45,
       createdAt: '2024-12-03',
     },
     {
       id: '4',
-      title: '야간 기동훈련',
+      name: '야간 기동훈련',
       unit: '제3보병사단 기갑대대',
       unitId: 'corps-3-div-1',
-      date: format(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1), 'yyyy-MM-dd'),
+      startDate: format(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1), 'yyyy-MM-dd'),
+      endDate: format(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1), 'yyyy-MM-dd'),
       startTime: '20:00',
       endTime: '24:00',
       location: '훈련장 A구역',
       type: '기동',
-      riskLevel: 'high',
+      riskLevel: 'WARNING',
       participants: 80,
       createdAt: '2024-12-04',
     },
     {
       id: '5',
-      title: '안전교육 (동절기 안전수칙)',
+      name: '안전교육 (동절기 안전수칙)',
       unit: '제5보병사단',
       unitId: 'corps-5-div-1',
-      date: format(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 2), 'yyyy-MM-dd'),
+      startDate: format(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 2), 'yyyy-MM-dd'),
+      endDate: format(new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 2), 'yyyy-MM-dd'),
       startTime: '10:00',
       endTime: '12:00',
       location: '대강당',
       type: '교육',
-      riskLevel: 'low',
+      riskLevel: 'SAFE',
       participants: 300,
       createdAt: '2024-12-05',
     },
@@ -108,18 +113,18 @@ export async function getSchedules(
     const search = filters.search.toLowerCase();
     filtered = filtered.filter(
       schedule =>
-        schedule.title.toLowerCase().includes(search) ||
+        schedule.name.toLowerCase().includes(search) ||
         schedule.unit.toLowerCase().includes(search) ||
-        schedule.location.toLowerCase().includes(search)
+        (schedule.location || '').toLowerCase().includes(search)
     );
   }
 
   if (filters?.dateFrom) {
-    filtered = filtered.filter(schedule => schedule.date >= filters.dateFrom!);
+    filtered = filtered.filter(schedule => schedule.startDate >= filters.dateFrom!);
   }
 
   if (filters?.dateTo) {
-    filtered = filtered.filter(schedule => schedule.date <= filters.dateTo!);
+    filtered = filtered.filter(schedule => schedule.endDate <= filters.dateTo!);
   }
 
   if (filters?.unitId) {
@@ -150,7 +155,7 @@ export async function getSchedulesByDateRange(
   await new Promise(resolve => setTimeout(resolve, 200));
 
   let filtered = mockSchedules.filter(
-    schedule => schedule.date >= startDate && schedule.date <= endDate
+    schedule => schedule.startDate >= startDate && schedule.endDate <= endDate
   );
 
   if (unitIds?.length) {
@@ -182,7 +187,7 @@ export async function createSchedule(data: CreateTrainingScheduleDto): Promise<A
     id: Date.now().toString(),
     ...data,
     unit: data.unitId, // 실제로는 부대명 조회
-    riskLevel: data.riskLevel || 'medium',
+    riskLevel: data.riskLevel || 'CAUTION',
     participants: data.participants || 0,
     createdAt: new Date().toISOString(),
   };
@@ -252,7 +257,7 @@ export interface ScheduleStats {
   highRisk: number;
   totalParticipants: number;
   byType: Record<TrainingType, number>;
-  byRiskLevel: Record<RiskLevel, number>;
+  byRiskLevel: Record<RiskGrade, number>;
 }
 
 /**
@@ -262,21 +267,23 @@ export async function getScheduleStats(startDate: string, endDate: string): Prom
   await new Promise(resolve => setTimeout(resolve, 200));
 
   const filtered = mockSchedules.filter(
-    s => s.date >= startDate && s.date <= endDate
+    s => s.startDate >= startDate && s.endDate <= endDate
   );
 
   const stats: ScheduleStats = {
     total: filtered.length,
-    highRisk: filtered.filter(s => s.riskLevel === 'high').length,
-    totalParticipants: filtered.reduce((sum, s) => sum + s.participants, 0),
+    highRisk: filtered.filter(s => s.riskLevel === 'DANGER' || s.riskLevel === 'WARNING').length,
+    totalParticipants: filtered.reduce((sum, s) => sum + (s.participants || 0), 0),
     byType: filtered.reduce((acc, s) => {
-      acc[s.type] = (acc[s.type] || 0) + 1;
+      if (s.type) {
+        acc[s.type] = (acc[s.type] || 0) + 1;
+      }
       return acc;
     }, {} as Record<TrainingType, number>),
     byRiskLevel: filtered.reduce((acc, s) => {
       acc[s.riskLevel] = (acc[s.riskLevel] || 0) + 1;
       return acc;
-    }, {} as Record<RiskLevel, number>),
+    }, {} as Record<RiskGrade, number>),
   };
 
   return { success: true, data: stats };
@@ -304,14 +311,26 @@ export const typeDotColors: Record<TrainingType, string> = {
   '점검': 'bg-slate-400',
 };
 
-export const riskLevelLabels: Record<RiskLevel, string> = {
-  low: '낮음',
-  medium: '보통',
-  high: '높음',
+export const riskLevelLabels: Record<RiskGrade, string> = {
+  'SAFE': '안전',
+  'ATTENTION': '관심',
+  'CAUTION': '주의',
+  'WARNING': '경계',
+  'DANGER': '심각',
 };
 
-export const riskLevelColors: Record<RiskLevel, string> = {
-  low: 'text-green-600',
-  medium: 'text-yellow-600',
-  high: 'text-red-600',
+export const riskLevelColors: Record<RiskGrade, string> = {
+  'SAFE': 'text-green-600',
+  'ATTENTION': 'text-blue-600',
+  'CAUTION': 'text-yellow-600',
+  'WARNING': 'text-orange-600',
+  'DANGER': 'text-red-600',
+};
+
+export const riskLevelBgColors: Record<RiskGrade, string> = {
+  'SAFE': 'bg-green-100',
+  'ATTENTION': 'bg-blue-100',
+  'CAUTION': 'bg-yellow-100',
+  'WARNING': 'bg-orange-100',
+  'DANGER': 'bg-red-100',
 };
