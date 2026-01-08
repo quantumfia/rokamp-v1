@@ -337,6 +337,9 @@ export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListPr
     }
   };
 
+  const getStatusBadgeClass = (status: ReportStatus) =>
+    `inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getStatusStyle(status)}`;
+
   // 심각도 스타일
   const getSeverityStyle = (severity: IncidentSeverity) => {
     switch (severity) {
@@ -736,7 +739,9 @@ export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListPr
               {/* 처리 상태 */}
               <div className="border-t border-border pt-4 mt-4">
                 <h3 className="text-xs font-medium text-foreground mb-3">처리 상태</h3>
-                <div className={inputClass}>{getStatusLabel(selectedReport.status)}</div>
+                <span className={getStatusBadgeClass(selectedReport.status)}>
+                  {getStatusLabel(selectedReport.status)}
+                </span>
               </div>
             </div>
           </div>
@@ -918,7 +923,9 @@ export function AccidentReportList({ onCreateNew, onEdit }: AccidentReportListPr
                 {report.date}
               </div>
               <div className="text-sm text-muted-foreground">
-                {getStatusLabel(report.status)}
+                <span className={getStatusBadgeClass(report.status)}>
+                  {getStatusLabel(report.status)}
+                </span>
               </div>
               <div>
                 <button 
