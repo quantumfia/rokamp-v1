@@ -159,6 +159,8 @@ export async function createAccidentReport(data: Partial<AccidentReport>): Promi
 
   const newReport: AccidentReport = {
     id: Date.now().toString(),
+    unitId: data.unitId || '',
+    title: data.title || '',
     date: data.date || '',
     time: data.time || '',
     location: data.location || '',
