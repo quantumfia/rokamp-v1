@@ -5,28 +5,32 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAverageRiskScore } from '@/hooks/useAverageRiskScore';
+import type { RiskGrade } from '@/types/entities';
+import { RISK_GRADE_LABELS } from '@/types/entities';
 
-// 3단계 고정 위험도 설정
+// 5단계 위험도 설정
 interface RiskLevel {
+  grade: RiskGrade;
   min: number;
   max: number;
   color: string;
   label: string;
 }
 
-// 3단계 색상 (초록 → 노랑 → 빨강)
-const COLORS = [
-  'hsl(142, 76%, 36%)', // 초록 - 안전
-  'hsl(48, 96%, 50%)',  // 노랑 - 주의
-  'hsl(0, 84%, 60%)',   // 빨강 - 위험
-];
-
-const LABELS = ['안전', '주의', '위험'];
+const COLORS: Record<RiskGrade, string> = {
+  SAFE: 'hsl(var(--risk-safe))',
+  ATTENTION: 'hsl(var(--risk-attention))',
+  CAUTION: 'hsl(var(--risk-caution))',
+  WARNING: 'hsl(var(--risk-warning))',
+  DANGER: 'hsl(var(--risk-danger))',
+};
 
 const DEFAULT_RISK_LEVELS: RiskLevel[] = [
-  { min: 0, max: 29, color: COLORS[0], label: LABELS[0] },
-  { min: 30, max: 59, color: COLORS[1], label: LABELS[1] },
-  { min: 60, max: 100, color: COLORS[2], label: LABELS[2] },
+  { grade: 'SAFE', min: 0, max: 19, color: COLORS.SAFE, label: RISK_GRADE_LABELS.SAFE },
+  { grade: 'ATTENTION', min: 20, max: 39, color: COLORS.ATTENTION, label: RISK_GRADE_LABELS.ATTENTION },
+  { grade: 'CAUTION', min: 40, max: 59, color: COLORS.CAUTION, label: RISK_GRADE_LABELS.CAUTION },
+  { grade: 'WARNING', min: 60, max: 79, color: COLORS.WARNING, label: RISK_GRADE_LABELS.WARNING },
+  { grade: 'DANGER', min: 80, max: 100, color: COLORS.DANGER, label: RISK_GRADE_LABELS.DANGER },
 ];
 
 // 위험도 설정 전역 상태
@@ -124,7 +128,7 @@ export function RiskScoreGauge({ score }: RiskScoreGaugeProps) {
   );
 }
 
-// 위험도 설정 팝오버 (3단계 고정, 범위만 조절)
+// 위험도 설정 팝오버 (5단계, 범위 조절)
 function RiskSettingsPopover() {
   const { levels, setLevels } = useRiskLevels();
   const [tempLevels, setTempLevels] = useState<RiskLevel[]>(levels);
@@ -187,7 +191,7 @@ function RiskSettingsPopover() {
         <div className="space-y-4">
           <h4 className="text-sm font-semibold">위험도 단계 설정</h4>
           
-          {/* 3단계 설정 */}
+          {/* 5단계 설정 */}
           <div className="space-y-2">
             {tempLevels.map((level, idx) => (
               <div key={idx} className="flex items-center gap-2 p-2 rounded-md bg-muted/30">

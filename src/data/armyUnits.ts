@@ -203,8 +203,8 @@ export const ARMY_UNITS: ArmyUnit[] = [
 
   // 수도방위사령부
   { id: 'sdc', name: '수도방위사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['sdc']) },
-  { id: 'sdc-div-52', name: '제52보병사단', parentId: 'sdc', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['sdc-div-52'] },
-  { id: 'sdc-div-56', name: '제56보병사단', parentId: 'sdc', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['sdc-div-56'] },
+  { id: 'sdc-div-52', name: '제52보병사단', parentId: 'sdc', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['sdc-div-52']) },
+  { id: 'sdc-div-56', name: '제56보병사단', parentId: 'sdc', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['sdc-div-56']) },
   { id: 'sdc-bde-ad-1', name: '제1방공여단', parentId: 'sdc', level: 'BRIG' },
   { id: 'sdc-grp-guard-1', name: '제1경비단', parentId: 'sdc', level: 'REGT' },
   { id: 'sdc-bn-guard-1', name: '제1경비대대', parentId: 'sdc-grp-guard-1', level: 'BN' },
@@ -219,11 +219,11 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'sdc-bn-shield', name: '방패교육대', parentId: 'sdc', level: 'BN' },
 
   // 육군특수전사령부
-  { id: 'swc', name: '육군특수전사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['swc'] },
+  { id: 'swc', name: '육군특수전사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['swc']) },
   { id: 'swc-school', name: '특수전학교', parentId: 'swc', level: 'BRIG' },
-  { id: 'swc-bde-sf-1', name: '제1공수특전여단', parentId: 'swc', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['swc-bde-sf-1'] },
+  { id: 'swc-bde-sf-1', name: '제1공수특전여단', parentId: 'swc', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['swc-bde-sf-1']) },
   { id: 'swc-bde-sf-3', name: '제3공수특전여단', parentId: 'swc', level: 'BRIG' },
-  { id: 'swc-bde-sf-7', name: '제7공수특전여단', parentId: 'swc', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['swc-bde-sf-7'] },
+  { id: 'swc-bde-sf-7', name: '제7공수특전여단', parentId: 'swc', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['swc-bde-sf-7']) },
   { id: 'swc-bde-sf-9', name: '제9공수특전여단', parentId: 'swc', level: 'BRIG' },
   { id: 'swc-bde-sf-11', name: '제11공수특전여단', parentId: 'swc', level: 'BRIG' },
   { id: 'swc-bde-sf-13', name: '제13특수임무여단', parentId: 'swc', level: 'BRIG' },
@@ -233,10 +233,10 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'swc-grp-sig-123', name: '제123정보통신단', parentId: 'swc', level: 'REGT' },
 
   // 육군교육사령부
-  { id: 'tradoc', name: '육군교육사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['tradoc'] },
+  { id: 'tradoc', name: '육군교육사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['tradoc']) },
   { id: 'tradoc-nco', name: '육군부사관학교', parentId: 'tradoc', level: 'BRIG' },
   { id: 'tradoc-nco-grp', name: '교육단', parentId: 'tradoc-nco', level: 'REGT' },
-  { id: 'tradoc-katc', name: '육군훈련소', parentId: 'tradoc', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['tradoc-katc'] },
+  { id: 'tradoc-katc', name: '육군훈련소', parentId: 'tradoc', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['tradoc-katc']) },
   { id: 'tradoc-katc-reg-23', name: '제23신병교육연대', parentId: 'tradoc-katc', level: 'REGT' },
   { id: 'tradoc-katc-reg-25', name: '제25신병교육연대', parentId: 'tradoc-katc', level: 'REGT' },
   { id: 'tradoc-katc-reg-26', name: '제26신병교육연대', parentId: 'tradoc-katc', level: 'REGT' },
@@ -276,7 +276,7 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'tradoc-k9', name: '군견교육대', parentId: 'tradoc', level: 'BN' },
 
   // 육군군수사령부
-  { id: 'amc', name: '육군군수사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['amc'] },
+  { id: 'amc', name: '육군군수사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['amc']) },
   { id: 'amc-supply', name: '육군종합보급창', parentId: 'amc', level: 'BRIG' },
   { id: 'amc-supply-grp-1', name: '제1보급단', parentId: 'amc-supply', level: 'REGT' },
   { id: 'amc-supply-grp-2', name: '제2보급단', parentId: 'amc-supply', level: 'REGT' },
@@ -293,7 +293,7 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'amc-ammo', name: '육군탄약지원사령부', parentId: 'amc', level: 'BRIG' },
 
   // 육군인사사령부
-  { id: 'hrc', name: '육군인사사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['hrc'] },
+  { id: 'hrc', name: '육군인사사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['hrc']) },
   { id: 'hrc-records', name: '육군기록정보관리단', parentId: 'hrc', level: 'REGT' },
   { id: 'hrc-welfare', name: '육군복지지원대대', parentId: 'hrc', level: 'BN' },
   { id: 'hrc-8army', name: '주한 미8군 한국군지원단', parentId: 'hrc', level: 'REGT' },
@@ -301,17 +301,17 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'hrc-band', name: '육군군악의장대대', parentId: 'hrc', level: 'BN' },
 
   // 육군미사일전략사령부
-  { id: 'amsc', name: '육군미사일전략사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['amsc'] },
+  { id: 'amsc', name: '육군미사일전략사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['amsc']) },
 
   // 육군항공사령부
-  { id: 'aac', name: '육군항공사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['aac'] },
+  { id: 'aac', name: '육군항공사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['aac']) },
   { id: 'aac-bde-1', name: '제1전투항공여단', parentId: 'aac', level: 'BRIG' },
   { id: 'aac-bde-2', name: '제2전투항공여단', parentId: 'aac', level: 'BRIG' },
   { id: 'aac-bde-maint', name: '항공정비여단', parentId: 'aac', level: 'BRIG' },
   { id: 'aac-medevac', name: '의무후송항공대', parentId: 'aac', level: 'BN' },
 
   // 육군동원전력사령부
-  { id: 'amfc', name: '육군동원전력사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['amfc'] },
+  { id: 'amfc', name: '육군동원전력사령부', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['amfc']) },
   { id: 'amfc-div-60', name: '제60보병사단', parentId: 'amfc', level: 'DIV' },
   { id: 'amfc-div-66', name: '제66보병사단', parentId: 'amfc', level: 'DIV' },
   { id: 'amfc-div-72', name: '제72보병사단', parentId: 'amfc', level: 'DIV' },
@@ -330,13 +330,13 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'amfc-grp-convoy', name: '동원자원호송단', parentId: 'amfc', level: 'REGT' },
 
   // 육군사관학교
-  { id: 'kma', name: '육군사관학교', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['kma'] },
+  { id: 'kma', name: '육군사관학교', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['kma']) },
   { id: 'kma-prof', name: '교수부', parentId: 'kma', level: 'BRIG' },
   { id: 'kma-cadet', name: '생도대', parentId: 'kma', level: 'BRIG' },
   { id: 'kma-staff', name: '참모부', parentId: 'kma', level: 'REGT' },
 
   // 육군3사관학교
-  { id: 'kma3', name: '육군3사관학교', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['kma3'] },
+  { id: 'kma3', name: '육군3사관학교', parentId: null, level: 'DRU', ...convertUnitLocationToDB(UNIT_LOCATIONS['kma3']) },
   { id: 'kma3-prof', name: '교수부', parentId: 'kma3', level: 'BRIG' },
   { id: 'kma3-cadet', name: '생도대', parentId: 'kma3', level: 'BRIG' },
   { id: 'kma3-staff', name: '참모부', parentId: 'kma3', level: 'REGT' },
@@ -364,9 +364,9 @@ export const ARMY_UNITS: ArmyUnit[] = [
   // ========================================
 
   // 지상작전사령부
-  { id: 'goc', name: '지상작전사령부', parentId: null, level: 'CMD', ...convertUnitLocationToDB(UNIT_LOCATIONS['goc'] },
-  { id: 'goc-div-36', name: '제36보병사단', parentId: 'goc', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['goc-div-36'] },
-  { id: 'goc-div-55', name: '제55보병사단', parentId: 'goc', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['goc-div-55'] },
+  { id: 'goc', name: '지상작전사령부', parentId: null, level: 'CMD', ...convertUnitLocationToDB(UNIT_LOCATIONS['goc']) },
+  { id: 'goc-div-36', name: '제36보병사단', parentId: 'goc', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['goc-div-36']) },
+  { id: 'goc-div-55', name: '제55보병사단', parentId: 'goc', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['goc-div-55']) },
   { id: 'goc-lsc-1', name: '제1군수지원사령부', parentId: 'goc', level: 'BRIG' },
   { id: 'goc-lsc-1-grp-cap', name: '수도군수지원단', parentId: 'goc-lsc-1', level: 'REGT' },
   { id: 'goc-lsc-1-grp-6', name: '제6군수지원단', parentId: 'goc-lsc-1', level: 'REGT' },
@@ -385,10 +385,10 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'goc-jsa', name: 'JSA경비대대', parentId: 'goc', level: 'BN' },
 
   // 1.2.1.1 수도군단
-  { id: 'corps-cap', name: '수도군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-cap'] },
-  { id: 'corps-cap-div-17', name: '제17보병사단', parentId: 'corps-cap', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-cap-div-17'] },
+  { id: 'corps-cap', name: '수도군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-cap']) },
+  { id: 'corps-cap-div-17', name: '제17보병사단', parentId: 'corps-cap', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-cap-div-17']) },
   { id: 'corps-cap-div-17-grp-3', name: '제3경비단', parentId: 'corps-cap-div-17', level: 'REGT' },
-  { id: 'corps-cap-div-51', name: '제51보병사단', parentId: 'corps-cap', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-cap-div-51'] },
+  { id: 'corps-cap-div-51', name: '제51보병사단', parentId: 'corps-cap', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-cap-div-51']) },
   { id: 'corps-cap-bde-arty', name: '수도포병여단', parentId: 'corps-cap', level: 'BRIG' },
   { id: 'corps-cap-grp-avn-10', name: '제10항공단', parentId: 'corps-cap', level: 'REGT' },
   { id: 'corps-cap-grp-ada-10', name: '제10방공단', parentId: 'corps-cap', level: 'REGT' },
@@ -399,14 +399,14 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'corps-cap-bn-intel-140', name: '제140정보대대', parentId: 'corps-cap', level: 'BN' },
 
   // 1.2.1.2 제1군단
-  { id: 'corps-1', name: '제1군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1'] },
-  { id: 'corps-1-div-1', name: '제1보병사단', parentId: 'corps-1', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-div-1'] },
-  { id: 'corps-1-div-9', name: '제9보병사단', parentId: 'corps-1', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-div-9'] },
-  { id: 'corps-1-div-25', name: '제25보병사단', parentId: 'corps-1', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-div-25'] },
+  { id: 'corps-1', name: '제1군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1']) },
+  { id: 'corps-1-div-1', name: '제1보병사단', parentId: 'corps-1', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-div-1']) },
+  { id: 'corps-1-div-9', name: '제9보병사단', parentId: 'corps-1', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-div-9']) },
+  { id: 'corps-1-div-25', name: '제25보병사단', parentId: 'corps-1', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-div-25']) },
   { id: 'corps-1-bde-eng-1', name: '제1공병여단', parentId: 'corps-1', level: 'BRIG' },
   { id: 'corps-1-bde-arty-1', name: '제1포병여단', parentId: 'corps-1', level: 'BRIG' },
-  { id: 'corps-1-bde-armor-2', name: '제2기갑여단', parentId: 'corps-1', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-bde-armor-2'] },
-  { id: 'corps-1-bde-armor-30', name: '제30기갑여단', parentId: 'corps-1', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-bde-armor-30'] },
+  { id: 'corps-1-bde-armor-2', name: '제2기갑여단', parentId: 'corps-1', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-bde-armor-2']) },
+  { id: 'corps-1-bde-armor-30', name: '제30기갑여단', parentId: 'corps-1', level: 'BRIG', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-1-bde-armor-30']) },
   { id: 'corps-1-bde-css-1', name: '제1군수지원여단', parentId: 'corps-1', level: 'BRIG' },
   { id: 'corps-1-grp-avn-11', name: '제11항공단', parentId: 'corps-1', level: 'REGT' },
   { id: 'corps-1-grp-ada-11', name: '제11방공단', parentId: 'corps-1', level: 'REGT' },
@@ -418,9 +418,9 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'corps-1-bn-cbrn-11', name: '제11화생방대대', parentId: 'corps-1', level: 'BN' },
 
   // 1.2.1.3 제2군단
-  { id: 'corps-2', name: '제2군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-2'] },
-  { id: 'corps-2-div-7', name: '제7보병사단', parentId: 'corps-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-2-div-7'] },
-  { id: 'corps-2-div-15', name: '제15보병사단', parentId: 'corps-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-2-div-15'] },
+  { id: 'corps-2', name: '제2군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-2']) },
+  { id: 'corps-2-div-7', name: '제7보병사단', parentId: 'corps-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-2-div-7']) },
+  { id: 'corps-2-div-15', name: '제15보병사단', parentId: 'corps-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-2-div-15']) },
   { id: 'corps-2-bde-eng-2', name: '제2공병여단', parentId: 'corps-2', level: 'BRIG' },
   { id: 'corps-2-bde-arty-2', name: '제2포병여단', parentId: 'corps-2', level: 'BRIG' },
   { id: 'corps-2-bde-armor-3', name: '제3기갑여단', parentId: 'corps-2', level: 'BRIG' },
@@ -436,10 +436,10 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'corps-2-bn-ada-512', name: '제512방공대대', parentId: 'corps-2', level: 'BN' },
 
   // 1.2.1.4 제3군단
-  { id: 'corps-3', name: '제3군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-3'] },
-  { id: 'corps-3-div-12', name: '제12보병사단', parentId: 'corps-3', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-3-div-12'] },
-  { id: 'corps-3-div-21', name: '제21보병사단', parentId: 'corps-3', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-3-div-21'] },
-  { id: 'corps-3-div-22', name: '제22보병사단', parentId: 'corps-3', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-3-div-22'] },
+  { id: 'corps-3', name: '제3군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-3']) },
+  { id: 'corps-3-div-12', name: '제12보병사단', parentId: 'corps-3', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-3-div-12']) },
+  { id: 'corps-3-div-21', name: '제21보병사단', parentId: 'corps-3', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-3-div-21']) },
+  { id: 'corps-3-div-22', name: '제22보병사단', parentId: 'corps-3', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-3-div-22']) },
   { id: 'corps-3-bde-eng-3', name: '제3공병여단', parentId: 'corps-3', level: 'BRIG' },
   { id: 'corps-3-bde-arty-3', name: '제3포병여단', parentId: 'corps-3', level: 'BRIG' },
   { id: 'corps-3-bde-armor-20', name: '제20기갑여단', parentId: 'corps-3', level: 'BRIG' },
@@ -458,10 +458,10 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'corps-3-bn-intel-143', name: '제143정보대대', parentId: 'corps-3', level: 'BN' },
 
   // 1.2.1.5 제5군단
-  { id: 'corps-5', name: '제5군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-5'] },
-  { id: 'corps-5-div-3', name: '제3보병사단', parentId: 'corps-5', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-5-div-3'] },
-  { id: 'corps-5-div-5', name: '제5보병사단', parentId: 'corps-5', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-5-div-5'] },
-  { id: 'corps-5-div-6', name: '제6보병사단', parentId: 'corps-5', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-5-div-6'] },
+  { id: 'corps-5', name: '제5군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-5']) },
+  { id: 'corps-5-div-3', name: '제3보병사단', parentId: 'corps-5', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-5-div-3']) },
+  { id: 'corps-5-div-5', name: '제5보병사단', parentId: 'corps-5', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-5-div-5']) },
+  { id: 'corps-5-div-6', name: '제6보병사단', parentId: 'corps-5', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-5-div-6']) },
   { id: 'corps-5-bde-armor-1', name: '제1기갑여단', parentId: 'corps-5', level: 'BRIG' },
   { id: 'corps-5-bde-armor-5', name: '제5기갑여단', parentId: 'corps-5', level: 'BRIG' },
   { id: 'corps-5-bde-eng-5', name: '제5공병여단', parentId: 'corps-5', level: 'BRIG' },
@@ -477,11 +477,11 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'corps-5-bn-intel-145', name: '제145정보대대', parentId: 'corps-5', level: 'BN' },
 
   // 1.2.1.6 제7군단
-  { id: 'corps-7', name: '제7군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7'] },
-  { id: 'corps-7-div-mech-cap', name: '수도기계화보병사단', parentId: 'corps-7', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7-div-mech-cap'] },
-  { id: 'corps-7-div-rrd-2', name: '제2신속대응사단', parentId: 'corps-7', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7-div-rrd-2'] },
-  { id: 'corps-7-div-8', name: '제8기동사단', parentId: 'corps-7', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7-div-8'] },
-  { id: 'corps-7-div-11', name: '제11기동사단', parentId: 'corps-7', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7-div-11'] },
+  { id: 'corps-7', name: '제7군단', parentId: 'goc', level: 'CORPS', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7']) },
+  { id: 'corps-7-div-mech-cap', name: '수도기계화보병사단', parentId: 'corps-7', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7-div-mech-cap']) },
+  { id: 'corps-7-div-rrd-2', name: '제2신속대응사단', parentId: 'corps-7', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7-div-rrd-2']) },
+  { id: 'corps-7-div-8', name: '제8기동사단', parentId: 'corps-7', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7-div-8']) },
+  { id: 'corps-7-div-11', name: '제11기동사단', parentId: 'corps-7', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['corps-7-div-11']) },
   { id: 'corps-7-bde-eng-7', name: '제7공병여단', parentId: 'corps-7', level: 'BRIG' },
   { id: 'corps-7-bde-arty-7', name: '제7포병여단', parentId: 'corps-7', level: 'BRIG' },
   { id: 'corps-7-grp-css-7', name: '제7군수지원단', parentId: 'corps-7', level: 'REGT' },
@@ -495,15 +495,15 @@ export const ARMY_UNITS: ArmyUnit[] = [
   { id: 'corps-7-bn-cbrn-17', name: '제17화생방대대', parentId: 'corps-7', level: 'BN' },
 
   // 1.2.2 제2작전사령부
-  { id: 'soc-2', name: '제2작전사령부', parentId: 'subordinate-units', level: 'CMD', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2'] },
-  { id: 'soc-2-div-31', name: '제31보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-31'] },
-  { id: 'soc-2-div-32', name: '제32보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-32'] },
+  { id: 'soc-2', name: '제2작전사령부', parentId: 'subordinate-units', level: 'CMD', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2']) },
+  { id: 'soc-2-div-31', name: '제31보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-31']) },
+  { id: 'soc-2-div-32', name: '제32보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-32']) },
   { id: 'soc-2-grp-sejong', name: '세종시경비단', parentId: 'soc-2-div-32', level: 'REGT' },
-  { id: 'soc-2-div-35', name: '제35보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-35'] },
-  { id: 'soc-2-div-37', name: '제37보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-37'] },
-  { id: 'soc-2-div-39', name: '제39보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-39'] },
-  { id: 'soc-2-div-50', name: '제50보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-50'] },
-  { id: 'soc-2-div-53', name: '제53보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-53'] },
+  { id: 'soc-2-div-35', name: '제35보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-35']) },
+  { id: 'soc-2-div-37', name: '제37보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-37']) },
+  { id: 'soc-2-div-39', name: '제39보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-39']) },
+  { id: 'soc-2-div-50', name: '제50보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-50']) },
+  { id: 'soc-2-div-53', name: '제53보병사단', parentId: 'soc-2', level: 'DIV', ...convertUnitLocationToDB(UNIT_LOCATIONS['soc-2-div-53']) },
   { id: 'soc-2-lsc-5', name: '제5군수지원사령부', parentId: 'soc-2', level: 'BRIG' },
   { id: 'soc-2-lsc-5-grp-51', name: '제51군수지원단', parentId: 'soc-2-lsc-5', level: 'REGT' },
   { id: 'soc-2-lsc-5-grp-52', name: '제52군수지원단', parentId: 'soc-2-lsc-5', level: 'REGT' },

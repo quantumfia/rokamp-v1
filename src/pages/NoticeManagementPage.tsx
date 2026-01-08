@@ -15,6 +15,8 @@ import { usePageLoading } from '@/hooks/usePageLoading';
 import { useAuth } from '@/contexts/AuthContext';
 import { canEditContent, canDeleteContent, getAccessibleUnits } from '@/lib/rbac';
 import { cn } from '@/lib/utils';
+import type { IncidentSeverity } from '@/types/entities';
+import { INCIDENT_SEVERITY_LABELS } from '@/types/entities';
 
 type ActiveTab = 'notices' | 'incidents';
 
@@ -127,7 +129,7 @@ interface Incident {
   incidentDate: string;
   location: string;
   category: string;
-  severity: 'low' | 'medium' | 'high';
+  severity: IncidentSeverity;
   createdAt: string;
   author: string;
 }
@@ -140,7 +142,7 @@ const INCIDENTS: Incident[] = [
     incidentDate: '2026-01-05',
     location: '제3보병사단 보급로',
     category: '교통',
-    severity: 'medium',
+    severity: 'SERIOUS',
     createdAt: '2026-01-05',
     author: '김철수 대령',
   },
@@ -151,7 +153,7 @@ const INCIDENTS: Incident[] = [
     incidentDate: '2026-01-04',
     location: '제22보병사단 GOP 초소',
     category: '한랭질환',
-    severity: 'medium',
+    severity: 'SERIOUS',
     createdAt: '2026-01-05',
     author: '이영희 준장',
   },
@@ -162,7 +164,7 @@ const INCIDENTS: Incident[] = [
     incidentDate: '2026-01-03',
     location: '제1기갑여단 2대대 생활관',
     category: '화재',
-    severity: 'high',
+    severity: 'CRITICAL',
     createdAt: '2026-01-04',
     author: '박민수 중령',
   },
@@ -173,7 +175,7 @@ const INCIDENTS: Incident[] = [
     incidentDate: '2026-01-03',
     location: '육군종합훈련장 사격장',
     category: '훈련',
-    severity: 'low',
+    severity: 'MINOR',
     createdAt: '2026-01-03',
     author: '최영호 소령',
   },
@@ -184,7 +186,7 @@ const INCIDENTS: Incident[] = [
     incidentDate: '2026-01-02',
     location: '제8기계화보병사단 정비창',
     category: '작업',
-    severity: 'high',
+    severity: 'CRITICAL',
     createdAt: '2026-01-02',
     author: '정승훈 대령',
   },
@@ -195,7 +197,7 @@ const INCIDENTS: Incident[] = [
     incidentDate: '2026-01-01',
     location: '제5보병사단 훈련장',
     category: '훈련',
-    severity: 'medium',
+    severity: 'SERIOUS',
     createdAt: '2026-01-01',
     author: '김철수 대령',
   },
@@ -206,7 +208,7 @@ const INCIDENTS: Incident[] = [
     incidentDate: '2025-12-31',
     location: '제32보병사단 급양대',
     category: '화재',
-    severity: 'medium',
+    severity: 'SERIOUS',
     createdAt: '2025-12-31',
     author: '이영희 준장',
   },
@@ -317,19 +319,18 @@ export default function NoticeManagementPage() {
     setCurrentPage(1);
   };
 
-  const getSeverityLabel = (severity: 'low' | 'medium' | 'high') => {
-    switch (severity) {
-      case 'low': return '경미';
-      case 'medium': return '보통';
-      case 'high': return '심각';
-    }
-  };
+  const getSeverityLabel = (severity: IncidentSeverity) => INCIDENT_SEVERITY_LABELS[severity];
 
-  const getSeverityColor = (severity: 'low' | 'medium' | 'high') => {
+  const getSeverityColor = (severity: IncidentSeverity) => {
     switch (severity) {
-      case 'low': return 'text-muted-foreground';
-      case 'medium': return 'text-yellow-600';
-      case 'high': return 'text-red-600';
+      case 'MINOR':
+        return 'text-muted-foreground';
+      case 'SERIOUS':
+        return 'text-yellow-600';
+      case 'CRITICAL':
+        return 'text-red-600';
+      case 'CATASTROPHIC':
+        return 'text-red-700';
     }
   };
 

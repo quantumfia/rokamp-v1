@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -58,6 +58,7 @@
 
     /* Risk Level Colors */
     --risk-safe: 142 76% 36%;
+    --risk-attention: 210 75% 42%;
     --risk-caution: 45 93% 47%;
     --risk-warning: 25 95% 53%;
     --risk-danger: 0 84% 60%;
@@ -271,6 +272,10 @@
   /* Risk Level Badges */
   .risk-safe {
     @apply bg-risk-safe/10 text-risk-safe;
+  }
+
+  .risk-attention {
+    @apply bg-risk-attention/10 text-risk-attention;
   }
 
   .risk-caution {

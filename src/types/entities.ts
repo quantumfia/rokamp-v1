@@ -32,11 +32,23 @@ export type ReportType = 'INCIDENT' | 'PREVENTION' | 'STATISTICS' | 'PERIODIC' |
 /** 보고서 결재 상태 (report_status) */
 export type ReportStatus = 'DRAFT' | 'REQUESTED' | 'REVIEWING' | 'REJECTED' | 'APPROVED';
 
+/** 데이터 보안 등급 (security_level) */
+export type SecurityLevel = 'UNCLASSIFIED' | 'INTERNAL' | 'CONFIDENTIAL' | 'SECRET' | 'TOP_SECRET';
+
+/** 보안 알림 심각도 (alert_severity) */
+export type AlertSeverity = 'INFO' | 'NOTICE' | 'WARNING' | 'CRITICAL' | 'EMERGENCY';
+
+/** 보안 알림 상태 (alert_status) */
+export type AlertStatus = 'NEW' | 'INVESTIGATING' | 'RESOLVED' | 'FALSE_POSITIVE';
+
 /** 알림 유형 (notification_type) */
 export type NotificationType = 'SYSTEM' | 'RISK_ALERT' | 'APPROVAL_REQ' | 'APPROVAL_RES' | 'NOTICE' | 'SECURITY';
 
 /** 첨부파일 대상 유형 (file_target_type) */
 export type FileTargetType = 'NOTICE' | 'REPORT' | 'INCIDENT' | 'SCHEDULE' | 'DOCUMENT';
+
+/** 배치 작업 상태 (job_status) */
+export type JobStatus = 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED' | 'CANCELLED';
 
 // ============================================
 // 공통 타입
