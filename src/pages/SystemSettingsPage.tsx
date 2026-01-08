@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Download, Globe, Plus, Pencil, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Search, Download, Globe, Plus, Pencil, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ShieldAlert, Monitor, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,7 @@ import { SystemSettingsSkeleton } from '@/components/skeletons';
 import { PageHeader } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { cn } from '@/lib/utils';
+import type { AlertSeverity, AlertStatus } from '@/types/entities';
 
 // 감사 로그 Mock 데이터
 const AUDIT_LOGS = [
@@ -53,6 +54,41 @@ const AUDIT_LOGS = [
   { id: 15, accountId: 'C2D7-001', militaryId: '23-567821', userName: '최정훈', rank: '대위', ip: '10.10.4.88', action: '로그아웃', target: '-', timestamp: '2024-12-12 13:00:00', status: 'success' },
   { id: 16, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '공지사항 수정', target: '겨울철 훈련 유의사항', timestamp: '2024-12-11 17:45:12', status: 'success' },
   { id: 17, accountId: '-', militaryId: '-', userName: '-', rank: '-', ip: '192.168.100.5', action: '로그인 시도', target: '-', timestamp: '2024-12-11 09:05:55', status: 'failed' },
+];
+
+interface SecurityAlert {
+  id: string;
+  title: string;
+  unit: string;
+  severity: AlertSeverity;
+  status: AlertStatus;
+  detectedAt: string;
+  sourceIp: string;
+}
+
+const SECURITY_ALERTS: SecurityAlert[] = [
+  { id: 'SEC-24012', title: '비인가 IP 접속 시도', unit: '육군본부', severity: 'CRITICAL', status: 'NEW', detectedAt: '2024-12-14 09:30', sourceIp: '203.0.113.42' },
+  { id: 'SEC-24011', title: '관리자 계정 비정상 로그인 실패', unit: '제1군단', severity: 'WARNING', status: 'INVESTIGATING', detectedAt: '2024-12-14 08:55', sourceIp: '10.20.8.14' },
+  { id: 'SEC-24010', title: '지휘통제망 접근 정책 위반', unit: '제3군단', severity: 'NOTICE', status: 'RESOLVED', detectedAt: '2024-12-13 21:12', sourceIp: '10.30.15.9' },
+  { id: 'SEC-24009', title: '악성 코드 차단', unit: '수도군단', severity: 'INFO', status: 'FALSE_POSITIVE', detectedAt: '2024-12-13 16:40', sourceIp: '10.50.2.80' },
+];
+
+interface ActiveSession {
+  id: string;
+  accountId: string;
+  userName: string;
+  rank: string;
+  ip: string;
+  device: 'DESKTOP' | 'MOBILE';
+  lastActive: string;
+  status: 'ACTIVE' | 'IDLE';
+}
+
+const ACTIVE_SESSIONS: ActiveSession[] = [
+  { id: 'S-1001', accountId: 'HQ-001', userName: '김철수', rank: '대령', ip: '10.10.1.100', device: 'DESKTOP', lastActive: '2분 전', status: 'ACTIVE' },
+  { id: 'S-1002', accountId: 'C1D1-001', userName: '이영희', rank: '준장', ip: '10.20.3.12', device: 'DESKTOP', lastActive: '10분 전', status: 'IDLE' },
+  { id: 'S-1003', accountId: 'C2D7-001', userName: '최정훈', rank: '대위', ip: '10.40.4.88', device: 'MOBILE', lastActive: '1분 전', status: 'ACTIVE' },
+  { id: 'S-1004', accountId: 'SWC-001', userName: '강특전', rank: '중령', ip: '10.60.7.21', device: 'MOBILE', lastActive: '5분 전', status: 'ACTIVE' },
 ];
 
 // 허용 IP 대역 타입 및 초기 데이터
@@ -101,6 +137,29 @@ export default function SystemSettingsPage() {
   // 감사 로그 페이지네이션
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const securitySeverityLabel: Record<AlertSeverity, string> = {
+    INFO: '정보',
+    NOTICE: '공지',
+    WARNING: '경고',
+    CRITICAL: '심각',
+    EMERGENCY: '긴급',
+  };
+
+  const securitySeverityClass: Record<AlertSeverity, string> = {
+    INFO: 'text-foreground bg-muted',
+    NOTICE: 'text-blue-600 bg-blue-50',
+    WARNING: 'text-amber-600 bg-amber-50',
+    CRITICAL: 'text-red-600 bg-red-50',
+    EMERGENCY: 'text-red-700 bg-red-100',
+  };
+
+  const securityStatusLabel: Record<AlertStatus, string> = {
+    NEW: '신규',
+    INVESTIGATING: '조사 중',
+    RESOLVED: '해결',
+    FALSE_POSITIVE: '오탐',
+  };
 
   const handleExportLogs = () => {
     toast({
@@ -411,6 +470,123 @@ export default function SystemSettingsPage() {
             </div>
           )}
         </div>
+      </section>
+
+      {/* 보안 알림 */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2">
+          <ShieldAlert className="w-4 h-4 text-muted-foreground" />
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">보안 알림</h2>
+            <p className="text-xs text-muted-foreground">탐지된 보안 이벤트 모니터링</p>
+          </div>
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-xs w-28">알림 ID</TableHead>
+              <TableHead className="text-xs w-28">탐지 시각</TableHead>
+              <TableHead className="text-xs">알림 내용</TableHead>
+              <TableHead className="text-xs w-24">부대</TableHead>
+              <TableHead className="text-xs w-24">발신 IP</TableHead>
+              <TableHead className="text-xs w-20 text-center">심각도</TableHead>
+              <TableHead className="text-xs w-20 text-center">상태</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {SECURITY_ALERTS.map((alert) => (
+              <TableRow key={alert.id}>
+                <TableCell className="font-mono text-xs text-primary">{alert.id}</TableCell>
+                <TableCell className="text-xs text-muted-foreground tabular-nums">{alert.detectedAt}</TableCell>
+                <TableCell className="text-sm">{alert.title}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{alert.unit}</TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">{alert.sourceIp}</TableCell>
+                <TableCell className="text-center">
+                  <span className={cn(
+                    "text-[11px] font-medium px-2 py-1 rounded-full",
+                    securitySeverityClass[alert.severity]
+                  )}>
+                    {securitySeverityLabel[alert.severity]}
+                  </span>
+                </TableCell>
+                <TableCell className="text-center">
+                  <span className="text-xs text-muted-foreground">
+                    {securityStatusLabel[alert.status]}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </section>
+
+      {/* 세션 관리 */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">세션 관리</h2>
+            <p className="text-xs text-muted-foreground">현재 접속 중인 사용자 세션</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => {
+            toast({
+              title: '세션 동기화',
+              description: '세션 현황을 최신 상태로 동기화했습니다.',
+            });
+          }}>
+            새로고침
+          </Button>
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-xs w-24">계정 ID</TableHead>
+              <TableHead className="text-xs w-24">이름/계급</TableHead>
+              <TableHead className="text-xs w-28">IP 주소</TableHead>
+              <TableHead className="text-xs w-16 text-center">기기</TableHead>
+              <TableHead className="text-xs w-20 text-center">활동</TableHead>
+              <TableHead className="text-xs w-20 text-center">상태</TableHead>
+              <TableHead className="text-xs w-20 text-center">관리</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {ACTIVE_SESSIONS.map((session) => (
+              <TableRow key={session.id}>
+                <TableCell className="font-mono text-xs text-primary">{session.accountId}</TableCell>
+                <TableCell className="text-sm">{session.userName} {session.rank}</TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">{session.ip}</TableCell>
+                <TableCell className="text-center">
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    {session.device === 'DESKTOP' ? (
+                      <Monitor className="w-3.5 h-3.5" />
+                    ) : (
+                      <Smartphone className="w-3.5 h-3.5" />
+                    )}
+                    {session.device === 'DESKTOP' ? 'PC' : '모바일'}
+                  </span>
+                </TableCell>
+                <TableCell className="text-center text-xs text-muted-foreground">{session.lastActive}</TableCell>
+                <TableCell className="text-center">
+                  <span className={cn(
+                    "text-xs font-medium",
+                    session.status === 'ACTIVE' ? 'text-foreground' : 'text-muted-foreground'
+                  )}>
+                    {session.status === 'ACTIVE' ? '활성' : '유휴'}
+                  </span>
+                </TableCell>
+                <TableCell className="text-center">
+                  <button
+                    onClick={() => handleForceLogout(session.accountId, session.userName)}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    세션 종료
+                  </button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </section>
 
       {/* 감사 로그 */}
