@@ -70,6 +70,13 @@ const ACTIVE_SESSIONS: ActiveSession[] = [
   { id: 'S-1004', userId: '7d9f7a48-5a0b-4f30-b3ad-0bb7f3d2ac21', token: 'token-9v4q3w7', expiresAt: '2024-12-14 09:30', createdAt: '2024-12-14 06:55' },
 ];
 
+const ACTIVE_SESSIONS: ActiveSession[] = [
+  { id: 'S-1001', accountId: 'HQ-001', userName: '김철수', rank: '대령', ip: '10.10.1.100', device: 'DESKTOP', lastActive: '2분 전', status: 'ACTIVE' },
+  { id: 'S-1002', accountId: 'C1D1-001', userName: '이영희', rank: '준장', ip: '10.20.3.12', device: 'DESKTOP', lastActive: '10분 전', status: 'IDLE' },
+  { id: 'S-1003', accountId: 'C2D7-001', userName: '최정훈', rank: '대위', ip: '10.40.4.88', device: 'MOBILE', lastActive: '1분 전', status: 'ACTIVE' },
+  { id: 'S-1004', accountId: 'SWC-001', userName: '강특전', rank: '중령', ip: '10.60.7.21', device: 'MOBILE', lastActive: '5분 전', status: 'ACTIVE' },
+];
+
 const INITIAL_ALLOWED_IPS: AllowedIP[] = [
   { id: '1', ipAddress: '10.10.0.0/16', unitName: '육군본부', createdAt: '2024-01-01' },
   { id: '2', ipAddress: '10.20.0.0/16', unitName: '제1군단', createdAt: '2024-01-01' },
