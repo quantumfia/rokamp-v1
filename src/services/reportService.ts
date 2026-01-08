@@ -43,6 +43,8 @@ export const WORK_TYPES = ['근무중', '휴가중', '외출중', '외박중', '
 const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
   {
     id: '1',
+    unitId: 'hq',
+    title: '야간 훈련 중 병사 부상 사고',
     date: '2024-12-12',
     time: '14:30',
     location: '훈련장',
@@ -62,7 +64,7 @@ const MOCK_ACCIDENT_REPORTS: AccidentReport[] = [
     reporter: '이영희',
     reporterRank: '대위',
     reporterContact: '010-1234-5678',
-    status: 'submitted',
+    status: 'REQUESTED',
     createdAt: '2024-12-12',
   },
 ];
@@ -75,7 +77,7 @@ const MOCK_STATISTICS_REPORTS: StatisticsReport[] = [
     unitId: 'hq',
     unitName: '육군본부',
     type: 'weekly',
-    status: 'final',
+    status: 'APPROVED',
     author: '김철수 대령',
     summary: '이번 주 안전사고 발생 건수 12건',
     createdAt: '2024-12-14',
@@ -87,7 +89,7 @@ const MOCK_STATISTICS_REPORTS: StatisticsReport[] = [
     unitId: 'hq',
     unitName: '육군본부',
     type: 'monthly',
-    status: 'final',
+    status: 'APPROVED',
     author: '김철수 대령',
     createdAt: '2024-12-01',
   },
@@ -182,7 +184,7 @@ export async function createAccidentReport(data: Partial<AccidentReport>): Promi
     reporterRank: data.reporterRank || '',
     reporterContact: data.reporterContact,
     generatedContent: data.generatedContent,
-    status: 'draft',
+    status: 'DRAFT',
     createdAt: new Date().toISOString(),
   };
 
@@ -294,7 +296,7 @@ export async function generateStatisticsReport(
     unitId,
     unitName: '육군본부',
     type,
-    status: 'draft',
+    status: 'DRAFT',
     author: '시스템 자동생성',
     createdAt: new Date().toISOString(),
   };
