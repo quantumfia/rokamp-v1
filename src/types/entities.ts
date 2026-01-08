@@ -118,6 +118,12 @@ export interface UpdateUserDto {
   status?: UserStatus;
 }
 
+/** 사용자 역할 부여 (user_roles) */
+export interface UserRoleAssignment extends BaseEntity {
+  userId: string;
+  role: UserRole;
+}
+
 // ============================================
 // 공지사항 관련 타입
 // ============================================
@@ -174,6 +180,27 @@ export interface UpdateNoticeDto extends Partial<CreateNoticeDto> {
 }
 
 // ============================================
+// 공지 읽음/첨부파일 타입
+// ============================================
+
+/** 공지 읽음 처리 (notice_reads) */
+export interface NoticeRead extends BaseEntity {
+  noticeId: string;
+  userId: string;
+  readAt: string;
+}
+
+/** 통합 첨부파일 (file_attachments) */
+export interface FileAttachment extends BaseEntity {
+  targetType: FileTargetType;
+  targetId: string;
+  originName: string;
+  filePath: string;
+  fileSize: number;
+  uploadedBy: string;
+}
+
+// ============================================
 // 사고 관련 타입 (incidents 테이블)
 // ============================================
 
@@ -207,7 +234,7 @@ export interface CreateIncidentDto {
   unitId: string;
   typeLarge: string;
   typeMedium: string;
-  rankCode?: string;
+  rankCode: string;
   severity: IncidentSeverity;
   locationType: LocationType;
   description?: string;
@@ -326,6 +353,35 @@ export interface StatisticsReport extends BaseEntity {
   fileUrl?: string;
 }
 
+/** 보고서 템플릿 (report_templates) */
+export interface ReportTemplate extends BaseEntity {
+  name: string;
+  type: ReportType;
+  systemPrompt: string;
+  formStructure: Record<string, unknown>;
+}
+
+/** 보고서 샘플 (report_samples) */
+export interface ReportSample extends BaseEntity {
+  templateId: string;
+  title: string;
+  content: string;
+  embeddingId?: string;
+}
+
+/** 생성된 보고서 (generated_reports) */
+export interface GeneratedReport extends BaseEntity {
+  templateId: string;
+  unitId: string;
+  title: string;
+  inputData: Record<string, unknown>;
+  resultText: string;
+  status: ReportStatus;
+  reviewerId?: string;
+  reviewedAt?: string;
+  createdBy: string;
+}
+
 // ============================================
 // 데이터 관리 관련 타입
 // ============================================
@@ -358,6 +414,14 @@ export interface NewsArticle extends BaseEntity {
   fileSize?: string;
 }
 
+/** 문서 청크 (document_chunks) */
+export interface DocumentChunk extends BaseEntity {
+  documentId: string;
+  content: string;
+  chunkIndex: number;
+  embeddingId?: string;
+}
+
 /** 예보 데이터 */
 export interface ForecastData extends BaseEntity {
   name: string;
@@ -367,6 +431,15 @@ export interface ForecastData extends BaseEntity {
   fileSize: string;
   status: ProcessingStatus;
   uploadedBy?: string;
+}
+
+/** 공통 코드 (common_codes) */
+export interface CommonCode extends BaseEntity {
+  groupCode: string;
+  detailCode: string;
+  name: string;
+  sortOrder?: number;
+  isActive?: boolean;
 }
 
 /** 청크 설정 */
@@ -382,25 +455,97 @@ export interface ChunkSettings {
 
 /** 허용 IP (allowed_ips) */
 export interface AllowedIP extends BaseEntity {
-  ip: string;
-  unit: string;
+  ipAddress: string;
   unitId?: string;
+  unitName?: string;
   description?: string;
 }
 
 /** 감사 로그 (audit_logs) */
 export interface AuditLog extends BaseEntity {
   userId?: string;
-  accountId: string;
-  militaryId: string;
-  userName: string;
-  rank: string;
-  ip: string;
+  accountId?: string;
+  militaryId?: string;
+  userName?: string;
+  rank?: string;
+  ipAddress?: string;
   action: string;
-  target: string;
-  details?: string;           // 변경 내용 JSON
-  timestamp: string;
-  status: 'success' | 'failed';
+  target?: string;
+  details?: Record<string, unknown>;
+  timestamp?: string;
+  status?: 'success' | 'failed';
+}
+
+/** 로그인 로그 (login_logs) */
+export interface LoginLog extends BaseEntity {
+  userId: string;
+  ipAddress: string;
+  isSuccess: boolean;
+}
+
+/** 보안 알림 (security_alerts) */
+export interface SecurityAlert extends BaseEntity {
+  type: string;
+  severity: AlertSeverity;
+  message: string;
+  status: AlertStatus;
+}
+
+/** 활성 세션 (active_sessions) */
+export interface ActiveSession extends BaseEntity {
+  userId: string;
+  token: string;
+  expiresAt: string;
+}
+
+/** 접근 제어 매트릭스 (access_control_matrix) */
+export interface AccessControlMatrix extends BaseEntity {
+  role: UserRole;
+  resource: string;
+  permission: 'READ' | 'WRITE';
+}
+
+/** 데이터 보존 정책 (data_retention_policies) */
+export interface DataRetentionPolicy extends BaseEntity {
+  tableName: string;
+  days: number;
+}
+
+/** 아카이브 데이터 (archived_data) */
+export interface ArchivedData extends BaseEntity {
+  originTable: string;
+  data: Record<string, unknown>;
+  archivedAt: string;
+}
+
+/** 데이터 보안 분류 (data_classifications) */
+export interface DataClassification extends BaseEntity {
+  tableName: string;
+  securityLevel: SecurityLevel;
+  accessRoles: UserRole[];
+}
+
+/** 시스템 설정 (system_settings) */
+export interface SystemSetting {
+  key: string;
+  value: Record<string, unknown>;
+  description?: string;
+  updatedAt: string;
+}
+
+/** 비밀번호 변경 이력 (password_histories) */
+export interface PasswordHistory extends BaseEntity {
+  userId: string;
+  passwordHash: string;
+}
+
+/** 시스템 작업 로그 (sys_job_logs) */
+export interface SysJobLog extends BaseEntity {
+  jobName: string;
+  status: JobStatus;
+  startedAt: string;
+  finishedAt?: string;
+  errorMessage?: string;
 }
 
 // ============================================
@@ -419,7 +564,7 @@ export interface ChatConversation extends BaseEntity {
 export interface ChatMessage {
   id: string;
   conversationId?: string;
-  role: 'user' | 'assistant';
+  role: 'USER' | 'ASSISTANT';
   content: string;
   sourceRefs?: DocumentReference[];  // 참조 문서 정보
   modelName?: string;
@@ -430,6 +575,23 @@ export interface ChatMessage {
   };
   responseTimeMs?: number;
   timestamp: string;
+}
+
+/** AI 답변 피드백 (ai_feedbacks) */
+export interface AIFeedback extends BaseEntity {
+  targetType: 'CHAT' | 'REPORT';
+  targetId: string;
+  userId: string;
+  score: number;
+  comment?: string;
+}
+
+/** 챗봇 스타터 질문 (chatbot_starter_questions) */
+export interface ChatbotStarterQuestion extends BaseEntity {
+  question: string;
+  category?: string;
+  sortOrder?: number;
+  isActive?: boolean;
 }
 
 /** 문서 참조 */
