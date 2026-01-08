@@ -207,7 +207,7 @@ export interface CreateIncidentDto {
   unitId: string;
   typeLarge: string;
   typeMedium: string;
-  rankCode?: string;
+  rankCode: string;
   severity: IncidentSeverity;
   locationType: LocationType;
   description?: string;
@@ -382,25 +382,97 @@ export interface ChunkSettings {
 
 /** 허용 IP (allowed_ips) */
 export interface AllowedIP extends BaseEntity {
-  ip: string;
-  unit: string;
+  ipAddress: string;
   unitId?: string;
+  unitName?: string;
   description?: string;
 }
 
 /** 감사 로그 (audit_logs) */
 export interface AuditLog extends BaseEntity {
   userId?: string;
-  accountId: string;
-  militaryId: string;
-  userName: string;
-  rank: string;
-  ip: string;
+  accountId?: string;
+  militaryId?: string;
+  userName?: string;
+  rank?: string;
+  ipAddress?: string;
   action: string;
-  target: string;
-  details?: string;           // 변경 내용 JSON
-  timestamp: string;
-  status: 'success' | 'failed';
+  target?: string;
+  details?: Record<string, unknown>;
+  timestamp?: string;
+  status?: 'success' | 'failed';
+}
+
+/** 로그인 로그 (login_logs) */
+export interface LoginLog extends BaseEntity {
+  userId: string;
+  ipAddress: string;
+  isSuccess: boolean;
+}
+
+/** 보안 알림 (security_alerts) */
+export interface SecurityAlert extends BaseEntity {
+  type: string;
+  severity: AlertSeverity;
+  message: string;
+  status: AlertStatus;
+}
+
+/** 활성 세션 (active_sessions) */
+export interface ActiveSession extends BaseEntity {
+  userId: string;
+  token: string;
+  expiresAt: string;
+}
+
+/** 접근 제어 매트릭스 (access_control_matrix) */
+export interface AccessControlMatrix extends BaseEntity {
+  role: UserRole;
+  resource: string;
+  permission: 'READ' | 'WRITE';
+}
+
+/** 데이터 보존 정책 (data_retention_policies) */
+export interface DataRetentionPolicy extends BaseEntity {
+  tableName: string;
+  days: number;
+}
+
+/** 아카이브 데이터 (archived_data) */
+export interface ArchivedData extends BaseEntity {
+  originTable: string;
+  data: Record<string, unknown>;
+  archivedAt: string;
+}
+
+/** 데이터 보안 분류 (data_classifications) */
+export interface DataClassification extends BaseEntity {
+  tableName: string;
+  securityLevel: SecurityLevel;
+  accessRoles: UserRole[];
+}
+
+/** 시스템 설정 (system_settings) */
+export interface SystemSetting {
+  key: string;
+  value: Record<string, unknown>;
+  description?: string;
+  updatedAt: string;
+}
+
+/** 비밀번호 변경 이력 (password_histories) */
+export interface PasswordHistory extends BaseEntity {
+  userId: string;
+  passwordHash: string;
+}
+
+/** 시스템 작업 로그 (sys_job_logs) */
+export interface SysJobLog extends BaseEntity {
+  jobName: string;
+  status: JobStatus;
+  startedAt: string;
+  finishedAt?: string;
+  errorMessage?: string;
 }
 
 // ============================================
@@ -419,7 +491,7 @@ export interface ChatConversation extends BaseEntity {
 export interface ChatMessage {
   id: string;
   conversationId?: string;
-  role: 'user' | 'assistant';
+  role: 'USER' | 'ASSISTANT';
   content: string;
   sourceRefs?: DocumentReference[];  // 참조 문서 정보
   modelName?: string;

@@ -33,27 +33,27 @@ import { SystemSettingsSkeleton } from '@/components/skeletons';
 import { PageHeader } from '@/components/common';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { cn } from '@/lib/utils';
-import type { AlertSeverity, AlertStatus } from '@/types/entities';
+import type { AlertSeverity, AlertStatus, AllowedIP } from '@/types/entities';
 
 // 감사 로그 Mock 데이터
 const AUDIT_LOGS = [
-  { id: 1, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '로그인', target: '-', timestamp: '2024-12-14 09:15:23', status: 'success' },
-  { id: 2, accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '보고서 조회', target: '12월 2주차 통계보고서', timestamp: '2024-12-14 09:12:45', status: 'success' },
-  { id: 3, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '사용자 생성', target: 'SWC-001', timestamp: '2024-12-14 08:55:12', status: 'success' },
-  { id: 4, accountId: '-', militaryId: '-', userName: '-', rank: '-', ip: '192.168.1.50', action: '로그인 시도', target: '-', timestamp: '2024-12-14 08:30:05', status: 'failed' },
-  { id: 5, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '데이터 조회', target: '제1사단 위험도', timestamp: '2024-12-14 08:22:18', status: 'success' },
-  { id: 6, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '공지사항 등록', target: '동절기 안전수칙', timestamp: '2024-12-13 17:45:30', status: 'success' },
-  { id: 7, accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '로그아웃', target: '-', timestamp: '2024-12-13 17:30:00', status: 'success' },
-  { id: 8, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '로그인', target: '-', timestamp: '2024-12-13 14:20:15', status: 'success' },
-  { id: 9, accountId: 'C2D7-001', militaryId: '23-567821', userName: '최정훈', rank: '대위', ip: '10.10.4.88', action: '보고서 생성', target: '12월 1주차 사고보고서', timestamp: '2024-12-13 11:45:22', status: 'success' },
-  { id: 10, accountId: '-', militaryId: '-', userName: '-', rank: '-', ip: '172.16.5.100', action: '로그인 시도', target: '-', timestamp: '2024-12-13 10:15:33', status: 'failed' },
-  { id: 11, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '권한 변경', target: 'C1D1-001', timestamp: '2024-12-12 16:30:45', status: 'success' },
-  { id: 12, accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '데이터 조회', target: '제2사단 통계', timestamp: '2024-12-12 15:22:10', status: 'success' },
-  { id: 13, accountId: 'C1D9-001', militaryId: '20-284756', userName: '정대호', rank: '중위', ip: '10.10.5.33', action: '로그인', target: '-', timestamp: '2024-12-12 14:10:05', status: 'success' },
-  { id: 14, accountId: 'C1D9-001', militaryId: '20-284756', userName: '정대호', rank: '중위', ip: '10.10.5.33', action: '예보 조회', target: '12월 3주차 예보', timestamp: '2024-12-12 14:15:30', status: 'success' },
-  { id: 15, accountId: 'C2D7-001', militaryId: '23-567821', userName: '최정훈', rank: '대위', ip: '10.10.4.88', action: '로그아웃', target: '-', timestamp: '2024-12-12 13:00:00', status: 'success' },
-  { id: 16, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '공지사항 수정', target: '겨울철 훈련 유의사항', timestamp: '2024-12-11 17:45:12', status: 'success' },
-  { id: 17, accountId: '-', militaryId: '-', userName: '-', rank: '-', ip: '192.168.100.5', action: '로그인 시도', target: '-', timestamp: '2024-12-11 09:05:55', status: 'failed' },
+  { id: 1, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ipAddress: '10.10.1.100', action: '로그인', target: '-', timestamp: '2024-12-14 09:15:23', status: 'success' },
+  { id: 2, accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ipAddress: '10.10.2.55', action: '보고서 조회', target: '12월 2주차 통계보고서', timestamp: '2024-12-14 09:12:45', status: 'success' },
+  { id: 3, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ipAddress: '10.10.1.100', action: '사용자 생성', target: 'SWC-001', timestamp: '2024-12-14 08:55:12', status: 'success' },
+  { id: 4, accountId: '-', militaryId: '-', userName: '-', rank: '-', ipAddress: '192.168.1.50', action: '로그인 시도', target: '-', timestamp: '2024-12-14 08:30:05', status: 'failed' },
+  { id: 5, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ipAddress: '10.10.3.22', action: '데이터 조회', target: '제1사단 위험도', timestamp: '2024-12-14 08:22:18', status: 'success' },
+  { id: 6, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ipAddress: '10.10.1.100', action: '공지사항 등록', target: '동절기 안전수칙', timestamp: '2024-12-13 17:45:30', status: 'success' },
+  { id: 7, accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ipAddress: '10.10.2.55', action: '로그아웃', target: '-', timestamp: '2024-12-13 17:30:00', status: 'success' },
+  { id: 8, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ipAddress: '10.10.3.22', action: '로그인', target: '-', timestamp: '2024-12-13 14:20:15', status: 'success' },
+  { id: 9, accountId: 'C2D7-001', militaryId: '23-567821', userName: '최정훈', rank: '대위', ipAddress: '10.10.4.88', action: '보고서 생성', target: '12월 1주차 사고보고서', timestamp: '2024-12-13 11:45:22', status: 'success' },
+  { id: 10, accountId: '-', militaryId: '-', userName: '-', rank: '-', ipAddress: '172.16.5.100', action: '로그인 시도', target: '-', timestamp: '2024-12-13 10:15:33', status: 'failed' },
+  { id: 11, accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ipAddress: '10.10.1.100', action: '권한 변경', target: 'C1D1-001', timestamp: '2024-12-12 16:30:45', status: 'success' },
+  { id: 12, accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ipAddress: '10.10.2.55', action: '데이터 조회', target: '제2사단 통계', timestamp: '2024-12-12 15:22:10', status: 'success' },
+  { id: 13, accountId: 'C1D9-001', militaryId: '20-284756', userName: '정대호', rank: '중위', ipAddress: '10.10.5.33', action: '로그인', target: '-', timestamp: '2024-12-12 14:10:05', status: 'success' },
+  { id: 14, accountId: 'C1D9-001', militaryId: '20-284756', userName: '정대호', rank: '중위', ipAddress: '10.10.5.33', action: '예보 조회', target: '12월 3주차 예보', timestamp: '2024-12-12 14:15:30', status: 'success' },
+  { id: 15, accountId: 'C2D7-001', militaryId: '23-567821', userName: '최정훈', rank: '대위', ipAddress: '10.10.4.88', action: '로그아웃', target: '-', timestamp: '2024-12-12 13:00:00', status: 'success' },
+  { id: 16, accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ipAddress: '10.10.3.22', action: '공지사항 수정', target: '겨울철 훈련 유의사항', timestamp: '2024-12-11 17:45:12', status: 'success' },
+  { id: 17, accountId: '-', militaryId: '-', userName: '-', rank: '-', ipAddress: '192.168.100.5', action: '로그인 시도', target: '-', timestamp: '2024-12-11 09:05:55', status: 'failed' },
 ];
 
 interface SecurityAlert {
@@ -91,21 +91,14 @@ const ACTIVE_SESSIONS: ActiveSession[] = [
   { id: 'S-1004', accountId: 'SWC-001', userName: '강특전', rank: '중령', ip: '10.60.7.21', device: 'MOBILE', lastActive: '5분 전', status: 'ACTIVE' },
 ];
 
-// 허용 IP 대역 타입 및 초기 데이터
-interface AllowedIP {
-  id: string;
-  ip: string;
-  unit: string;
-}
-
 const INITIAL_ALLOWED_IPS: AllowedIP[] = [
-  { id: '1', ip: '10.10.0.0/16', unit: '육군본부' },
-  { id: '2', ip: '10.20.0.0/16', unit: '제1군단' },
-  { id: '3', ip: '10.30.0.0/16', unit: '제2군단' },
-  { id: '4', ip: '10.40.0.0/16', unit: '제3군단' },
-  { id: '5', ip: '10.50.0.0/16', unit: '수도군단' },
-  { id: '6', ip: '10.60.0.0/16', unit: '제5군단' },
-  { id: '7', ip: '10.70.0.0/16', unit: '제7군단' },
+  { id: '1', ipAddress: '10.10.0.0/16', unitName: '육군본부', createdAt: '2024-01-01' },
+  { id: '2', ipAddress: '10.20.0.0/16', unitName: '제1군단', createdAt: '2024-01-01' },
+  { id: '3', ipAddress: '10.30.0.0/16', unitName: '제2군단', createdAt: '2024-01-01' },
+  { id: '4', ipAddress: '10.40.0.0/16', unitName: '제3군단', createdAt: '2024-01-01' },
+  { id: '5', ipAddress: '10.50.0.0/16', unitName: '수도군단', createdAt: '2024-01-01' },
+  { id: '6', ipAddress: '10.60.0.0/16', unitName: '제5군단', createdAt: '2024-01-01' },
+  { id: '7', ipAddress: '10.70.0.0/16', unitName: '제7군단', createdAt: '2024-01-01' },
 ];
 
 export default function SystemSettingsPage() {
@@ -118,7 +111,7 @@ export default function SystemSettingsPage() {
   // IP 추가/수정 모달
   const [showIPModal, setShowIPModal] = useState(false);
   const [editingIP, setEditingIP] = useState<AllowedIP | null>(null);
-  const [ipForm, setIpForm] = useState({ ip: '', unit: '' });
+  const [ipForm, setIpForm] = useState({ ipAddress: '', unitName: '' });
   
   // IP 삭제 다이얼로그
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -178,20 +171,20 @@ export default function SystemSettingsPage() {
   // IP 추가 모달 열기
   const handleAddIP = () => {
     setEditingIP(null);
-    setIpForm({ ip: '', unit: '' });
+    setIpForm({ ipAddress: '', unitName: '' });
     setShowIPModal(true);
   };
 
   // IP 수정 모달 열기
   const handleEditIP = (ipItem: AllowedIP) => {
     setEditingIP(ipItem);
-    setIpForm({ ip: ipItem.ip, unit: ipItem.unit });
+    setIpForm({ ipAddress: ipItem.ipAddress, unitName: ipItem.unitName ?? '' });
     setShowIPModal(true);
   };
 
   // IP 저장 (추가 또는 수정)
   const handleSaveIP = () => {
-    if (!ipForm.ip.trim()) {
+    if (!ipForm.ipAddress.trim()) {
       toast({
         title: '입력 오류',
         description: 'IP 대역을 입력해주세요.',
@@ -203,7 +196,7 @@ export default function SystemSettingsPage() {
     if (editingIP) {
       setAllowedIPs(prev => prev.map(item => 
         item.id === editingIP.id 
-          ? { ...item, ip: ipForm.ip, unit: ipForm.unit }
+          ? { ...item, ipAddress: ipForm.ipAddress, unitName: ipForm.unitName }
           : item
       ));
       toast({
@@ -213,8 +206,9 @@ export default function SystemSettingsPage() {
     } else {
       const newIP: AllowedIP = {
         id: Date.now().toString(),
-        ip: ipForm.ip,
-        unit: ipForm.unit,
+        ipAddress: ipForm.ipAddress,
+        unitName: ipForm.unitName,
+        createdAt: new Date().toISOString(),
       };
       setAllowedIPs(prev => [...prev, newIP]);
       toast({
@@ -224,7 +218,7 @@ export default function SystemSettingsPage() {
     }
 
     setShowIPModal(false);
-    setIpForm({ ip: '', unit: '' });
+    setIpForm({ ipAddress: '', unitName: '' });
     setEditingIP(null);
   };
 
@@ -249,8 +243,8 @@ export default function SystemSettingsPage() {
 
   // IP 필터링 및 페이지네이션
   const filteredIPs = allowedIPs.filter((ip) =>
-    ip.ip.includes(ipSearchQuery) || 
-    ip.unit.includes(ipSearchQuery)
+    ip.ipAddress.includes(ipSearchQuery) || 
+    (ip.unitName?.includes(ipSearchQuery) ?? false)
   );
   const ipTotalPages = Math.ceil(filteredIPs.length / ipItemsPerPage);
   const ipStartIndex = (ipCurrentPage - 1) * ipItemsPerPage;
@@ -268,7 +262,7 @@ export default function SystemSettingsPage() {
     log.accountId.includes(logSearchQuery) ||
     log.militaryId.includes(logSearchQuery) ||
     log.action.includes(logSearchQuery) ||
-    log.ip.includes(logSearchQuery)
+    log.ipAddress.includes(logSearchQuery)
   );
   const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -370,8 +364,8 @@ export default function SystemSettingsPage() {
               ) : (
                 paginatedIPs.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="font-mono text-sm">{item.ip}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{item.unit}</TableCell>
+                    <TableCell className="font-mono text-sm">{item.ipAddress}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{item.unitName ?? '-'}</TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-1">
                         <button
@@ -659,7 +653,7 @@ export default function SystemSettingsPage() {
                   <TableCell className="text-sm">
                     {log.userName !== '-' ? `${log.userName} ${log.rank}` : '-'}
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{log.ip}</TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">{log.ipAddress}</TableCell>
                   <TableCell className="text-sm">{log.action}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{log.target}</TableCell>
                   <TableCell className="text-center">
@@ -776,16 +770,16 @@ export default function SystemSettingsPage() {
               <label className="block text-xs text-muted-foreground mb-1.5">IP 대역 *</label>
               <Input
                 placeholder="예: 10.10.0.0/16"
-                value={ipForm.ip}
-                onChange={(e) => setIpForm(prev => ({ ...prev, ip: e.target.value }))}
+                value={ipForm.ipAddress}
+                onChange={(e) => setIpForm(prev => ({ ...prev, ipAddress: e.target.value }))}
               />
             </div>
             <div>
               <label className="block text-xs text-muted-foreground mb-1.5">부대</label>
               <Input
                 placeholder="예: 육군본부"
-                value={ipForm.unit}
-                onChange={(e) => setIpForm(prev => ({ ...prev, unit: e.target.value }))}
+                value={ipForm.unitName}
+                onChange={(e) => setIpForm(prev => ({ ...prev, unitName: e.target.value }))}
               />
             </div>
           </div>
@@ -806,7 +800,7 @@ export default function SystemSettingsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>IP 대역 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              {ipToDelete?.ip} ({ipToDelete?.unit})을(를) 삭제하시겠습니까?
+              {ipToDelete?.ipAddress} ({ipToDelete?.unitName ?? '-'})을(를) 삭제하시겠습니까?
               <br />
               삭제 후에는 해당 IP 대역에서의 접속이 차단될 수 있습니다.
             </AlertDialogDescription>

@@ -11,24 +11,24 @@ import type { AllowedIP, AuditLog, PaginatedResponse } from '@/types/entities';
 // ============================================
 
 const MOCK_ALLOWED_IPS: AllowedIP[] = [
-  { id: '1', ip: '10.10.0.0/16', unit: '육군본부', createdAt: '2024-01-01' },
-  { id: '2', ip: '10.20.0.0/16', unit: '제1군단', createdAt: '2024-01-01' },
-  { id: '3', ip: '10.30.0.0/16', unit: '제2군단', createdAt: '2024-01-01' },
-  { id: '4', ip: '10.40.0.0/16', unit: '제3군단', createdAt: '2024-01-01' },
-  { id: '5', ip: '10.50.0.0/16', unit: '수도군단', createdAt: '2024-01-01' },
-  { id: '6', ip: '10.60.0.0/16', unit: '제5군단', createdAt: '2024-01-01' },
-  { id: '7', ip: '10.70.0.0/16', unit: '제7군단', createdAt: '2024-01-01' },
+  { id: '1', ipAddress: '10.10.0.0/16', unitName: '육군본부', createdAt: '2024-01-01' },
+  { id: '2', ipAddress: '10.20.0.0/16', unitName: '제1군단', createdAt: '2024-01-01' },
+  { id: '3', ipAddress: '10.30.0.0/16', unitName: '제2군단', createdAt: '2024-01-01' },
+  { id: '4', ipAddress: '10.40.0.0/16', unitName: '제3군단', createdAt: '2024-01-01' },
+  { id: '5', ipAddress: '10.50.0.0/16', unitName: '수도군단', createdAt: '2024-01-01' },
+  { id: '6', ipAddress: '10.60.0.0/16', unitName: '제5군단', createdAt: '2024-01-01' },
+  { id: '7', ipAddress: '10.70.0.0/16', unitName: '제7군단', createdAt: '2024-01-01' },
 ];
 
 const MOCK_AUDIT_LOGS: AuditLog[] = [
-  { id: '1', accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '로그인', target: '-', timestamp: '2024-12-14 09:15:23', status: 'success', createdAt: '2024-12-14' },
-  { id: '2', accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '보고서 조회', target: '12월 2주차 통계보고서', timestamp: '2024-12-14 09:12:45', status: 'success', createdAt: '2024-12-14' },
-  { id: '3', accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '사용자 생성', target: 'SWC-001', timestamp: '2024-12-14 08:55:12', status: 'success', createdAt: '2024-12-14' },
-  { id: '4', accountId: '-', militaryId: '-', userName: '-', rank: '-', ip: '192.168.1.50', action: '로그인 시도', target: '-', timestamp: '2024-12-14 08:30:05', status: 'failed', createdAt: '2024-12-14' },
-  { id: '5', accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '데이터 조회', target: '제1사단 위험도', timestamp: '2024-12-14 08:22:18', status: 'success', createdAt: '2024-12-14' },
-  { id: '6', accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ip: '10.10.1.100', action: '공지사항 등록', target: '동절기 안전수칙', timestamp: '2024-12-13 17:45:30', status: 'success', createdAt: '2024-12-13' },
-  { id: '7', accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ip: '10.10.2.55', action: '로그아웃', target: '-', timestamp: '2024-12-13 17:30:00', status: 'success', createdAt: '2024-12-13' },
-  { id: '8', accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ip: '10.10.3.22', action: '로그인', target: '-', timestamp: '2024-12-13 14:20:15', status: 'success', createdAt: '2024-12-13' },
+  { id: '1', accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ipAddress: '10.10.1.100', action: '로그인', target: '-', timestamp: '2024-12-14 09:15:23', status: 'success', createdAt: '2024-12-14' },
+  { id: '2', accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ipAddress: '10.10.2.55', action: '보고서 조회', target: '12월 2주차 통계보고서', timestamp: '2024-12-14 09:12:45', status: 'success', createdAt: '2024-12-14' },
+  { id: '3', accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ipAddress: '10.10.1.100', action: '사용자 생성', target: 'SWC-001', timestamp: '2024-12-14 08:55:12', status: 'success', createdAt: '2024-12-14' },
+  { id: '4', accountId: '-', militaryId: '-', userName: '-', rank: '-', ipAddress: '192.168.1.50', action: '로그인 시도', target: '-', timestamp: '2024-12-14 08:30:05', status: 'failed', createdAt: '2024-12-14' },
+  { id: '5', accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ipAddress: '10.10.3.22', action: '데이터 조회', target: '제1사단 위험도', timestamp: '2024-12-14 08:22:18', status: 'success', createdAt: '2024-12-14' },
+  { id: '6', accountId: 'HQ-001', militaryId: '18-702341', userName: '김철수', rank: '대령', ipAddress: '10.10.1.100', action: '공지사항 등록', target: '동절기 안전수칙', timestamp: '2024-12-13 17:45:30', status: 'success', createdAt: '2024-12-13' },
+  { id: '7', accountId: 'C1D1-001', militaryId: '17-681542', userName: '이영희', rank: '소령', ipAddress: '10.10.2.55', action: '로그아웃', target: '-', timestamp: '2024-12-13 17:30:00', status: 'success', createdAt: '2024-12-13' },
+  { id: '8', accountId: 'C3D12-001', militaryId: '21-392847', userName: '박민수', rank: '중령', ipAddress: '10.10.3.22', action: '로그인', target: '-', timestamp: '2024-12-13 14:20:15', status: 'success', createdAt: '2024-12-13' },
 ];
 
 let mockAllowedIPs = [...MOCK_ALLOWED_IPS];
@@ -69,7 +69,9 @@ export async function getAllowedIPs(
   if (filters?.search) {
     const search = filters.search.toLowerCase();
     filtered = filtered.filter(
-      ip => ip.ip.toLowerCase().includes(search) || ip.unit.toLowerCase().includes(search)
+      ip =>
+        ip.ipAddress.toLowerCase().includes(search) ||
+        (ip.unitName?.toLowerCase().includes(search) ?? false)
     );
   }
 
@@ -89,13 +91,13 @@ export async function getAllowedIPs(
 /**
  * 허용 IP 추가
  */
-export async function addAllowedIP(ip: string, unit: string): Promise<ApiResponse<AllowedIP>> {
+export async function addAllowedIP(ipAddress: string, unitName: string): Promise<ApiResponse<AllowedIP>> {
   await new Promise(resolve => setTimeout(resolve, 300));
 
   const newIP: AllowedIP = {
     id: Date.now().toString(),
-    ip,
-    unit,
+    ipAddress,
+    unitName,
     createdAt: new Date().toISOString(),
   };
 
@@ -107,7 +109,7 @@ export async function addAllowedIP(ip: string, unit: string): Promise<ApiRespons
 /**
  * 허용 IP 수정
  */
-export async function updateAllowedIP(id: string, ip: string, unit: string): Promise<ApiResponse<AllowedIP>> {
+export async function updateAllowedIP(id: string, ipAddress: string, unitName: string): Promise<ApiResponse<AllowedIP>> {
   await new Promise(resolve => setTimeout(resolve, 300));
 
   const index = mockAllowedIPs.findIndex(item => item.id === id);
@@ -115,8 +117,8 @@ export async function updateAllowedIP(id: string, ip: string, unit: string): Pro
 
   const updated: AllowedIP = {
     ...mockAllowedIPs[index],
-    ip,
-    unit,
+    ipAddress,
+    unitName,
     updatedAt: new Date().toISOString(),
   };
 
@@ -158,11 +160,11 @@ export async function getAuditLogs(
     const search = filters.search.toLowerCase();
     filtered = filtered.filter(
       log =>
-        log.userName.toLowerCase().includes(search) ||
-        log.accountId.toLowerCase().includes(search) ||
-        log.militaryId.toLowerCase().includes(search) ||
+        log.userName?.toLowerCase().includes(search) ||
+        log.accountId?.toLowerCase().includes(search) ||
+        log.militaryId?.toLowerCase().includes(search) ||
         log.action.toLowerCase().includes(search) ||
-        log.ip.toLowerCase().includes(search)
+        (log.ipAddress?.toLowerCase().includes(search) ?? false)
     );
   }
 
