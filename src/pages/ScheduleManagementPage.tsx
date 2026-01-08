@@ -11,6 +11,8 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAccessibleUnits } from '@/lib/rbac';
 import { z } from 'zod';
+import type { RiskGrade } from '@/types/entities';
+import { RISK_GRADE_LABELS } from '@/types/entities';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +34,7 @@ interface Schedule {
   endTime?: string;
   location?: string;
   type: '훈련' | '행사' | '점검' | '회의' | '휴가' | '기타';
-  riskLevel?: 'low' | 'medium' | 'high';
+  riskLevel?: RiskGrade;
   participants?: number;
   memo?: string;
 }
@@ -45,7 +47,7 @@ interface ScheduleFormValues {
   endTime: string;
   location: string;
   type: '훈련' | '행사' | '점검' | '회의' | '휴가' | '기타' | '';
-  riskLevel: 'low' | 'medium' | 'high';
+  riskLevel: RiskGrade;
   participants: number;
   memo: string;
   [key: string]: unknown;
@@ -59,7 +61,7 @@ const scheduleFormSchema = z.object({
   endTime: z.string().optional().or(z.literal('')),
   location: z.string().max(200).optional().or(z.literal('')),
   type: z.enum(['훈련', '행사', '점검', '회의', '휴가', '기타', '']).optional().or(z.literal('')),
-  riskLevel: z.enum(['low', 'medium', 'high']).optional(),
+  riskLevel: z.enum(['SAFE', 'ATTENTION', 'CAUTION', 'WARNING', 'DANGER']).optional(),
   participants: z.number().nonnegative().optional(),
   memo: z.string().max(500).optional().or(z.literal('')),
 });
@@ -77,7 +79,7 @@ const generateMockSchedules = (): Schedule[] => {
       endTime: '12:00',
       location: '종합사격장',
       type: '훈련',
-      riskLevel: 'high',
+      riskLevel: 'WARNING',
       participants: 120,
     },
     {
@@ -89,7 +91,7 @@ const generateMockSchedules = (): Schedule[] => {
       endTime: '17:00',
       location: '본부',
       type: '점검',
-      riskLevel: 'medium',
+      riskLevel: 'ATTENTION',
     },
     {
       id: '3',
@@ -129,7 +131,7 @@ const generateMockSchedules = (): Schedule[] => {
       endTime: '24:00',
       location: '훈련장 A구역',
       type: '훈련',
-      riskLevel: 'high',
+      riskLevel: 'DANGER',
       participants: 80,
     },
   ];
@@ -171,8 +173,8 @@ function ScheduleCard({ schedule, onClick }: { schedule: Schedule; onClick: () =
         <span className="text-xs font-medium text-foreground line-clamp-2 leading-tight">
           {schedule.title}
         </span>
-        {schedule.riskLevel === 'high' && (
-          <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-red-400 mt-1" />
+        {schedule.riskLevel && ['WARNING', 'DANGER'].includes(schedule.riskLevel) && (
+          <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-status-error mt-1" />
         )}
       </div>
       {(schedule.startTime || schedule.location) && (
@@ -271,6 +273,26 @@ function ScheduleForm({ schedule, isEditing = true, formState }: ScheduleFormPro
           </select>
         </InlineFormField>
       </div>
+
+      {/* 위험도 */}
+      <InlineFormField 
+        label="예측 위험도"
+        error={getFieldError('riskLevel', errors, touched)}
+      >
+        <select
+          value={values.riskLevel}
+          onChange={(e) => handleChange('riskLevel', e.target.value)}
+          onBlur={() => handleBlur('riskLevel')}
+          disabled={!isEditing}
+          className={inputClass}
+        >
+          <option value="SAFE">{RISK_GRADE_LABELS.SAFE}</option>
+          <option value="ATTENTION">{RISK_GRADE_LABELS.ATTENTION}</option>
+          <option value="CAUTION">{RISK_GRADE_LABELS.CAUTION}</option>
+          <option value="WARNING">{RISK_GRADE_LABELS.WARNING}</option>
+          <option value="DANGER">{RISK_GRADE_LABELS.DANGER}</option>
+        </select>
+      </InlineFormField>
       
       {/* 선택: 시간 */}
       <div className="grid grid-cols-2 gap-3">
@@ -365,7 +387,7 @@ export default function ScheduleManagementPage() {
       endTime: '',
       location: '',
       type: '',
-      riskLevel: 'low',
+      riskLevel: 'SAFE',
       participants: 0,
       memo: '',
     },
@@ -412,7 +434,7 @@ export default function ScheduleManagementPage() {
     );
     return {
       total: weekSchedules.length,
-      highRisk: weekSchedules.filter(s => s.riskLevel === 'high').length,
+      highRisk: weekSchedules.filter(s => s.riskLevel && ['WARNING', 'DANGER'].includes(s.riskLevel)).length,
       totalParticipants: weekSchedules.reduce((sum, s) => sum + (s.participants || 0), 0),
     };
   }, [filteredSchedules, weekStart, weekEnd]);
@@ -445,7 +467,7 @@ export default function ScheduleManagementPage() {
       endTime: schedule.endTime || '',
       location: schedule.location || '',
       type: schedule.type,
-      riskLevel: schedule.riskLevel || 'low',
+      riskLevel: schedule.riskLevel || 'SAFE',
       participants: schedule.participants || 0,
       memo: schedule.memo || '',
     });
@@ -680,10 +702,19 @@ export default function ScheduleManagementPage() {
           </div>
         ))}
         <span className="mx-3 text-border">|</span>
-        <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-          <span>고위험</span>
-        </div>
+        <span className="mr-1">위험도</span>
+        {[
+          { label: RISK_GRADE_LABELS.SAFE, color: 'bg-risk-safe' },
+          { label: RISK_GRADE_LABELS.ATTENTION, color: 'bg-risk-attention' },
+          { label: RISK_GRADE_LABELS.CAUTION, color: 'bg-risk-caution' },
+          { label: RISK_GRADE_LABELS.WARNING, color: 'bg-risk-warning' },
+          { label: RISK_GRADE_LABELS.DANGER, color: 'bg-risk-danger' },
+        ].map((item) => (
+          <div key={item.label} className="flex items-center gap-1 px-2 py-0.5">
+            <span className={cn('w-1.5 h-1.5 rounded-full', item.color)} />
+            <span>{item.label}</span>
+          </div>
+        ))}
       </div>
 
       {/* 일정 추가 모달 */}

@@ -139,7 +139,7 @@ export const incidentSchema = z.object({
   incidentDate: dateSchema,
   location: requiredString('장소', 200),
   category: requiredString('분류'),
-  severity: z.enum(['low', 'medium', 'high']),
+  severity: z.enum(['MINOR', 'SERIOUS', 'CRITICAL', 'CATASTROPHIC']),
   target: requiredString('발송 대상'),
 });
 
@@ -152,7 +152,7 @@ export const trainingScheduleSchema = z.object({
   endTime: timeSchema.optional().or(z.literal('')),
   location: optionalString(200),
   type: z.enum(['사격', '기동', '전술', '체력', '교육', '점검']),
-  riskLevel: z.enum(['low', 'medium', 'high']).optional(),
+  riskLevel: z.enum(['SAFE', 'ATTENTION', 'CAUTION', 'WARNING', 'DANGER']).optional(),
   participants: nonNegativeIntSchema.optional(),
 });
 

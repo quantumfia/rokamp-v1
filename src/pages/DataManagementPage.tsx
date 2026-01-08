@@ -33,15 +33,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import type { ProcessingStatus } from '@/types/entities';
+import { PROCESSING_STATUS_LABELS } from '@/types/entities';
 
 // 상태 라벨
-function StatusLabel({ status }: { status: 'completed' | 'processing' | 'failed' }) {
-  const labels = {
-    completed: '완료',
-    processing: '처리중',
-    failed: '실패',
-  };
-  return <span className="text-sm text-muted-foreground">{labels[status]}</span>;
+function StatusLabel({ status }: { status: ProcessingStatus }) {
+  return <span className="text-sm text-muted-foreground">{PROCESSING_STATUS_LABELS[status]}</span>;
 }
 
 // 문서 인터페이스
@@ -51,18 +48,18 @@ interface Document {
   type: string;
   size: string;
   uploadedAt: string;
-  status: 'completed' | 'processing' | 'failed';
+  status: ProcessingStatus;
   chunks: number;
   fileName: string; // 원본 파일명
 }
 
 // 문서 데이터
 const initialDocumentData: Document[] = [
-  { id: 1, name: '육군 안전관리 규정 v2.3', type: 'PDF', size: '2.4MB', uploadedAt: '2024-12-10 14:30', status: 'completed', chunks: 128, fileName: '육군_안전관리_규정_v2.3.pdf' },
-  { id: 2, name: '동절기 안전수칙 매뉴얼', type: 'HWP', size: '1.8MB', uploadedAt: '2024-12-08 09:15', status: 'completed', chunks: 85, fileName: '동절기_안전수칙_매뉴얼.hwp' },
-  { id: 3, name: '차량 운행 및 정비 매뉴얼', type: 'PDF', size: '5.2MB', uploadedAt: '2024-12-14 11:00', status: 'processing', chunks: 0, fileName: '차량_운행_및_정비_매뉴얼.pdf' },
-  { id: 4, name: '사격훈련 안전수칙', type: 'PDF', size: '3.1MB', uploadedAt: '2024-12-07 16:45', status: 'completed', chunks: 156, fileName: '사격훈련_안전수칙.pdf' },
-  { id: 5, name: '야간훈련 지침서', type: 'HWP', size: '1.2MB', uploadedAt: '2024-12-05 10:20', status: 'completed', chunks: 62, fileName: '야간훈련_지침서.hwp' },
+  { id: 1, name: '육군 안전관리 규정 v2.3', type: 'PDF', size: '2.4MB', uploadedAt: '2024-12-10 14:30', status: 'COMPLETED', chunks: 128, fileName: '육군_안전관리_규정_v2.3.pdf' },
+  { id: 2, name: '동절기 안전수칙 매뉴얼', type: 'HWP', size: '1.8MB', uploadedAt: '2024-12-08 09:15', status: 'COMPLETED', chunks: 85, fileName: '동절기_안전수칙_매뉴얼.hwp' },
+  { id: 3, name: '차량 운행 및 정비 매뉴얼', type: 'PDF', size: '5.2MB', uploadedAt: '2024-12-14 11:00', status: 'PROCESSING', chunks: 0, fileName: '차량_운행_및_정비_매뉴얼.pdf' },
+  { id: 4, name: '사격훈련 안전수칙', type: 'PDF', size: '3.1MB', uploadedAt: '2024-12-07 16:45', status: 'COMPLETED', chunks: 156, fileName: '사격훈련_안전수칙.pdf' },
+  { id: 5, name: '야간훈련 지침서', type: 'HWP', size: '1.2MB', uploadedAt: '2024-12-05 10:20', status: 'COMPLETED', chunks: 62, fileName: '야간훈련_지침서.hwp' },
 ];
 
 // 뉴스 인터페이스
@@ -71,7 +68,7 @@ interface NewsArticle {
   title: string;
   source: string;
   date: string;
-  status: 'completed' | 'processing' | 'failed';
+  status: ProcessingStatus;
   embeddings: number;
   inputType: 'file' | 'json'; // 입력 유형
   content?: string;
@@ -82,10 +79,10 @@ interface NewsArticle {
 
 // 뉴스 데이터
 const initialNewsData: NewsArticle[] = [
-  { id: 1, title: '군 안전사고 예방 종합대책 발표', source: '국방일보', date: '2024-12-13', status: 'completed', embeddings: 45, inputType: 'file', fileName: '군_안전사고_예방_종합대책.pdf', fileType: 'PDF', fileSize: '1.2MB' },
-  { id: 2, title: '동절기 한파 대비 안전수칙 강화', source: '연합뉴스', date: '2024-12-12', status: 'completed', embeddings: 32, inputType: 'json', content: JSON.stringify([{ Title: '동절기 한파 대비 안전수칙 강화', Content: '기상청이 올겨울 한파가 평년보다 강할 것으로 예상됨에 따라 군에서는 동절기 안전수칙을 대폭 강화한다고 밝혔다. 특히 야간 경계근무자의 방한장비 지급과 난방시설 점검이 중점적으로 이뤄질 예정이다.', Date: '2024-12-12', Source: '연합뉴스' }], null, 2) },
-  { id: 3, title: '육군 훈련장 안전점검 결과 보고', source: '국방일보', date: '2024-12-11', status: 'completed', embeddings: 28, inputType: 'json', content: JSON.stringify([{ Title: '육군 훈련장 안전점검 결과 보고', Content: '육군본부는 전국 주요 훈련장에 대한 안전점검 결과를 발표했다. 점검 결과 대부분의 훈련장이 안전기준을 충족하고 있으나, 일부 시설에 대해서는 보수가 필요한 것으로 나타났다.', Date: '2024-12-11', Source: '국방일보' }], null, 2) },
-  { id: 4, title: '국방부 안전관리 혁신방안 추진', source: 'YTN', date: '2024-12-10', status: 'processing', embeddings: 0, inputType: 'file', fileName: '국방부_안전관리_혁신.pdf', fileType: 'PDF', fileSize: '0.8MB' },
+  { id: 1, title: '군 안전사고 예방 종합대책 발표', source: '국방일보', date: '2024-12-13', status: 'COMPLETED', embeddings: 45, inputType: 'file', fileName: '군_안전사고_예방_종합대책.pdf', fileType: 'PDF', fileSize: '1.2MB' },
+  { id: 2, title: '동절기 한파 대비 안전수칙 강화', source: '연합뉴스', date: '2024-12-12', status: 'COMPLETED', embeddings: 32, inputType: 'json', content: JSON.stringify([{ Title: '동절기 한파 대비 안전수칙 강화', Content: '기상청이 올겨울 한파가 평년보다 강할 것으로 예상됨에 따라 군에서는 동절기 안전수칙을 대폭 강화한다고 밝혔다. 특히 야간 경계근무자의 방한장비 지급과 난방시설 점검이 중점적으로 이뤄질 예정이다.', Date: '2024-12-12', Source: '연합뉴스' }], null, 2) },
+  { id: 3, title: '육군 훈련장 안전점검 결과 보고', source: '국방일보', date: '2024-12-11', status: 'COMPLETED', embeddings: 28, inputType: 'json', content: JSON.stringify([{ Title: '육군 훈련장 안전점검 결과 보고', Content: '육군본부는 전국 주요 훈련장에 대한 안전점검 결과를 발표했다. 점검 결과 대부분의 훈련장이 안전기준을 충족하고 있으나, 일부 시설에 대해서는 보수가 필요한 것으로 나타났다.', Date: '2024-12-11', Source: '국방일보' }], null, 2) },
+  { id: 4, title: '국방부 안전관리 혁신방안 추진', source: 'YTN', date: '2024-12-10', status: 'PROCESSING', embeddings: 0, inputType: 'file', fileName: '국방부_안전관리_혁신.pdf', fileType: 'PDF', fileSize: '0.8MB' },
 ];
 
 // 청크 설정 인터페이스
@@ -325,15 +322,15 @@ interface ForecastData {
   period: string;
   recordCount: number;
   uploadedAt: string;
-  status: 'completed' | 'processing' | 'failed';
+  status: ProcessingStatus;
   fileName: string;
   fileSize: string;
 }
 
 // 예보 데이터 목록
 const initialForecastData: ForecastData[] = [
-  { id: 1, name: '2014-2023년 사고 데이터', period: '2014~2023', recordCount: 15420, uploadedAt: '2024-11-01 09:00', status: 'completed', fileName: '사고데이터_2014_2023.xlsx', fileSize: '12.8MB' },
-  { id: 2, name: '2024년 상반기 사고 데이터', period: '2024.01~06', recordCount: 1856, uploadedAt: '2024-12-01 14:30', status: 'completed', fileName: '사고데이터_2024_상반기.xlsx', fileSize: '2.1MB' },
+  { id: 1, name: '2014-2023년 사고 데이터', period: '2014~2023', recordCount: 15420, uploadedAt: '2024-11-01 09:00', status: 'COMPLETED', fileName: '사고데이터_2014_2023.xlsx', fileSize: '12.8MB' },
+  { id: 2, name: '2024년 상반기 사고 데이터', period: '2024.01~06', recordCount: 1856, uploadedAt: '2024-12-01 14:30', status: 'COMPLETED', fileName: '사고데이터_2024_상반기.xlsx', fileSize: '2.1MB' },
 ];
 
 const DATA_TABS = [
@@ -521,7 +518,7 @@ export default function DataManagementPage() {
       period: forecastPeriod,
       recordCount: 0,
       uploadedAt: new Date().toLocaleString('ko-KR'),
-      status: 'processing',
+      status: 'PROCESSING',
       fileName: '업로드된_파일.xlsx',
       fileSize: '0MB',
     };
@@ -671,7 +668,7 @@ export default function DataManagementPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium text-foreground">학습 현황</h2>
             <span className="text-xs text-muted-foreground">
-              총 {documents.length}개 문서 · {documents.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.chunks, 0)}개 청크
+              총 {documents.length}개 문서 · {documents.filter(d => d.status === 'COMPLETED').reduce((sum, d) => sum + d.chunks, 0)}개 청크
             </span>
           </div>
 
@@ -699,7 +696,7 @@ export default function DataManagementPage() {
                     <TableCell className="text-sm text-muted-foreground">{doc.size}</TableCell>
                     <TableCell className="text-xs text-muted-foreground tabular-nums">{doc.uploadedAt}</TableCell>
                     <TableCell className="text-center text-muted-foreground">
-                      {doc.status === 'completed' ? doc.chunks : '-'}
+                      {doc.status === 'COMPLETED' ? doc.chunks : '-'}
                     </TableCell>
                     <TableCell><StatusLabel status={doc.status} /></TableCell>
                   </TableRow>
@@ -720,7 +717,7 @@ export default function DataManagementPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium text-foreground">학습된 뉴스 목록</h2>
             <span className="text-xs text-muted-foreground">
-              총 {newsArticles.length}개 기사 · {newsArticles.filter(n => n.status === 'completed').reduce((sum, n) => sum + n.embeddings, 0)}개 임베딩
+              총 {newsArticles.length}개 기사 · {newsArticles.filter(n => n.status === 'COMPLETED').reduce((sum, n) => sum + n.embeddings, 0)}개 임베딩
             </span>
           </div>
 
@@ -746,7 +743,7 @@ export default function DataManagementPage() {
                     <TableCell className="text-sm text-muted-foreground">{news.source}</TableCell>
                     <TableCell className="text-xs text-muted-foreground tabular-nums">{news.date}</TableCell>
                     <TableCell className="text-center text-muted-foreground">
-                      {news.status === 'completed' ? news.embeddings : '-'}
+                      {news.status === 'COMPLETED' ? news.embeddings : '-'}
                     </TableCell>
                     <TableCell><StatusLabel status={news.status} /></TableCell>
                   </TableRow>
@@ -767,7 +764,7 @@ export default function DataManagementPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium text-foreground">학습 현황</h2>
             <span className="text-xs text-muted-foreground">
-              총 {forecastDataList.length}개 데이터셋 · {forecastDataList.filter(d => d.status === 'completed').reduce((sum, d) => sum + d.recordCount, 0).toLocaleString()}건
+              총 {forecastDataList.length}개 데이터셋 · {forecastDataList.filter(d => d.status === 'COMPLETED').reduce((sum, d) => sum + d.recordCount, 0).toLocaleString()}건
             </span>
           </div>
 
@@ -790,7 +787,7 @@ export default function DataManagementPage() {
                   <TableCell className="text-sm text-muted-foreground">{data.fileSize}</TableCell>
                   <TableCell className="text-xs text-muted-foreground tabular-nums">{data.uploadedAt}</TableCell>
                   <TableCell className="text-center text-muted-foreground">
-                    {data.status === 'completed' ? data.recordCount.toLocaleString() : '-'}
+                    {data.status === 'COMPLETED' ? data.recordCount.toLocaleString() : '-'}
                   </TableCell>
                   <TableCell><StatusLabel status={data.status} /></TableCell>
                 </TableRow>
@@ -898,7 +895,7 @@ export default function DataManagementPage() {
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">청크 수</label>
                 <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">
-                  {selectedDocument?.status === 'completed' ? selectedDocument.chunks : '-'}
+                  {selectedDocument?.status === 'COMPLETED' ? selectedDocument.chunks : '-'}
                 </p>
               </div>
             </div>
@@ -906,7 +903,7 @@ export default function DataManagementPage() {
             <div>
               <label className="block text-xs text-muted-foreground mb-1.5">상태</label>
               <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">
-                {selectedDocument?.status === 'completed' ? '완료' : selectedDocument?.status === 'processing' ? '처리중' : '실패'}
+                {selectedDocument ? PROCESSING_STATUS_LABELS[selectedDocument.status] : '-'}
               </p>
             </div>
           </div>
@@ -1028,13 +1025,13 @@ export default function DataManagementPage() {
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">임베딩 수</label>
                 <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">
-                  {selectedNews?.status === 'completed' ? selectedNews.embeddings : '-'}
+                  {selectedNews?.status === 'COMPLETED' ? selectedNews.embeddings : '-'}
                 </p>
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground mb-1.5">상태</label>
                 <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">
-                  {selectedNews?.status === 'completed' ? '완료' : selectedNews?.status === 'processing' ? '처리중' : '실패'}
+                {selectedNews ? PROCESSING_STATUS_LABELS[selectedNews.status] : '-'}
                 </p>
               </div>
             </div>

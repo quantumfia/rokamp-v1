@@ -5,6 +5,9 @@ export interface StarterQuestion {
   icon: string;
   text: string;
   color: string;
+  category?: string | null;
+  sortOrder?: number;
+  isActive?: boolean;
 }
 
 // 아이콘 매핑
@@ -35,8 +38,8 @@ export const ICON_OPTIONS = [
 
 // 초기 목데이터
 export const DEFAULT_STARTER_QUESTIONS: StarterQuestion[] = [
-  { id: "1", icon: "Car", text: "동절기 차량 사고 예방 대책은?", color: "text-blue-400" },
-  { id: "2", icon: "Shield", text: "야간 훈련 시 안전 수칙 알려줘", color: "text-emerald-400" },
-  { id: "3", icon: "Flame", text: "화재 예방 점검 항목이 뭐야?", color: "text-orange-400" },
-  { id: "4", icon: "Mountain", text: "행군 중 저체온증 대처 방법은?", color: "text-cyan-400" },
+  { id: "1", icon: "Car", text: "동절기 차량 사고 예방 대책은?", color: "text-blue-400", category: "vehicle", sortOrder: 1, isActive: true },
+  { id: "2", icon: "Shield", text: "야간 훈련 시 안전 수칙 알려줘", color: "text-emerald-400", category: "training", sortOrder: 2, isActive: true },
+  { id: "3", icon: "Flame", text: "화재 예방 점검 항목이 뭐야?", color: "text-orange-400", category: "safety", sortOrder: 3, isActive: true },
+  { id: "4", icon: "Mountain", text: "행군 중 저체온증 대처 방법은?", color: "text-cyan-400", category: "field", sortOrder: 4, isActive: true },
 ];

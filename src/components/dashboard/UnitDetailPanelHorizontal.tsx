@@ -2,6 +2,8 @@ import { X, ArrowLeft, Cloud, Thermometer, Wind, Droplet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUnitById, getUnitFullName, LEVEL_LABELS, UNIT_TYPE_LABELS } from '@/data/armyUnits';
 import { cn } from '@/lib/utils';
+import type { RiskGrade } from '@/types/entities';
+import { getRiskGradeFromScore, RISK_GRADE_LABELS, RISK_GRADE_COLORS, RISK_GRADE_BG_COLORS } from '@/types/entities';
 
 interface UnitDetailPanelHorizontalProps {
   unitId: string;
@@ -21,11 +23,11 @@ const TRAINING_ITEMS = [
 
 // 예보/위험 (날짜 없음)
 const RISK_ALERTS = [
-  { id: '1', title: '한파특보 예상 (1/7~1/9)', level: 'high' as const },
-  { id: '2', title: '폭설로 인한 차량 전복 위험', level: 'high' as const },
-  { id: '3', title: '야간 행군 중 저체온증 주의', level: 'medium' as const },
-  { id: '4', title: '사격장 결빙으로 미끄러짐 주의', level: 'medium' as const },
-  { id: '5', title: 'GOP 빙판 낙상사고 발생 (1군단)', level: 'low' as const },
+  { id: '1', title: '한파특보 예상 (1/7~1/9)', level: 'WARNING' as const },
+  { id: '2', title: '폭설로 인한 차량 전복 위험', level: 'DANGER' as const },
+  { id: '3', title: '야간 행군 중 저체온증 주의', level: 'CAUTION' as const },
+  { id: '4', title: '사격장 결빙으로 미끄러짐 주의', level: 'ATTENTION' as const },
+  { id: '5', title: 'GOP 빙판 낙상사고 발생 (1군단)', level: 'SAFE' as const },
 ];
 
 export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = false }: UnitDetailPanelHorizontalProps) {
@@ -38,24 +40,9 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
   const levelLabel = unit ? LEVEL_LABELS[unit.level] : '';
   const fullPath = getUnitFullName(unitId);
 
-  const getRiskColor = (risk: number) => {
-    if (risk >= 60) return 'text-status-error';
-    if (risk >= 30) return 'text-status-warning';
-    return 'text-status-success';
-  };
-
-  const getRiskBg = (risk: number) => {
-    if (risk >= 60) return 'bg-status-error';
-    if (risk >= 30) return 'bg-status-warning';
-    return 'bg-status-success';
-  };
-
-  const getRiskLabel = (risk: number) => {
-    if (risk >= 75) return '경고';
-    if (risk >= 50) return '주의';
-    if (risk >= 25) return '관심';
-    return '안전';
-  };
+  const getRiskColor = (risk: number) => RISK_GRADE_COLORS[getRiskGradeFromScore(risk)];
+  const getRiskBg = (risk: number) => RISK_GRADE_BG_COLORS[getRiskGradeFromScore(risk)];
+  const getRiskLabel = (risk: number) => RISK_GRADE_LABELS[getRiskGradeFromScore(risk)];
 
   return (
     <div className="h-full flex flex-col">
@@ -155,23 +142,33 @@ export function UnitDetailPanelHorizontal({ unitId, onClose, showBackButton = fa
                 key={item.id}
                 className={cn(
                   "flex items-center gap-2 px-2.5 py-1.5 rounded text-sm",
-                  item.level === 'high' 
-                    ? 'bg-status-error/5' 
-                    : item.level === 'medium'
+                  item.level === 'DANGER'
+                    ? 'bg-status-error/5'
+                    : item.level === 'WARNING'
                       ? 'bg-status-warning/5'
-                      : 'bg-muted/30'
+                      : item.level === 'CAUTION'
+                        ? 'bg-risk-caution/10'
+                        : item.level === 'ATTENTION'
+                          ? 'bg-risk-attention/10'
+                          : 'bg-muted/30'
                 )}
               >
                 <span className={cn(
                   "shrink-0 w-1 h-4 rounded-full",
-                  item.level === 'high' ? 'bg-status-error' : 
-                  item.level === 'medium' ? 'bg-status-warning' : 'bg-muted-foreground/50'
+                  item.level === 'DANGER' ? 'bg-status-error' :
+                  item.level === 'WARNING' ? 'bg-status-warning' :
+                  item.level === 'CAUTION' ? 'bg-risk-caution' :
+                  item.level === 'ATTENTION' ? 'bg-risk-attention' : 'bg-muted-foreground/50'
                 )} />
                 <span className={cn(
                   "flex-1",
-                  item.level === 'high' ? 'text-status-error' : 
-                  item.level === 'medium' ? 'text-status-warning' : 'text-muted-foreground'
-                )}>{item.title}</span>
+                  item.level === 'DANGER' ? 'text-status-error' :
+                  item.level === 'WARNING' ? 'text-status-warning' :
+                  item.level === 'CAUTION' ? 'text-risk-caution' :
+                  item.level === 'ATTENTION' ? 'text-risk-attention' : 'text-muted-foreground'
+                )}>
+                  {item.title}
+                </span>
               </div>
             ))}
           </div>

@@ -71,6 +71,7 @@ export default {
         },
         risk: {
           safe: "hsl(var(--risk-safe))",
+          attention: "hsl(var(--risk-attention))",
           caution: "hsl(var(--risk-caution))",
           warning: "hsl(var(--risk-warning))",
           danger: "hsl(var(--risk-danger))",

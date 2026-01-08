@@ -42,7 +42,7 @@ function AppRoutes() {
         <Route path="/chatbot" element={<ChatbotPage />} />
         <Route path="/admin/chatbot-starter" element={<ChatbotStarterPage />} />
         <Route path="/reports" element={<ReportsPage />} />
-        <Route path="/admin/data" element={<DataManagementPage />} />
+        <Route path="/data" element={<DataManagementPage />} />
         <Route path="/admin/schedule" element={<ScheduleManagementPage />} />
         <Route path="/admin/notice" element={<NoticeManagementPage />} />
         <Route path="/admin/notice/new" element={<NoticeFormPage />} />
