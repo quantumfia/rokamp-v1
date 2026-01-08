@@ -8,6 +8,8 @@ import { PageHeader, ActionButton, AddModal, FileDropZone } from '@/components/c
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { useAuth } from '@/contexts/AuthContext';
 import { canChangeUserRole, getAccessibleUnits } from '@/lib/rbac';
+import type { UserStatus, UserRole } from '@/types/entities';
+import { USER_STATUS_LABELS } from '@/types/entities';
 import {
   Table,
   TableBody,
@@ -43,30 +45,30 @@ interface User {
   rank: string;
   unitId: string;
   password: string;
-  role: string;
-  status: 'active' | 'inactive';
+  role: UserRole;
+  status: UserStatus;
 }
 
 const MOCK_USERS: User[] = [
-  { id: '1', accountId: 'HQ-001', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
-  { id: '2', accountId: 'C1D1-001', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'corps-1-div-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '3', accountId: 'C5D3-001', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'corps-5-div-3', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '4', accountId: 'C1D9-001', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'corps-1-div-9', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '5', accountId: 'C1D25-001', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'corps-1-div-25', password: '********', role: 'ROLE_USER', status: 'inactive' },
-  { id: '6', accountId: 'C1-001', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '7', accountId: 'C2D7-001', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'corps-2-div-7', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '8', accountId: 'SWC-001', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'swc-bde-sf-1', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '9', accountId: 'GOC-001', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', password: '********', role: 'ROLE_SUPER_ADMIN', status: 'active' },
-  { id: '10', accountId: 'C3D12-001', militaryId: '19-745821', name: '송준혁', rank: '소령', unitId: 'corps-3-div-12', password: '********', role: 'ROLE_USER', status: 'active' },
-  { id: '11', accountId: 'C2D15-001', militaryId: '20-768432', name: '윤서연', rank: '중령', unitId: 'corps-2-div-15', password: '********', role: 'ROLE_ADMIN', status: 'active' },
-  { id: '12', accountId: 'C3D21-001', militaryId: '21-791543', name: '장민석', rank: '소령', unitId: 'corps-3-div-21', password: '********', role: 'ROLE_USER', status: 'inactive' },
+  { id: '1', accountId: 'HQ-001', militaryId: '18-702341', name: '김철수', rank: '대령', unitId: 'hq', password: '********', role: 'ROLE_HQ', status: 'ACTIVE' },
+  { id: '2', accountId: 'C1D1-001', militaryId: '17-681542', name: '이영희', rank: '준장', unitId: 'corps-1-div-1', password: '********', role: 'ROLE_DIV', status: 'ACTIVE' },
+  { id: '3', accountId: 'C5D3-001', militaryId: '19-723185', name: '박민호', rank: '대령', unitId: 'corps-5-div-3', password: '********', role: 'ROLE_DIV', status: 'ACTIVE' },
+  { id: '4', accountId: 'C1D9-001', militaryId: '20-751294', name: '최지훈', rank: '중령', unitId: 'corps-1-div-9', password: '********', role: 'ROLE_BN', status: 'ACTIVE' },
+  { id: '5', accountId: 'C1D25-001', militaryId: '21-782456', name: '정수민', rank: '중령', unitId: 'corps-1-div-25', password: '********', role: 'ROLE_BN', status: 'LOCKED' },
+  { id: '6', accountId: 'C1-001', militaryId: '16-659823', name: '홍길동', rank: '중장', unitId: 'corps-1', password: '********', role: 'ROLE_DIV', status: 'ACTIVE' },
+  { id: '7', accountId: 'C2D7-001', militaryId: '22-803571', name: '김대위', rank: '대령', unitId: 'corps-2-div-7', password: '********', role: 'ROLE_BN', status: 'ACTIVE' },
+  { id: '8', accountId: 'SWC-001', militaryId: '23-824693', name: '강특전', rank: '중령', unitId: 'swc-bde-sf-1', password: '********', role: 'ROLE_BN', status: 'ACTIVE' },
+  { id: '9', accountId: 'GOC-001', militaryId: '15-638712', name: '이작전', rank: '대장', unitId: 'goc', password: '********', role: 'ROLE_HQ', status: 'ACTIVE' },
+  { id: '10', accountId: 'C3D12-001', militaryId: '19-745821', name: '송준혁', rank: '소령', unitId: 'corps-3-div-12', password: '********', role: 'ROLE_BN', status: 'ACTIVE' },
+  { id: '11', accountId: 'C2D15-001', militaryId: '20-768432', name: '윤서연', rank: '중령', unitId: 'corps-2-div-15', password: '********', role: 'ROLE_DIV', status: 'DORMANT' },
+  { id: '12', accountId: 'C3D21-001', militaryId: '21-791543', name: '장민석', rank: '소령', unitId: 'corps-3-div-21', password: '********', role: 'ROLE_BN', status: 'WITHDRAWN' },
 ];
 
 const RANKS = ['대장', '중장', '소장', '준장', '대령', '중령', '소령'];
-const ROLES = [
-  { value: 'ROLE_SUPER_ADMIN', label: 'Super Admin' },
-  { value: 'ROLE_ADMIN', label: 'Admin' },
-  { value: 'ROLE_USER', label: 'User' },
+const ROLES: { value: UserRole; label: string }[] = [
+  { value: 'ROLE_HQ', label: 'Super Admin' },
+  { value: 'ROLE_DIV', label: 'Admin' },
+  { value: 'ROLE_BN', label: 'User' },
 ];
 
 // 개별 등록 폼
@@ -222,8 +224,8 @@ export default function UserManagementPage() {
       rank: newUserForm.rank,
       unitId: newUserForm.unitId,
       password: newUserForm.password,
-      role: 'ROLE_USER',
-      status: 'active',
+      role: 'ROLE_BN',
+      status: 'ACTIVE',
     };
     
     setUsers([...users, newUser]);
@@ -238,9 +240,9 @@ export default function UserManagementPage() {
   const handleDownloadTemplate = () => {
     const headers = ['계정ID', '군번', '이름', '계급', '소속부대코드', '비밀번호', '권한', '상태'];
     const exampleRows = [
-      ['HQ-001', '18-702341', '김철수', '대령', 'hq', 'Password123!', 'ROLE_ADMIN', '활성'],
-      ['C1D1-001', '17-681542', '이영희', '준장', 'corps-1-div-1', 'Password123!', 'ROLE_ADMIN', '활성'],
-      ['C5D3-001', '19-723185', '박민호', '대령', 'corps-5-div-3', 'Password123!', 'ROLE_USER', '비활성'],
+      ['HQ-001', '18-702341', '김철수', '대령', 'hq', 'Password123!', 'ROLE_HQ', 'ACTIVE'],
+      ['C1D1-001', '17-681542', '이영희', '준장', 'corps-1-div-1', 'Password123!', 'ROLE_DIV', 'ACTIVE'],
+      ['C5D3-001', '19-723185', '박민호', '대령', 'corps-5-div-3', 'Password123!', 'ROLE_BN', 'LOCKED'],
     ];
 
     // BOM 추가 (한글 깨짐 방지)
@@ -391,7 +393,7 @@ export default function UserManagementPage() {
         </div>
         <div>
           <p className="text-xs text-muted-foreground">활성 계정</p>
-          <p className="text-2xl font-semibold text-foreground mt-1">{filteredUsers.filter(u => u.status === 'active').length}</p>
+          <p className="text-2xl font-semibold text-foreground mt-1">{filteredUsers.filter(u => u.status === 'ACTIVE').length}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">소속 부대</p>
@@ -669,15 +671,17 @@ export default function UserManagementPage() {
                 {isEditMode ? (
                   <select 
                     value={editForm.status || ''}
-                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value as 'active' | 'inactive' })}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value as UserStatus })}
                     className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:border-primary transition-colors"
                   >
-                    <option value="active">활성</option>
-                    <option value="inactive">비활성</option>
+                    <option value="ACTIVE">{USER_STATUS_LABELS.ACTIVE}</option>
+                    <option value="LOCKED">{USER_STATUS_LABELS.LOCKED}</option>
+                    <option value="DORMANT">{USER_STATUS_LABELS.DORMANT}</option>
+                    <option value="WITHDRAWN">{USER_STATUS_LABELS.WITHDRAWN}</option>
                   </select>
                 ) : (
                   <p className="px-3 py-2 text-sm bg-muted/50 border border-border rounded-md">
-                    {selectedUser?.status === 'active' ? '활성' : '비활성'}
+                    {selectedUser?.status ? USER_STATUS_LABELS[selectedUser.status] : '알 수 없음'}
                   </p>
                 )}
               </div>

@@ -113,8 +113,8 @@ export const updateUserSchema = z.object({
   name: optionalString(50),
   rank: optionalString(20),
   unitId: optionalString(),
-  role: z.enum(['ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_USER']).optional(),
-  status: z.enum(['active', 'inactive']).optional(),
+  role: z.enum(['ROLE_HQ', 'ROLE_DIV', 'ROLE_BN']).optional(),
+  status: z.enum(['ACTIVE', 'LOCKED', 'DORMANT', 'WITHDRAWN']).optional(),
 });
 
 /** 공지사항 스키마 */
